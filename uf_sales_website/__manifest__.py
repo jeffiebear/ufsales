@@ -10,10 +10,12 @@
         "website",
         "website_sale",
     ],
-    "data": [
-        "views/assets.xml",
-    ],
-    "assets": {},
+    "data": [],
+    "assets": {
+        "web.assets_frontend": [
+            "uf_sales_website/static/src/scss/uf_sales.scss",
+        ],
+    },
     "installable": True,
     "application": False,
 }
