@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <template id="uf_sales_website_layout_fonts" inherit_id="website.layout" name="UF Sales Website Fonts">
+    <xpath expr="//head" position="inside">
+      <link rel="preconnect" href="https://fonts.googleapis.com"/>
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+      <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&amp;family=Tenor+Sans&amp;display=swap" rel="stylesheet"/>
+    </xpath>
+  </template>
+</odoo>
