@@ -5,35 +5,30 @@
     <record id="ppc_janitorial" model="product.public.category">
       <field name="name">Janitorial Supplies</field>
       <field name="sequence">10</field>
-      <field name="website_published" eval="True"/>
       <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/categories/janitorial.jpg"/>
     </record>
 
     <record id="ppc_soaps_sanitizers" model="product.public.category">
       <field name="name">Soaps and Sanitizers</field>
       <field name="sequence">20</field>
-      <field name="website_published" eval="True"/>
       <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/categories/soaps.jpg"/>
     </record>
 
     <record id="ppc_food_service" model="product.public.category">
       <field name="name">Food Service</field>
       <field name="sequence">30</field>
-      <field name="website_published" eval="True"/>
       <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/categories/food_service.jpg"/>
     </record>
 
     <record id="ppc_gloves_safety" model="product.public.category">
       <field name="name">Gloves and Safety</field>
       <field name="sequence">40</field>
-      <field name="website_published" eval="True"/>
       <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/categories/gloves_safety.jpg"/>
     </record>
 
     <record id="ppc_packaging" model="product.public.category">
       <field name="name">Packaging</field>
       <field name="sequence">50</field>
-      <field name="website_published" eval="True"/>
       <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/categories/packaging.jpg"/>
     </record>
 
@@ -41,281 +36,235 @@
     <record id="ppc_janitorial_chemicals" model="product.public.category">
       <field name="name">Chemicals</field>
       <field name="parent_id" ref="ppc_janitorial"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_janitorial_cleaning_tools" model="product.public.category">
       <field name="name">Cleaning Tools</field>
       <field name="parent_id" ref="ppc_janitorial"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_janitorial_paper_products" model="product.public.category">
       <field name="name">Paper Products</field>
       <field name="parent_id" ref="ppc_janitorial"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_janitorial_chemicals_bleach" model="product.public.category">
       <field name="name">Bleach</field>
       <field name="parent_id" ref="ppc_janitorial_chemicals"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_janitorial_chemicals_degreasers" model="product.public.category">
       <field name="name">Degreasers</field>
       <field name="parent_id" ref="ppc_janitorial_chemicals"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_janitorial_cleaning_tools_mops_buckets" model="product.public.category">
       <field name="name">Mops and Buckets</field>
       <field name="parent_id" ref="ppc_janitorial_cleaning_tools"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_janitorial_cleaning_tools_spray_bottles" model="product.public.category">
       <field name="name">Spray Bottles</field>
       <field name="parent_id" ref="ppc_janitorial_cleaning_tools"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_janitorial_cleaning_tools_trash_bags" model="product.public.category">
       <field name="name">Trash Bags</field>
       <field name="parent_id" ref="ppc_janitorial_cleaning_tools"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_janitorial_paper_products_paper_towels" model="product.public.category">
       <field name="name">Paper Towels</field>
       <field name="parent_id" ref="ppc_janitorial_paper_products"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_janitorial_paper_products_toilet_tissue" model="product.public.category">
       <field name="name">Toilet Tissue</field>
       <field name="parent_id" ref="ppc_janitorial_paper_products"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <!-- Soaps and Sanitizers -->
     <record id="ppc_soaps_hand_soaps" model="product.public.category">
       <field name="name">Hand Soaps</field>
       <field name="parent_id" ref="ppc_soaps_sanitizers"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_soaps_sanitizers_sub" model="product.public.category">
       <field name="name">Sanitizers</field>
       <field name="parent_id" ref="ppc_soaps_sanitizers"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_soaps_dispensers" model="product.public.category">
       <field name="name">Dispensers</field>
       <field name="parent_id" ref="ppc_soaps_sanitizers"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_soaps_hand_soaps_foaming" model="product.public.category">
       <field name="name">Foaming Soap</field>
       <field name="parent_id" ref="ppc_soaps_hand_soaps"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_soaps_hand_soaps_liquid" model="product.public.category">
       <field name="name">Liquid Soap</field>
       <field name="parent_id" ref="ppc_soaps_hand_soaps"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_soaps_sanitizers_gel" model="product.public.category">
       <field name="name">Gel Sanitizer</field>
       <field name="parent_id" ref="ppc_soaps_sanitizers_sub"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_soaps_sanitizers_spray" model="product.public.category">
       <field name="name">Spray Sanitizer</field>
       <field name="parent_id" ref="ppc_soaps_sanitizers_sub"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_soaps_dispensers_wall_mounted" model="product.public.category">
       <field name="name">Wall Mounted</field>
       <field name="parent_id" ref="ppc_soaps_dispensers"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_soaps_dispensers_countertop" model="product.public.category">
       <field name="name">Countertop</field>
       <field name="parent_id" ref="ppc_soaps_dispensers"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <!-- Food Service -->
     <record id="ppc_food_service_cups_lids" model="product.public.category">
       <field name="name">Cups and Lids</field>
       <field name="parent_id" ref="ppc_food_service"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_food_service_takeout_containers" model="product.public.category">
       <field name="name">Takeout Containers</field>
       <field name="parent_id" ref="ppc_food_service"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_food_service_cutlery_napkins" model="product.public.category">
       <field name="name">Cutlery and Napkins</field>
       <field name="parent_id" ref="ppc_food_service"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_food_service_cups_lids_paper_cups" model="product.public.category">
       <field name="name">Paper Cups</field>
       <field name="parent_id" ref="ppc_food_service_cups_lids"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_food_service_cups_lids_plastic_lids" model="product.public.category">
       <field name="name">Plastic Lids</field>
       <field name="parent_id" ref="ppc_food_service_cups_lids"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_food_service_takeout_containers_clamshells" model="product.public.category">
       <field name="name">Clamshells</field>
       <field name="parent_id" ref="ppc_food_service_takeout_containers"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_food_service_takeout_containers_soup_containers" model="product.public.category">
       <field name="name">Soup Containers</field>
       <field name="parent_id" ref="ppc_food_service_takeout_containers"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_food_service_cutlery_napkins_disposable_cutlery" model="product.public.category">
       <field name="name">Disposable Cutlery</field>
       <field name="parent_id" ref="ppc_food_service_cutlery_napkins"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_food_service_cutlery_napkins_dinner_napkins" model="product.public.category">
       <field name="name">Dinner Napkins</field>
       <field name="parent_id" ref="ppc_food_service_cutlery_napkins"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <!-- Gloves and Safety -->
     <record id="ppc_gloves_safety_disposable_gloves" model="product.public.category">
       <field name="name">Disposable Gloves</field>
       <field name="parent_id" ref="ppc_gloves_safety"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_gloves_safety_safety_gear" model="product.public.category">
       <field name="name">Safety Gear</field>
       <field name="parent_id" ref="ppc_gloves_safety"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_gloves_safety_facility_safety" model="product.public.category">
       <field name="name">Facility Safety</field>
       <field name="parent_id" ref="ppc_gloves_safety"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_gloves_safety_disposable_gloves_nitrile_gloves" model="product.public.category">
       <field name="name">Nitrile Gloves</field>
       <field name="parent_id" ref="ppc_gloves_safety_disposable_gloves"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_gloves_safety_disposable_gloves_vinyl_gloves" model="product.public.category">
       <field name="name">Vinyl Gloves</field>
       <field name="parent_id" ref="ppc_gloves_safety_disposable_gloves"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_gloves_safety_safety_gear_safety_glasses" model="product.public.category">
       <field name="name">Safety Glasses</field>
       <field name="parent_id" ref="ppc_gloves_safety_safety_gear"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_gloves_safety_safety_gear_face_masks" model="product.public.category">
       <field name="name">Face Masks</field>
       <field name="parent_id" ref="ppc_gloves_safety_safety_gear"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_gloves_safety_facility_safety_wet_floor_signs" model="product.public.category">
       <field name="name">Wet Floor Signs</field>
       <field name="parent_id" ref="ppc_gloves_safety_facility_safety"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_gloves_safety_facility_safety_first_aid" model="product.public.category">
       <field name="name">First Aid</field>
       <field name="parent_id" ref="ppc_gloves_safety_facility_safety"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <!-- Packaging -->
     <record id="ppc_packaging_boxes" model="product.public.category">
       <field name="name">Boxes</field>
       <field name="parent_id" ref="ppc_packaging"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_packaging_protective_wrap" model="product.public.category">
       <field name="name">Protective Wrap</field>
       <field name="parent_id" ref="ppc_packaging"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_packaging_mailers_tape" model="product.public.category">
       <field name="name">Mailers and Tape</field>
       <field name="parent_id" ref="ppc_packaging"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_packaging_boxes_shipping_boxes" model="product.public.category">
       <field name="name">Shipping Boxes</field>
       <field name="parent_id" ref="ppc_packaging_boxes"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_packaging_boxes_moving_boxes" model="product.public.category">
       <field name="name">Moving Boxes</field>
       <field name="parent_id" ref="ppc_packaging_boxes"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_packaging_protective_wrap_bubble_wrap" model="product.public.category">
       <field name="name">Bubble Wrap</field>
       <field name="parent_id" ref="ppc_packaging_protective_wrap"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_packaging_protective_wrap_stretch_film" model="product.public.category">
       <field name="name">Stretch Film</field>
       <field name="parent_id" ref="ppc_packaging_protective_wrap"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_packaging_mailers_tape_poly_mailers" model="product.public.category">
       <field name="name">Poly Mailers</field>
       <field name="parent_id" ref="ppc_packaging_mailers_tape"/>
-      <field name="website_published" eval="True"/>
     </record>
 
     <record id="ppc_packaging_mailers_tape_packing_tape" model="product.public.category">
       <field name="name">Packing Tape</field>
       <field name="parent_id" ref="ppc_packaging_mailers_tape"/>
-      <field name="website_published" eval="True"/>
     </record>
   </data>
 </odoo>
