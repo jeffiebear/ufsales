@@ -11,10 +11,14 @@ This addon seeds a baseline Website + eCommerce catalog for Odoo 19.
 - Demo products (`product.template`) with:
   - SKU (`default_code`)
   - `list_price`
-  - image (`image_1920` from module files)
+  - royalty-free demo image (`image_1920` from module files)
   - category assignment (`public_categ_ids`)
   - website publication (`website_published`)
-- Website top menu tree (`website.menu`) linked to shop category URLs
+  - variant attribute lines on selected products (Nitrile Gloves, Shipping Box)
+
+## Not included
+
+- Website menu seed records are intentionally **not** loaded.
 
 ## Install
 
@@ -29,7 +33,7 @@ This addon seeds a baseline Website + eCommerce catalog for Odoo 19.
 - Odoo.sh: enable demo data when creating/restoring the database used for testing.
 - Local Odoo: start/create DB with demo data enabled (for example `--without-demo=0`).
 
-If demo data is disabled, categories/attributes/menu still load from `/data`.
+If demo data is disabled, categories/attributes still load from `/data`.
 
 ## Images
 
@@ -38,9 +42,8 @@ The module includes image files under:
 - `static/src/img/categories/`
 - `static/src/img/products/`
 
-To refresh them from Unsplash links, run:
+To refresh them from source links, run:
 
 ```bash
 ./tools/download_images.sh
 ```
-

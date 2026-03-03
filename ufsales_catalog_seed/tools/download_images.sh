@@ -25,20 +25,20 @@ download() {
   mv "${tmp_file}" "${output}"
 }
 
-# Category images
-download "https://unsplash.com/photos/dBBgsCGNfDA/download?force=true" "${CAT_DIR}/janitorial.jpg"
-download "https://unsplash.com/photos/5qsEhKp_R5w/download?force=true" "${CAT_DIR}/soaps.jpg"
-download "https://unsplash.com/photos/WhrZscWpvzk/download?force=true" "${CAT_DIR}/food_service.jpg"
-download "https://unsplash.com/photos/f2kBV-2Wj0U/download?force=true" "${CAT_DIR}/gloves_safety.jpg"
-download "https://unsplash.com/photos/Ys-DBJeX0nE/download?force=true" "${CAT_DIR}/packaging.jpg"
+# Category images (royalty-free demo photos)
+download "https://picsum.photos/seed/uf-category-janitorial/1600/1000" "${CAT_DIR}/janitorial.jpg"
+download "https://picsum.photos/seed/uf-category-soaps/1600/1000" "${CAT_DIR}/soaps.jpg"
+download "https://picsum.photos/seed/uf-category-food-service/1600/1000" "${CAT_DIR}/food_service.jpg"
+download "https://picsum.photos/seed/uf-category-gloves-safety/1600/1000" "${CAT_DIR}/gloves_safety.jpg"
+download "https://picsum.photos/seed/uf-category-packaging/1600/1000" "${CAT_DIR}/packaging.jpg"
 
-# Product images
-download "https://unsplash.com/photos/a-uAE0SX91c/download?force=true" "${PROD_DIR}/spray_bottle.jpg"
-download "https://unsplash.com/photos/Gnd_Xd7Go0w/download?force=true" "${PROD_DIR}/cleaning_bottle.jpg"
-download "https://unsplash.com/photos/5rA4DRrEXU4/download?force=true" "${PROD_DIR}/paper_towels.jpg"
-download "https://unsplash.com/photos/P6uXw3IWmxc/download?force=true" "${PROD_DIR}/bubble_wrap.jpg"
-download "https://unsplash.com/photos/Oiagtt4idqU/download?force=true" "${PROD_DIR}/trash_bag.jpg"
-download "https://unsplash.com/photos/O_g9VmqjWCI/download?force=true" "${PROD_DIR}/paper_cups.jpg"
+# Product images (royalty-free demo photos)
+download "https://picsum.photos/seed/uf-product-spray-bottle/1200/900" "${PROD_DIR}/spray_bottle.jpg"
+download "https://picsum.photos/seed/uf-product-cleaning-bottle/1200/900" "${PROD_DIR}/cleaning_bottle.jpg"
+download "https://picsum.photos/seed/uf-product-paper-towels/1200/900" "${PROD_DIR}/paper_towels.jpg"
+download "https://picsum.photos/seed/uf-product-bubble-wrap/1200/900" "${PROD_DIR}/bubble_wrap.jpg"
+download "https://picsum.photos/seed/uf-product-trash-bag/1200/900" "${PROD_DIR}/trash_bag.jpg"
+download "https://picsum.photos/seed/uf-product-paper-cups/1200/900" "${PROD_DIR}/paper_cups.jpg"
 
 echo "Done. Images saved in:"
 echo "  ${CAT_DIR}"

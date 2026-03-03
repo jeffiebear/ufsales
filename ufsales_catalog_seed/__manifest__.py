@@ -1,8 +1,8 @@
 {
     "name": "UF Sales Catalog Seed",
-    "version": "19.0.1.0.2",
+    "version": "19.0.1.0.3",
     "category": "Website",
-    "summary": "Seeds categories, attributes, demo products, and menu links for website_sale",
+    "summary": "Seeds categories, attributes, demo products",
     "license": "LGPL-3",
     "author": "Parameter",
     "website": "https://parameterllc.com",
@@ -13,7 +13,6 @@
     "data": [
         "data/product_public_categories.xml",
         "data/product_attributes.xml",
-        "data/website_menu.xml",
     ],
     "demo": [
         "demo/demo_products.xml",
