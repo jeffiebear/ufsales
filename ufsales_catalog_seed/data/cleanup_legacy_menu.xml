@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <data>
+    <function model="ufsales.catalog.seed.helper" name="cleanup_legacy_menus"/>
+  </data>
+</odoo>
