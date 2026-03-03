@@ -27,33 +27,3 @@
 #wrapwrap h6 {
   font-family: var(--uf-font-heading);
 }
-
-#wrapwrap a {
-  color: var(--uf-color-brand);
-}
-
-#wrapwrap a:hover,
-#wrapwrap a:focus {
-  color: var(--uf-color-brand);
-}
-
-/* Keep button geometry untouched; change colors only. */
-#wrapwrap .btn-primary,
-#wrapwrap .oe_website_sale .btn.btn-primary,
-#wrapwrap .oe_website_sale .a-submit {
-  background-color: var(--uf-color-accent);
-  border-color: var(--uf-color-accent);
-  color: var(--uf-color-brand);
-  font-weight: bold;
-}
-
-#wrapwrap .btn-primary:hover,
-#wrapwrap .btn-primary:focus,
-#wrapwrap .oe_website_sale .btn.btn-primary:hover,
-#wrapwrap .oe_website_sale .btn.btn-primary:focus,
-#wrapwrap .oe_website_sale .a-submit:hover,
-#wrapwrap .oe_website_sale .a-submit:focus {
-  background-color: var(--uf-color-accent-hover);
-  border-color: var(--uf-color-accent-hover);
-  color: var(--uf-color-brand);
-}
