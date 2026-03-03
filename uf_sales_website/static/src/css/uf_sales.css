@@ -3,7 +3,7 @@
 */
 
 :root {
-  --uf-font-body: "EB Garamond", serif;
+  --uf-font-body: "Open Sanes", serif;
   --uf-font-heading: "Tenor Sans", sans-serif;
   --uf-color-text: #2A2A2B;
   --uf-color-brand: #5D5431;
@@ -44,6 +44,7 @@
   background-color: var(--uf-color-accent);
   border-color: var(--uf-color-accent);
   color: var(--uf-color-brand);
+  font-weight: bold;
 }
 
 #wrapwrap .btn-primary:hover,
