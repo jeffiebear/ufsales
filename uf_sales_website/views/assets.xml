@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <!-- Frontend assets for website + shop -->
+  <template id="uf_sales_website_assets_frontend" inherit_id="web.assets_frontend" name="UF Sales Website Assets">
+    <xpath expr="." position="inside">
+
+      <!-- Google Fonts: Tenor Sans + EB Garamond -->
+      <!-- Use display=swap to improve performance -->
+      <link rel="preconnect" href="https://fonts.googleapis.com"/>
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin"/>
+      <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&amp;family=Tenor+Sans&amp;display=swap" rel="stylesheet"/>
+
+      <!-- Our SCSS -->
+      <link rel="stylesheet" type="text/scss" href="/uf_sales_website/static/src/scss/uf_sales.scss"/>
+
+    </xpath>
+  </template>
+</odoo>
