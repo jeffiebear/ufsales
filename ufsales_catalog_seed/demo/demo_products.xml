@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <data>
+    <record id="pt_spray_bottle_32oz" model="product.template">
+      <field name="name">Spray Bottle 32 oz</field>
+      <field name="default_code">UFS-SPRAY-32</field>
+      <field name="list_price">4.99</field>
+      <field name="sale_ok" eval="True"/>
+      <field name="purchase_ok" eval="True"/>
+      <field name="website_published" eval="True"/>
+      <field name="public_categ_ids" eval="[(6, 0, [ref('ufsales_catalog_seed.ppc_janitorial_cleaning_tools_spray_bottles')])]"/>
+      <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/products/spray_bottle.jpg"/>
+    </record>
+
+    <record id="pt_multi_surface_cleaner_1l" model="product.template">
+      <field name="name">Multi-Surface Cleaner 1L</field>
+      <field name="default_code">UFS-CLEAN-1L</field>
+      <field name="list_price">8.49</field>
+      <field name="sale_ok" eval="True"/>
+      <field name="purchase_ok" eval="True"/>
+      <field name="website_published" eval="True"/>
+      <field name="public_categ_ids" eval="[(6, 0, [ref('ufsales_catalog_seed.ppc_janitorial_chemicals_degreasers')])]"/>
+      <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/products/cleaning_bottle.jpg"/>
+    </record>
+
+    <record id="pt_paper_towels_24_case" model="product.template">
+      <field name="name">Paper Towels - 24 Roll Case</field>
+      <field name="default_code">UFS-PTOWL-24</field>
+      <field name="list_price">29.99</field>
+      <field name="sale_ok" eval="True"/>
+      <field name="purchase_ok" eval="True"/>
+      <field name="website_published" eval="True"/>
+      <field name="public_categ_ids" eval="[(6, 0, [ref('ufsales_catalog_seed.ppc_janitorial_paper_products_paper_towels')])]"/>
+      <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/products/paper_towels.jpg"/>
+    </record>
+
+    <record id="pt_bubble_wrap_roll" model="product.template">
+      <field name="name">Bubble Wrap Roll 12 in x 175 ft</field>
+      <field name="default_code">UFS-BWRAP-12175</field>
+      <field name="list_price">21.95</field>
+      <field name="sale_ok" eval="True"/>
+      <field name="purchase_ok" eval="True"/>
+      <field name="website_published" eval="True"/>
+      <field name="public_categ_ids" eval="[(6, 0, [ref('ufsales_catalog_seed.ppc_packaging_protective_wrap_bubble_wrap')])]"/>
+      <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/products/bubble_wrap.jpg"/>
+    </record>
+
+    <record id="pt_heavy_duty_trash_bags_55g" model="product.template">
+      <field name="name">Heavy Duty Trash Bags 55 gal (50 ct)</field>
+      <field name="default_code">UFS-TRASH-55</field>
+      <field name="list_price">32.50</field>
+      <field name="sale_ok" eval="True"/>
+      <field name="purchase_ok" eval="True"/>
+      <field name="website_published" eval="True"/>
+      <field name="public_categ_ids" eval="[(6, 0, [ref('ufsales_catalog_seed.ppc_janitorial_cleaning_tools_trash_bags')])]"/>
+      <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/products/trash_bag.jpg"/>
+    </record>
+
+    <record id="pt_paper_cups_12oz_100" model="product.template">
+      <field name="name">Paper Cups 12 oz (100 ct)</field>
+      <field name="default_code">UFS-PCUP-12-100</field>
+      <field name="list_price">10.99</field>
+      <field name="sale_ok" eval="True"/>
+      <field name="purchase_ok" eval="True"/>
+      <field name="website_published" eval="True"/>
+      <field name="public_categ_ids" eval="[(6, 0, [ref('ufsales_catalog_seed.ppc_food_service_cups_lids_paper_cups')])]"/>
+      <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/products/paper_cups.jpg"/>
+    </record>
+
+    <record id="pt_nitrile_gloves_powder_free" model="product.template">
+      <field name="name">Nitrile Gloves Powder-Free</field>
+      <field name="default_code">UFS-NGLOVE</field>
+      <field name="list_price">15.75</field>
+      <field name="sale_ok" eval="True"/>
+      <field name="purchase_ok" eval="True"/>
+      <field name="website_published" eval="True"/>
+      <field name="public_categ_ids" eval="[(6, 0, [ref('ufsales_catalog_seed.ppc_gloves_safety_disposable_gloves_nitrile_gloves')])]"/>
+      <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/products/trash_bag.jpg"/>
+    </record>
+
+    <record id="ptal_nitrile_gloves_size" model="product.template.attribute.line">
+      <field name="product_tmpl_id" ref="pt_nitrile_gloves_powder_free"/>
+      <field name="attribute_id" ref="ufsales_catalog_seed.attr_size"/>
+      <field name="value_ids" eval="[(6, 0, [
+          ref('ufsales_catalog_seed.attr_size_s'),
+          ref('ufsales_catalog_seed.attr_size_m'),
+          ref('ufsales_catalog_seed.attr_size_l'),
+          ref('ufsales_catalog_seed.attr_size_xl')
+      ])]"/>
+    </record>
+
+    <record id="pt_shipping_box_16x12x10" model="product.template">
+      <field name="name">Shipping Box 16 x 12 x 10 in</field>
+      <field name="default_code">UFS-BOX-161210</field>
+      <field name="list_price">3.75</field>
+      <field name="sale_ok" eval="True"/>
+      <field name="purchase_ok" eval="True"/>
+      <field name="website_published" eval="True"/>
+      <field name="public_categ_ids" eval="[(6, 0, [ref('ufsales_catalog_seed.ppc_packaging_boxes_shipping_boxes')])]"/>
+      <field name="image_1920" type="base64" file="ufsales_catalog_seed/static/src/img/products/bubble_wrap.jpg"/>
+    </record>
+
+    <record id="ptal_shipping_box_pack" model="product.template.attribute.line">
+      <field name="product_tmpl_id" ref="pt_shipping_box_16x12x10"/>
+      <field name="attribute_id" ref="ufsales_catalog_seed.attr_pack"/>
+      <field name="value_ids" eval="[(6, 0, [
+          ref('ufsales_catalog_seed.attr_pack_single'),
+          ref('ufsales_catalog_seed.attr_pack_case_25')
+      ])]"/>
+    </record>
+  </data>
+</odoo>

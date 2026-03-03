@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="attr_size" model="product.attribute">
+      <field name="name">Size</field>
+      <field name="create_variant">always</field>
+      <field name="visibility">visible</field>
+    </record>
+
+    <record id="attr_size_s" model="product.attribute.value">
+      <field name="name">S</field>
+      <field name="attribute_id" ref="attr_size"/>
+    </record>
+
+    <record id="attr_size_m" model="product.attribute.value">
+      <field name="name">M</field>
+      <field name="attribute_id" ref="attr_size"/>
+    </record>
+
+    <record id="attr_size_l" model="product.attribute.value">
+      <field name="name">L</field>
+      <field name="attribute_id" ref="attr_size"/>
+    </record>
+
+    <record id="attr_size_xl" model="product.attribute.value">
+      <field name="name">XL</field>
+      <field name="attribute_id" ref="attr_size"/>
+    </record>
+
+    <record id="attr_pack" model="product.attribute">
+      <field name="name">Pack</field>
+      <field name="create_variant">always</field>
+      <field name="visibility">visible</field>
+    </record>
+
+    <record id="attr_pack_single" model="product.attribute.value">
+      <field name="name">Single</field>
+      <field name="attribute_id" ref="attr_pack"/>
+    </record>
+
+    <record id="attr_pack_case_25" model="product.attribute.value">
+      <field name="name">Case of 25</field>
+      <field name="attribute_id" ref="attr_pack"/>
+    </record>
+  </data>
+</odoo>
