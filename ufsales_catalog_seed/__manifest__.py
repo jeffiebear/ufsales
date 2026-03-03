@@ -1,6 +1,6 @@
 {
     "name": "UF Sales Catalog Seed",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.0.2",
     "category": "Website",
     "summary": "Seeds categories, attributes, demo products, and menu links for website_sale",
     "license": "LGPL-3",

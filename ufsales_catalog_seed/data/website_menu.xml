@@ -37,7 +37,7 @@
       <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_packaging')"/>
     </record>
 
-    <!-- Janitorial level 2 -->
+    <!-- Second level only (Odoo website.menu supports max 2 levels) -->
     <record id="menu_uf_janitorial_chemicals" model="website.menu">
       <field name="name">Chemicals</field>
       <field name="parent_id" ref="menu_uf_janitorial"/>
@@ -59,57 +59,6 @@
       <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_janitorial_paper_products')"/>
     </record>
 
-    <!-- Janitorial level 3 -->
-    <record id="menu_uf_janitorial_chemicals_bleach" model="website.menu">
-      <field name="name">Bleach</field>
-      <field name="parent_id" ref="menu_uf_janitorial_chemicals"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_janitorial_chemicals_bleach')"/>
-    </record>
-
-    <record id="menu_uf_janitorial_chemicals_degreasers" model="website.menu">
-      <field name="name">Degreasers</field>
-      <field name="parent_id" ref="menu_uf_janitorial_chemicals"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_janitorial_chemicals_degreasers')"/>
-    </record>
-
-    <record id="menu_uf_janitorial_cleaning_tools_mops_buckets" model="website.menu">
-      <field name="name">Mops and Buckets</field>
-      <field name="parent_id" ref="menu_uf_janitorial_cleaning_tools"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_janitorial_cleaning_tools_mops_buckets')"/>
-    </record>
-
-    <record id="menu_uf_janitorial_cleaning_tools_spray_bottles" model="website.menu">
-      <field name="name">Spray Bottles</field>
-      <field name="parent_id" ref="menu_uf_janitorial_cleaning_tools"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_janitorial_cleaning_tools_spray_bottles')"/>
-    </record>
-
-    <record id="menu_uf_janitorial_cleaning_tools_trash_bags" model="website.menu">
-      <field name="name">Trash Bags</field>
-      <field name="parent_id" ref="menu_uf_janitorial_cleaning_tools"/>
-      <field name="sequence">30</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_janitorial_cleaning_tools_trash_bags')"/>
-    </record>
-
-    <record id="menu_uf_janitorial_paper_products_paper_towels" model="website.menu">
-      <field name="name">Paper Towels</field>
-      <field name="parent_id" ref="menu_uf_janitorial_paper_products"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_janitorial_paper_products_paper_towels')"/>
-    </record>
-
-    <record id="menu_uf_janitorial_paper_products_toilet_tissue" model="website.menu">
-      <field name="name">Toilet Tissue</field>
-      <field name="parent_id" ref="menu_uf_janitorial_paper_products"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_janitorial_paper_products_toilet_tissue')"/>
-    </record>
-
-    <!-- Soaps level 2 -->
     <record id="menu_uf_soaps_hand_soaps" model="website.menu">
       <field name="name">Hand Soaps</field>
       <field name="parent_id" ref="menu_uf_soaps"/>
@@ -131,50 +80,6 @@
       <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_soaps_dispensers')"/>
     </record>
 
-    <!-- Soaps level 3 -->
-    <record id="menu_uf_soaps_hand_soaps_foaming" model="website.menu">
-      <field name="name">Foaming Soap</field>
-      <field name="parent_id" ref="menu_uf_soaps_hand_soaps"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_soaps_hand_soaps_foaming')"/>
-    </record>
-
-    <record id="menu_uf_soaps_hand_soaps_liquid" model="website.menu">
-      <field name="name">Liquid Soap</field>
-      <field name="parent_id" ref="menu_uf_soaps_hand_soaps"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_soaps_hand_soaps_liquid')"/>
-    </record>
-
-    <record id="menu_uf_soaps_sanitizers_gel" model="website.menu">
-      <field name="name">Gel Sanitizer</field>
-      <field name="parent_id" ref="menu_uf_soaps_sanitizers_sub"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_soaps_sanitizers_gel')"/>
-    </record>
-
-    <record id="menu_uf_soaps_sanitizers_spray" model="website.menu">
-      <field name="name">Spray Sanitizer</field>
-      <field name="parent_id" ref="menu_uf_soaps_sanitizers_sub"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_soaps_sanitizers_spray')"/>
-    </record>
-
-    <record id="menu_uf_soaps_dispensers_wall_mounted" model="website.menu">
-      <field name="name">Wall Mounted</field>
-      <field name="parent_id" ref="menu_uf_soaps_dispensers"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_soaps_dispensers_wall_mounted')"/>
-    </record>
-
-    <record id="menu_uf_soaps_dispensers_countertop" model="website.menu">
-      <field name="name">Countertop</field>
-      <field name="parent_id" ref="menu_uf_soaps_dispensers"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_soaps_dispensers_countertop')"/>
-    </record>
-
-    <!-- Food Service level 2 -->
     <record id="menu_uf_food_service_cups_lids" model="website.menu">
       <field name="name">Cups and Lids</field>
       <field name="parent_id" ref="menu_uf_food_service"/>
@@ -196,50 +101,6 @@
       <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_food_service_cutlery_napkins')"/>
     </record>
 
-    <!-- Food Service level 3 -->
-    <record id="menu_uf_food_service_cups_lids_paper_cups" model="website.menu">
-      <field name="name">Paper Cups</field>
-      <field name="parent_id" ref="menu_uf_food_service_cups_lids"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_food_service_cups_lids_paper_cups')"/>
-    </record>
-
-    <record id="menu_uf_food_service_cups_lids_plastic_lids" model="website.menu">
-      <field name="name">Plastic Lids</field>
-      <field name="parent_id" ref="menu_uf_food_service_cups_lids"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_food_service_cups_lids_plastic_lids')"/>
-    </record>
-
-    <record id="menu_uf_food_service_takeout_containers_clamshells" model="website.menu">
-      <field name="name">Clamshells</field>
-      <field name="parent_id" ref="menu_uf_food_service_takeout_containers"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_food_service_takeout_containers_clamshells')"/>
-    </record>
-
-    <record id="menu_uf_food_service_takeout_containers_soup_containers" model="website.menu">
-      <field name="name">Soup Containers</field>
-      <field name="parent_id" ref="menu_uf_food_service_takeout_containers"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_food_service_takeout_containers_soup_containers')"/>
-    </record>
-
-    <record id="menu_uf_food_service_cutlery_napkins_disposable_cutlery" model="website.menu">
-      <field name="name">Disposable Cutlery</field>
-      <field name="parent_id" ref="menu_uf_food_service_cutlery_napkins"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_food_service_cutlery_napkins_disposable_cutlery')"/>
-    </record>
-
-    <record id="menu_uf_food_service_cutlery_napkins_dinner_napkins" model="website.menu">
-      <field name="name">Dinner Napkins</field>
-      <field name="parent_id" ref="menu_uf_food_service_cutlery_napkins"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_food_service_cutlery_napkins_dinner_napkins')"/>
-    </record>
-
-    <!-- Gloves and Safety level 2 -->
     <record id="menu_uf_gloves_disposable_gloves" model="website.menu">
       <field name="name">Disposable Gloves</field>
       <field name="parent_id" ref="menu_uf_gloves"/>
@@ -261,50 +122,6 @@
       <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_gloves_safety_facility_safety')"/>
     </record>
 
-    <!-- Gloves and Safety level 3 -->
-    <record id="menu_uf_gloves_nitrile_gloves" model="website.menu">
-      <field name="name">Nitrile Gloves</field>
-      <field name="parent_id" ref="menu_uf_gloves_disposable_gloves"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_gloves_safety_disposable_gloves_nitrile_gloves')"/>
-    </record>
-
-    <record id="menu_uf_gloves_vinyl_gloves" model="website.menu">
-      <field name="name">Vinyl Gloves</field>
-      <field name="parent_id" ref="menu_uf_gloves_disposable_gloves"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_gloves_safety_disposable_gloves_vinyl_gloves')"/>
-    </record>
-
-    <record id="menu_uf_gloves_safety_glasses" model="website.menu">
-      <field name="name">Safety Glasses</field>
-      <field name="parent_id" ref="menu_uf_gloves_safety_gear"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_gloves_safety_safety_gear_safety_glasses')"/>
-    </record>
-
-    <record id="menu_uf_gloves_face_masks" model="website.menu">
-      <field name="name">Face Masks</field>
-      <field name="parent_id" ref="menu_uf_gloves_safety_gear"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_gloves_safety_safety_gear_face_masks')"/>
-    </record>
-
-    <record id="menu_uf_gloves_wet_floor_signs" model="website.menu">
-      <field name="name">Wet Floor Signs</field>
-      <field name="parent_id" ref="menu_uf_gloves_facility_safety"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_gloves_safety_facility_safety_wet_floor_signs')"/>
-    </record>
-
-    <record id="menu_uf_gloves_first_aid" model="website.menu">
-      <field name="name">First Aid</field>
-      <field name="parent_id" ref="menu_uf_gloves_facility_safety"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_gloves_safety_facility_safety_first_aid')"/>
-    </record>
-
-    <!-- Packaging level 2 -->
     <record id="menu_uf_packaging_boxes" model="website.menu">
       <field name="name">Boxes</field>
       <field name="parent_id" ref="menu_uf_packaging"/>
@@ -324,49 +141,6 @@
       <field name="parent_id" ref="menu_uf_packaging"/>
       <field name="sequence">30</field>
       <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_packaging_mailers_tape')"/>
-    </record>
-
-    <!-- Packaging level 3 -->
-    <record id="menu_uf_packaging_shipping_boxes" model="website.menu">
-      <field name="name">Shipping Boxes</field>
-      <field name="parent_id" ref="menu_uf_packaging_boxes"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_packaging_boxes_shipping_boxes')"/>
-    </record>
-
-    <record id="menu_uf_packaging_moving_boxes" model="website.menu">
-      <field name="name">Moving Boxes</field>
-      <field name="parent_id" ref="menu_uf_packaging_boxes"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_packaging_boxes_moving_boxes')"/>
-    </record>
-
-    <record id="menu_uf_packaging_bubble_wrap" model="website.menu">
-      <field name="name">Bubble Wrap</field>
-      <field name="parent_id" ref="menu_uf_packaging_protective_wrap"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_packaging_protective_wrap_bubble_wrap')"/>
-    </record>
-
-    <record id="menu_uf_packaging_stretch_film" model="website.menu">
-      <field name="name">Stretch Film</field>
-      <field name="parent_id" ref="menu_uf_packaging_protective_wrap"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_packaging_protective_wrap_stretch_film')"/>
-    </record>
-
-    <record id="menu_uf_packaging_poly_mailers" model="website.menu">
-      <field name="name">Poly Mailers</field>
-      <field name="parent_id" ref="menu_uf_packaging_mailers_tape"/>
-      <field name="sequence">10</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_packaging_mailers_tape_poly_mailers')"/>
-    </record>
-
-    <record id="menu_uf_packaging_packing_tape" model="website.menu">
-      <field name="name">Packing Tape</field>
-      <field name="parent_id" ref="menu_uf_packaging_mailers_tape"/>
-      <field name="sequence">20</field>
-      <field name="url" eval="'/shop/category/%s' % ref('ufsales_catalog_seed.ppc_packaging_mailers_tape_packing_tape')"/>
     </record>
   </data>
 </odoo>
