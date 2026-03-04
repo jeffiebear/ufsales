@@ -11,6 +11,55 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
     _description = "UF Sales Catalog Seed Helper"
 
     @api.model
+    def _ensure_core_menus(self):
+        """Ensure each website has at least Home and Shop top-level menu entries."""
+        websites = self.env["website"].search([])
+        Menu = self.env["website.menu"]
+        for website in websites:
+            root_menu = website.menu_id
+            if not root_menu:
+                continue
+
+            home_menu = Menu.search(
+                [
+                    ("parent_id", "=", root_menu.id),
+                    ("website_id", "=", website.id),
+                    ("url", "=", "/"),
+                ],
+                limit=1,
+            )
+            if not home_menu:
+                Menu.create(
+                    {
+                        "name": "Home",
+                        "parent_id": root_menu.id,
+                        "website_id": website.id,
+                        "url": "/",
+                        "sequence": 5,
+                    }
+                )
+
+            shop_menu = Menu.search(
+                [
+                    ("parent_id", "=", root_menu.id),
+                    ("website_id", "=", website.id),
+                    ("url", "=", "/shop"),
+                ],
+                limit=1,
+            )
+            if not shop_menu:
+                Menu.create(
+                    {
+                        "name": "Shop",
+                        "parent_id": root_menu.id,
+                        "website_id": website.id,
+                        "url": "/shop",
+                        "sequence": 10,
+                    }
+                )
+        return True
+
+    @api.model
     def cleanup_legacy_menus(self):
         """Remove previously seeded website menus from older module revisions."""
         imd = self.env["ir.model.data"].search(
@@ -57,6 +106,7 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
         )
         if legacy_menus:
             legacy_menus.unlink()
+        self._ensure_core_menus()
         return True
 
     @api.model
