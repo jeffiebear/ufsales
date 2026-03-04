@@ -11,73 +11,87 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
     _description = "UF Sales Catalog Seed Helper"
 
     @api.model
+    def _normalize_menu(self, menu, website, menu_fields):
+        vals = {}
+        if "is_visible" in menu_fields:
+            vals["is_visible"] = True
+        if "active" in menu_fields:
+            vals["active"] = True
+        if "website_id" in menu_fields:
+            vals["website_id"] = website.id
+        if vals:
+            menu.write(vals)
+        for group_field in ("group_ids", "groups_id", "visible_group_ids"):
+            if group_field in menu_fields:
+                menu.write({group_field: [(5, 0, 0)]})
+
+    @api.model
+    def _get_or_create_main_root_menu(self, website, menu_fields):
+        Menu = self.env["website.menu"]
+        domain = [("parent_id", "=", False), ("name", "=", "Main")]
+        if "website_id" in menu_fields:
+            domain.append(("website_id", "=", website.id))
+        root_menu = Menu.search(domain, limit=1)
+        if not root_menu:
+            root_menu = website.menu_id
+        if not root_menu:
+            create_vals = {
+                "name": "Main",
+                "url": "#",
+                "sequence": 60,
+            }
+            if "is_visible" in menu_fields:
+                create_vals["is_visible"] = True
+            if "website_id" in menu_fields:
+                create_vals["website_id"] = website.id
+            root_menu = Menu.create(create_vals)
+
+        self._normalize_menu(root_menu, website, menu_fields)
+        if website.menu_id != root_menu:
+            website.menu_id = root_menu
+        return root_menu
+
+    @api.model
     def _ensure_core_menus(self):
-        """Ensure each website has at least Home and Shop top-level menu entries."""
+        """Ensure each website has the requested top-level navigation entries."""
         websites = self.env["website"].search([])
         Menu = self.env["website.menu"]
         menu_fields = Menu._fields
+        desired_entries = [
+            ("Home", "/", 10),
+            ("Shop", "/shop", 20),
+            ("Tips & Trends", "/blog", 30),
+            ("About Us", "/about-us", 40),
+            ("Contact Us", "/contactus", 50),
+            ("Thanks (Contact us)", "/contactus-thank-you", 60),
+            ("Privacy Policy", "/privacy", 70),
+        ]
+
         for website in websites:
-            root_menu = website.menu_id
-            if not root_menu:
-                continue
+            root_menu = self._get_or_create_main_root_menu(website, menu_fields)
 
-            if "website_id" in menu_fields and root_menu.website_id != website:
-                root_menu.write({"website_id": website.id})
+            for name, url, sequence in desired_entries:
+                matches = Menu.search([("parent_id", "=", root_menu.id), ("url", "=", url)])
+                menu = matches[:1]
+                if len(matches) > 1:
+                    (matches - menu).unlink()
 
-            root_children = Menu.search([("parent_id", "=", root_menu.id)])
-            if root_children:
-                normalize_vals = {}
-                if "is_visible" in menu_fields:
-                    normalize_vals["is_visible"] = True
-                if "active" in menu_fields:
-                    normalize_vals["active"] = True
-                if "website_id" in menu_fields:
-                    normalize_vals["website_id"] = website.id
-                if normalize_vals:
-                    root_children.write(normalize_vals)
-                for group_field in ("group_ids", "groups_id", "visible_group_ids"):
-                    if group_field in menu_fields:
-                        root_children.write({group_field: [(5, 0, 0)]})
+                if not menu:
+                    create_vals = {
+                        "name": name,
+                        "parent_id": root_menu.id,
+                        "url": url,
+                        "sequence": sequence,
+                    }
+                    if "is_visible" in menu_fields:
+                        create_vals["is_visible"] = True
+                    if "website_id" in menu_fields:
+                        create_vals["website_id"] = website.id
+                    menu = Menu.create(create_vals)
+                else:
+                    menu.write({"name": name, "sequence": sequence})
 
-            home_menu = Menu.search(
-                [
-                    ("parent_id", "=", root_menu.id),
-                    ("url", "=", "/"),
-                ],
-                limit=1,
-            )
-            if not home_menu:
-                create_vals = {
-                    "name": "Home",
-                    "parent_id": root_menu.id,
-                    "url": "/",
-                    "sequence": 5,
-                }
-                if "is_visible" in menu_fields:
-                    create_vals["is_visible"] = True
-                if "website_id" in menu_fields:
-                    create_vals["website_id"] = website.id
-                Menu.create(create_vals)
-
-            shop_menu = Menu.search(
-                [
-                    ("parent_id", "=", root_menu.id),
-                    ("url", "=", "/shop"),
-                ],
-                limit=1,
-            )
-            if not shop_menu:
-                create_vals = {
-                    "name": "Shop",
-                    "parent_id": root_menu.id,
-                    "url": "/shop",
-                    "sequence": 10,
-                }
-                if "is_visible" in menu_fields:
-                    create_vals["is_visible"] = True
-                if "website_id" in menu_fields:
-                    create_vals["website_id"] = website.id
-                Menu.create(create_vals)
+                self._normalize_menu(menu, website, menu_fields)
         return True
 
     @api.model
