@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import base64
+from pathlib import Path
 
 from odoo import api, models
-from odoo.modules.module import get_module_resource
 
 
 class UfsalesCatalogSeedHelper(models.AbstractModel):
@@ -20,13 +20,11 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
                 ("name", "like", "menu_uf_%"),
             ]
         )
-        if not imd:
-            return True
-
-        menus = self.env["website.menu"].browse(imd.mapped("res_id")).exists()
-        if menus:
-            menus.unlink()
-        imd.unlink()
+        if imd:
+            menus = self.env["website.menu"].browse(imd.mapped("res_id")).exists()
+            if menus:
+                menus.unlink()
+            imd.unlink()
 
         # Defensive cleanup for previously created menu entries even if XMLIDs changed.
         legacy_names = [
@@ -63,10 +61,11 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
 
     @api.model
     def _load_module_image(self, relative_path):
-        image_path = get_module_resource("ufsales_catalog_seed", *relative_path.split("/"))
-        if not image_path:
+        module_root = Path(__file__).resolve().parents[1]
+        image_path = module_root / relative_path
+        if not image_path.exists():
             return False
-        with open(image_path, "rb") as img_file:
+        with image_path.open("rb") as img_file:
             return base64.b64encode(img_file.read())
 
     @api.model
