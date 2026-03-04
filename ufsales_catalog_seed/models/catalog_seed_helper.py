@@ -15,15 +15,19 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
         """Ensure each website has at least Home and Shop top-level menu entries."""
         websites = self.env["website"].search([])
         Menu = self.env["website.menu"]
+        menu_fields = Menu._fields
         for website in websites:
             root_menu = website.menu_id
             if not root_menu:
                 continue
 
+            root_children = Menu.search([("parent_id", "=", root_menu.id)])
+            if root_children and "is_visible" in menu_fields:
+                root_children.write({"is_visible": True})
+
             home_menu = Menu.search(
                 [
                     ("parent_id", "=", root_menu.id),
-                    ("website_id", "=", website.id),
                     ("url", "=", "/"),
                 ],
                 limit=1,
@@ -33,16 +37,15 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
                     {
                         "name": "Home",
                         "parent_id": root_menu.id,
-                        "website_id": website.id,
                         "url": "/",
                         "sequence": 5,
+                        "is_visible": True,
                     }
                 )
 
             shop_menu = Menu.search(
                 [
                     ("parent_id", "=", root_menu.id),
-                    ("website_id", "=", website.id),
                     ("url", "=", "/shop"),
                 ],
                 limit=1,
@@ -52,9 +55,9 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
                     {
                         "name": "Shop",
                         "parent_id": root_menu.id,
-                        "website_id": website.id,
                         "url": "/shop",
                         "sequence": 10,
+                        "is_visible": True,
                     }
                 )
         return True
@@ -97,6 +100,37 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
             "Boxes",
             "Protective Wrap",
             "Mailers and Tape",
+            "Bleach",
+            "Degreasers",
+            "Mops and Buckets",
+            "Spray Bottles",
+            "Trash Bags",
+            "Paper Towels",
+            "Toilet Tissue",
+            "Foaming Soap",
+            "Liquid Soap",
+            "Gel Sanitizer",
+            "Spray Sanitizer",
+            "Wall Mounted",
+            "Countertop",
+            "Paper Cups",
+            "Plastic Lids",
+            "Clamshells",
+            "Soup Containers",
+            "Disposable Cutlery",
+            "Dinner Napkins",
+            "Nitrile Gloves",
+            "Vinyl Gloves",
+            "Safety Glasses",
+            "Face Masks",
+            "Wet Floor Signs",
+            "First Aid",
+            "Shipping Boxes",
+            "Moving Boxes",
+            "Bubble Wrap",
+            "Stretch Film",
+            "Poly Mailers",
+            "Packing Tape",
         ]
         legacy_menus = self.env["website.menu"].search(
             [
