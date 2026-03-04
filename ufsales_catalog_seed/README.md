@@ -28,7 +28,7 @@ This addon seeds a baseline Website + eCommerce catalog for Odoo 19.
 
 ## Sample products loading
 
-`demo/demo_products.xml` is intentionally loaded from the module `data` section, so sample products are created in any database (even when Odoo demo mode is disabled).
+Sample products are created by module data actions during install/upgrade, so they are present in any database (even when Odoo demo mode is disabled).
 
 ## Images
 

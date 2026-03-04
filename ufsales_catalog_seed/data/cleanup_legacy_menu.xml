@@ -2,5 +2,6 @@
 <odoo>
   <data>
     <function model="ufsales.catalog.seed.helper" name="cleanup_legacy_menus"/>
+    <function model="ufsales.catalog.seed.helper" name="seed_sample_products"/>
   </data>
 </odoo>
