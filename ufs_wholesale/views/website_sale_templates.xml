@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="website_sale_header_cart_link_wholesale" inherit_id="website_sale.header_cart_link" name="UFS Wholesale Cart Visibility">
+        <xpath expr="//t[@t-set='show_cart']" position="attributes">
+            <attribute name="t-value">website.has_ecommerce_access() and website._ufs_wholesale_can_buy()</attribute>
+        </xpath>
+    </template>
+
+    <template id="website_sale_products_item_wholesale" inherit_id="website_sale.products_item" name="UFS Wholesale Product Tile Visibility">
+        <xpath expr="//t[@t-set='show_ribbons']" position="after">
+            <t t-set="ufs_wholesale_can_buy" t-value="website._ufs_wholesale_can_buy()"/>
+        </xpath>
+
+        <xpath expr="//t[@t-if='product_price']" position="attributes">
+            <attribute name="t-if">product_price and ufs_wholesale_can_buy</attribute>
+        </xpath>
+
+        <xpath expr="//div[@class='product_price']" position="attributes">
+            <attribute name="t-if">ufs_wholesale_can_buy</attribute>
+        </xpath>
+
+        <xpath expr="//div[hasclass('o_wsale_product_btn')]" position="attributes">
+            <attribute name="t-if">ufs_wholesale_can_buy</attribute>
+        </xpath>
+
+        <xpath expr="//div[hasclass('o_wsale_product_sub')]" position="inside">
+            <a t-if="not ufs_wholesale_can_buy" href="/web/signup" class="btn btn-outline-secondary btn-sm">
+                Request Wholesale Access
+            </a>
+        </xpath>
+    </template>
+
+    <template id="website_sale_product_price_wholesale" inherit_id="website_sale.product_price" name="UFS Wholesale Product Price Visibility">
+        <xpath expr="//div[@name='product_price']" position="attributes">
+            <attribute name="t-if">website._ufs_wholesale_can_buy()</attribute>
+        </xpath>
+    </template>
+
+    <template id="website_sale_cta_wrapper_wholesale" inherit_id="website_sale.cta_wrapper" name="UFS Wholesale Add To Cart Visibility">
+        <xpath expr="//div[@id='o_wsale_cta_wrapper']" position="attributes">
+            <attribute name="t-if">website._ufs_wholesale_can_buy()</attribute>
+        </xpath>
+    </template>
+
+    <template id="website_sale_product_wholesale_notice" inherit_id="website_sale.product" name="UFS Wholesale Product Notice">
+        <xpath expr="//form[@t-if='is_add_to_cart_possible']" position="before">
+            <div t-if="not website._ufs_wholesale_can_buy()" class="alert alert-info mb-4" role="status">
+                Pricing and checkout are available only to approved wholesale accounts.
+                <a href="/web/signup">Request access</a>
+                or sign in once approved.
+            </div>
+        </xpath>
+        <xpath expr="//div[contains(@class, 'o_wsale_product_details_content_section_price')]" position="attributes">
+            <attribute name="t-if">website._ufs_wholesale_can_buy() and not is_view_active('website_sale.cta_wrapper_boxed')</attribute>
+        </xpath>
+    </template>
+</odoo>
+
