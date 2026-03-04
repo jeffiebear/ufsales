@@ -21,9 +21,23 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
             if not root_menu:
                 continue
 
+            if "website_id" in menu_fields and root_menu.website_id != website:
+                root_menu.write({"website_id": website.id})
+
             root_children = Menu.search([("parent_id", "=", root_menu.id)])
-            if root_children and "is_visible" in menu_fields:
-                root_children.write({"is_visible": True})
+            if root_children:
+                normalize_vals = {}
+                if "is_visible" in menu_fields:
+                    normalize_vals["is_visible"] = True
+                if "active" in menu_fields:
+                    normalize_vals["active"] = True
+                if "website_id" in menu_fields:
+                    normalize_vals["website_id"] = website.id
+                if normalize_vals:
+                    root_children.write(normalize_vals)
+                for group_field in ("group_ids", "groups_id", "visible_group_ids"):
+                    if group_field in menu_fields:
+                        root_children.write({group_field: [(5, 0, 0)]})
 
             home_menu = Menu.search(
                 [
@@ -33,15 +47,17 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
                 limit=1,
             )
             if not home_menu:
-                Menu.create(
-                    {
-                        "name": "Home",
-                        "parent_id": root_menu.id,
-                        "url": "/",
-                        "sequence": 5,
-                        "is_visible": True,
-                    }
-                )
+                create_vals = {
+                    "name": "Home",
+                    "parent_id": root_menu.id,
+                    "url": "/",
+                    "sequence": 5,
+                }
+                if "is_visible" in menu_fields:
+                    create_vals["is_visible"] = True
+                if "website_id" in menu_fields:
+                    create_vals["website_id"] = website.id
+                Menu.create(create_vals)
 
             shop_menu = Menu.search(
                 [
@@ -51,15 +67,17 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
                 limit=1,
             )
             if not shop_menu:
-                Menu.create(
-                    {
-                        "name": "Shop",
-                        "parent_id": root_menu.id,
-                        "url": "/shop",
-                        "sequence": 10,
-                        "is_visible": True,
-                    }
-                )
+                create_vals = {
+                    "name": "Shop",
+                    "parent_id": root_menu.id,
+                    "url": "/shop",
+                    "sequence": 10,
+                }
+                if "is_visible" in menu_fields:
+                    create_vals["is_visible"] = True
+                if "website_id" in menu_fields:
+                    create_vals["website_id"] = website.id
+                Menu.create(create_vals)
         return True
 
     @api.model
