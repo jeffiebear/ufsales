@@ -28,15 +28,20 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
     @api.model
     def _get_or_create_main_root_menu(self, website, menu_fields):
         Menu = self.env["website.menu"]
-        domain = [("parent_id", "=", False), ("name", "=", "Main")]
-        if "website_id" in menu_fields:
-            domain.append(("website_id", "=", website.id))
-        root_menu = Menu.search(domain, limit=1)
+        root_menu = website.menu_id
         if not root_menu:
-            root_menu = website.menu_id
+            domain = [("parent_id", "=", False), ("name", "in", ["Main", "Menu", "Default Main Menu"])]
+            if "website_id" in menu_fields:
+                domain.append(("website_id", "=", website.id))
+            root_menu = Menu.search(domain, order="sequence, id", limit=1)
+        if not root_menu:
+            domain = [("parent_id", "=", False)]
+            if "website_id" in menu_fields:
+                domain.append(("website_id", "=", website.id))
+            root_menu = Menu.search(domain, order="sequence, id", limit=1)
         if not root_menu:
             create_vals = {
-                "name": "Main",
+                "name": "Menu",
                 "url": "#",
                 "sequence": 60,
             }
@@ -63,8 +68,6 @@ class UfsalesCatalogSeedHelper(models.AbstractModel):
             ("Tips & Trends", "/blog", 30),
             ("About Us", "/about-us", 40),
             ("Contact Us", "/contactus", 50),
-            ("Thanks (Contact us)", "/contactus-thank-you", 60),
-            ("Privacy Policy", "/privacy", 70),
         ]
 
         for website in websites:
