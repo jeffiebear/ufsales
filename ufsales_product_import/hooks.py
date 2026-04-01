@@ -1,6 +1,6 @@
 from odoo import SUPERUSER_ID, api
 
-# hooks.py
+# hooks.py file
 
 def post_init_hook(*args):
     if len(args) == 1:
