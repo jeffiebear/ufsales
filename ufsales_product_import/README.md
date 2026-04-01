@@ -7,6 +7,8 @@ One-time Odoo 19 addon that imports the catalog in `ufsales_products.json` into:
 - `product.template`
 - `product.image`
 
+This addon is set up to work on `odoo.sh`, where the JSON must be shipped inside the module instead of referenced from a local workstation path.
+
 ## What it does
 
 - Builds the same category hierarchy from each `category_path`
