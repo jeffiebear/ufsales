@@ -1,6 +1,6 @@
 {
     "name": "UF Sales Product Import",
-    "version": "19.0.1.0.3",
+    "version": "19.0.1.0.4",
     "category": "Website",
     "summary": "One-time import of UF Sales products and categories from JSON",
     "license": "LGPL-3",

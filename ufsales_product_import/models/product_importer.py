@@ -188,6 +188,16 @@ class UfsalesProductImporter(models.AbstractModel):
         return vals
 
     @api.model
+    def _set_uom_fields(self, product_fields, vals, uom):
+        if "uom_id" in product_fields:
+            vals["uom_id"] = uom.id
+        if "uom_po_id" in product_fields:
+            vals["uom_po_id"] = uom.id
+        elif "purchase_uom_id" in product_fields:
+            vals["purchase_uom_id"] = uom.id
+        return vals
+
+    @api.model
     def _ensure_uom(self, source_code, stats):
         code = (source_code or "EACH").strip().upper()
         Uom = self.env["uom.uom"].sudo().with_context(active_test=False)
@@ -402,8 +412,6 @@ class UfsalesProductImporter(models.AbstractModel):
             "list_price": float(row.get("price") or 0.0),
             "sale_ok": True,
             "purchase_ok": True,
-            "uom_id": uom.id,
-            "uom_po_id": uom.id,
             "ufsales_imported": True,
             "ufsales_item_attributes": row.get("item_attributes") or False,
             "ufsales_manufacturer_item_no": row.get("manufacturer_item_no") or False,
@@ -424,6 +432,7 @@ class UfsalesProductImporter(models.AbstractModel):
             vals["website_sequence"] = sequence
 
         vals = self._set_product_type(product_fields, vals)
+        vals = self._set_uom_fields(product_fields, vals, uom)
         vals = self._set_publish_flag(product_fields, vals)
         vals = self._set_website_description(product_fields, vals, description_html)
 
