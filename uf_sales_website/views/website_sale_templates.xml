@@ -37,10 +37,4 @@
       </section>
     </xpath>
   </template>
-
-  <template id="uf_sales_website_hide_default_filmstrip" inherit_id="website_sale.filmstrip_categories" name="UF Sales Hide Default Category Filmstrip">
-    <xpath expr="//div[hasclass('o_wsale_filmstip_container')]" position="replace">
-      <t t-if="False"/>
-    </xpath>
-  </template>
 </odoo>

@@ -32,6 +32,10 @@
   font-family: var(--uf-font-heading);
 }
 
+.oe_website_sale .o_wsale_filmstip_container {
+  display: none !important;
+}
+
 #ufs_catalog_bar {
   background:
     linear-gradient(135deg, rgba(31, 54, 81, 0.98), rgba(24, 41, 60, 0.96)),
