@@ -190,27 +190,23 @@ class UfsalesProductImporter(models.AbstractModel):
     @api.model
     def _ensure_uom(self, source_code, stats):
         code = (source_code or "EACH").strip().upper()
-        UomCategory = self.env["uom.category"].sudo()
         Uom = self.env["uom.uom"].sudo().with_context(active_test=False)
 
-        category = UomCategory.search([("name", "=", "UF Sales Units")], limit=1)
-        if not category:
-            category = UomCategory.create({"name": "UF Sales Units"})
-
-        reference_uom = Uom.search(
-            [
-                ("category_id", "=", category.id),
-                ("uom_type", "=", "reference"),
-            ],
-            limit=1,
-        )
+        reference_uom = self.env.ref("uom.product_uom_unit", raise_if_not_found=False)
+        if not reference_uom:
+            reference_uom = Uom.search(
+                [
+                    ("relative_uom_id", "=", False),
+                    ("name", "in", ["Units", "Unit", "Each"]),
+                ],
+                order="id",
+                limit=1,
+            )
         if not reference_uom:
             reference_uom = Uom.create(
                 {
                     "name": "Each",
-                    "category_id": category.id,
-                    "uom_type": "reference",
-                    "rounding": 0.01,
+                    "relative_factor": 1.0,
                 }
             )
             stats["uoms_created"] += 1
@@ -221,8 +217,8 @@ class UfsalesProductImporter(models.AbstractModel):
         uom_name = _UOM_LABELS.get(code, code)
         uom = Uom.search(
             [
-                ("category_id", "=", category.id),
                 ("name", "=", uom_name),
+                ("relative_uom_id", "=", reference_uom.id),
             ],
             limit=1,
         )
@@ -232,10 +228,8 @@ class UfsalesProductImporter(models.AbstractModel):
         uom = Uom.create(
             {
                 "name": uom_name,
-                "category_id": category.id,
-                "uom_type": "bigger",
-                "factor_inv": 1.0,
-                "rounding": 0.01,
+                "relative_uom_id": reference_uom.id,
+                "relative_factor": 1.0,
             }
         )
         stats["uoms_created"] += 1
