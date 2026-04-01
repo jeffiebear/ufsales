@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <template id="uf_sales_website_shop_categories" inherit_id="website_sale.products" name="UF Sales Shop Category Cards">
+    <xpath expr="//div[hasclass('o_wsale_products_main_row')]" position="before">
+      <section t-if="ufs_shop_categories" class="ufs-shop-categories my-4 my-lg-5">
+        <div class="ufs-shop-categories__header">
+          <div>
+            <span class="ufs-section-eyebrow">Catalog</span>
+            <h2 class="ufs-section-title mb-0">
+              <t t-if="category">Browse <t t-esc="category.name"/> Categories</t>
+              <t t-else="">Browse Product Categories</t>
+            </h2>
+          </div>
+          <a t-if="category" class="btn btn-outline-secondary ufs-shop-categories__action" t-att-href="'/shop/category/%s' % slug(category)">
+            Shop All in <t t-esc="category.name"/>
+          </a>
+        </div>
+        <div class="row g-3">
+          <div t-foreach="ufs_shop_categories" t-as="ufs_child_category" class="col-6 col-md-4 col-xl-3">
+            <a class="ufs-shop-category-card" t-att-href="'/shop/category/%s' % slug(ufs_child_category)">
+              <div class="ufs-shop-category-card__media">
+                <img t-if="ufs_child_category.image_1920" t-att-src="'/web/image/product.public.category/%s/image_1024' % ufs_child_category.id" t-att-alt="ufs_child_category.name"/>
+                <img t-else="" src="/uf_sales_website/static/src/img/ufs-placeholder.png" t-att-alt="ufs_child_category.name"/>
+              </div>
+              <div class="ufs-shop-category-card__body">
+                <span class="ufs-shop-category-card__name" t-esc="ufs_child_category.name"/>
+                <span class="ufs-shop-category-card__meta">
+                  <t t-if="ufs_child_category.child_id">
+                    <t t-esc="len(ufs_child_category.child_id)"/> subcategories
+                  </t>
+                  <t t-else="">Browse products</t>
+                </span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+    </xpath>
+  </template>
+
+  <template id="uf_sales_website_hide_default_filmstrip" inherit_id="website_sale.filmstrip_categories" name="UF Sales Hide Default Category Filmstrip">
+    <xpath expr="//div[hasclass('o_wsale_filmstip_container')]" position="replace">
+      <t t-if="False"/>
+    </xpath>
+  </template>
+</odoo>

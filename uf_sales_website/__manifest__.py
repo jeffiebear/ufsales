@@ -1,6 +1,6 @@
 {
     "name": "UF Sales Website Styles",
-    "version": "19.0.1.0.2",
+    "version": "19.0.1.0.3",
     "category": "Website",
     "summary": "UF Sales branding assets for website + ecommerce",
     "license": "LGPL-3",
@@ -9,9 +9,11 @@
     "depends": [
         "website",
         "website_sale",
+        "ufsales_product_import",
     ],
     "data": [
         "views/website_layout.xml",
+        "views/website_sale_templates.xml",
     ],
     "assets": {
         "web.assets_frontend": [

@@ -7,4 +7,64 @@
       <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&amp;family=Tenor+Sans&amp;display=swap" rel="stylesheet"/>
     </xpath>
   </template>
+
+  <template id="uf_sales_website_catalog_nav" inherit_id="website.layout" name="UF Sales Catalog Navigation">
+    <xpath expr="//*[@id='o_main_nav']" position="after">
+      <t t-set="ufs_menu_tree" t-value="website._ufs_catalog_menu_tree()"/>
+      <section t-if="ufs_menu_tree" id="ufs_catalog_bar" class="ufs-catalog-bar">
+        <div class="container">
+          <div class="ufs-catalog-bar__inner">
+            <a class="ufs-catalog-bar__home" href="/shop">Browse Catalog</a>
+
+            <div class="ufs-catalog-bar__desktop" role="navigation" aria-label="Catalog categories">
+              <div t-foreach="ufs_menu_tree" t-as="root_node" class="ufs-mega-item">
+                <a class="ufs-mega-item__trigger" t-att-href="'/shop/category/%s' % slug(root_node['category'])">
+                  <span t-esc="root_node['category'].name"/>
+                </a>
+                <div t-if="root_node['children']" class="ufs-mega-panel">
+                  <div class="ufs-mega-panel__grid">
+                    <div t-foreach="root_node['children']" t-as="child_node" class="ufs-mega-panel__column">
+                      <a class="ufs-mega-panel__heading" t-att-href="'/shop/category/%s' % slug(child_node['category'])">
+                        <span t-esc="child_node['category'].name"/>
+                      </a>
+                      <a t-foreach="child_node['children'][:8]" t-as="grandchild_node" class="ufs-mega-panel__link" t-att-href="'/shop/category/%s' % slug(grandchild_node['category'])">
+                        <span t-esc="grandchild_node['category'].name"/>
+                      </a>
+                      <a t-if="child_node['children']" class="ufs-mega-panel__more" t-att-href="'/shop/category/%s' % slug(child_node['category'])">
+                        Show all
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <details class="ufs-catalog-bar__mobile">
+              <summary>Browse Categories</summary>
+              <div class="ufs-mobile-menu">
+                <details t-foreach="ufs_menu_tree" t-as="root_node" class="ufs-mobile-menu__group">
+                  <summary>
+                    <span t-esc="root_node['category'].name"/>
+                  </summary>
+                  <div class="ufs-mobile-menu__content">
+                    <a class="ufs-mobile-menu__root" t-att-href="'/shop/category/%s' % slug(root_node['category'])">
+                      Shop all <t t-esc="root_node['category'].name"/>
+                    </a>
+                    <div t-foreach="root_node['children']" t-as="child_node" class="ufs-mobile-menu__section">
+                      <a class="ufs-mobile-menu__heading" t-att-href="'/shop/category/%s' % slug(child_node['category'])">
+                        <span t-esc="child_node['category'].name"/>
+                      </a>
+                      <a t-foreach="child_node['children'][:8]" t-as="grandchild_node" class="ufs-mobile-menu__link" t-att-href="'/shop/category/%s' % slug(grandchild_node['category'])">
+                        <span t-esc="grandchild_node['category'].name"/>
+                      </a>
+                    </div>
+                  </div>
+                </details>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+    </xpath>
+  </template>
 </odoo>

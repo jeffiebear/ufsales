@@ -16,6 +16,7 @@ _logger = logging.getLogger(__name__)
 
 _DEFAULT_IMAGE_MARKERS = ("default_product.jpg",)
 _DEFAULT_JSON_PATH = "/Applications/MAMP/htdocs/UFS/UFS/ufsales/ufsales_products.json"
+_FALLBACK_PRODUCT_IMAGE = "data/ufs.png"
 _UOM_LABELS = {
     "BG": "Bag",
     "BN": "Bundle",
@@ -75,6 +76,24 @@ class ProductImage(models.Model):
 class UfsalesProductImporter(models.AbstractModel):
     _name = "ufsales.product.importer"
     _description = "UF Sales Product Importer"
+
+    @api.model
+    def _get_module_dir(self):
+        module_path = get_module_path("ufsales_product_import", display_warning=False)
+        if not module_path:
+            return Path(__file__).resolve().parents[2]
+        return Path(module_path).resolve()
+
+    @api.model
+    def _load_module_binary(self, relative_path):
+        binary_path = self._get_module_dir() / relative_path
+        if not binary_path.exists():
+            return False
+        return base64.b64encode(binary_path.read_bytes())
+
+    @api.model
+    def _get_fallback_product_image(self):
+        return self._load_module_binary(_FALLBACK_PRODUCT_IMAGE)
 
     @api.model
     def _candidate_json_paths(self):
@@ -195,6 +214,14 @@ class UfsalesProductImporter(models.AbstractModel):
             vals["uom_po_id"] = uom.id
         elif "purchase_uom_id" in product_fields:
             vals["purchase_uom_id"] = uom.id
+        return vals
+
+    @api.model
+    def _set_tax_fields(self, product_fields, vals):
+        if "taxes_id" in product_fields:
+            vals["taxes_id"] = [(6, 0, [])]
+        if "supplier_taxes_id" in product_fields:
+            vals["supplier_taxes_id"] = [(6, 0, [])]
         return vals
 
     @api.model
@@ -342,8 +369,10 @@ class UfsalesProductImporter(models.AbstractModel):
     def _sync_product_images(self, template, images):
         ProductImage = self.env["product.image"].sudo().with_context(active_test=False)
         image_fields = ProductImage._fields
+        template_fields = template._fields
         binary_field = "image_1920" if "image_1920" in image_fields else "image"
         product_field = "product_tmpl_id" if "product_tmpl_id" in image_fields else "product_template_id"
+        template_binary_field = "image_1920" if "image_1920" in template_fields else "image"
 
         usable_images = [img for img in images or [] if (img or {}).get("image_url")]
         usable_images = [
@@ -352,11 +381,14 @@ class UfsalesProductImporter(models.AbstractModel):
             if not any(marker in img.get("image_url", "") for marker in _DEFAULT_IMAGE_MARKERS)
         ]
 
+        primary_payload = False
         primary_image = usable_images[:1]
         if primary_image:
             primary_payload = self._fetch_image(primary_image[0].get("zoom_url") or primary_image[0].get("image_url"))
-            if primary_payload:
-                template.write({"image_1920": primary_payload})
+        if not primary_payload:
+            primary_payload = self._get_fallback_product_image()
+        if primary_payload:
+            template.write({template_binary_field: primary_payload})
 
         existing_images = ProductImage.search(
             [
@@ -433,6 +465,7 @@ class UfsalesProductImporter(models.AbstractModel):
 
         vals = self._set_product_type(product_fields, vals)
         vals = self._set_uom_fields(product_fields, vals, uom)
+        vals = self._set_tax_fields(product_fields, vals)
         vals = self._set_publish_flag(product_fields, vals)
         vals = self._set_website_description(product_fields, vals, description_html)
 
@@ -447,6 +480,18 @@ class UfsalesProductImporter(models.AbstractModel):
         self._sync_product_images(template, row.get("images") or [])
 
     @api.model
+    def _clear_all_product_taxes(self, stats):
+        ProductTemplate = self.env["product.template"].sudo().with_context(active_test=False)
+        product_fields = ProductTemplate._fields
+        vals = self._set_tax_fields(product_fields, {})
+        if not vals:
+            return
+        templates = ProductTemplate.search([])
+        if templates:
+            templates.write(vals)
+            stats["products_taxes_cleared"] = len(templates)
+
+    @api.model
     def run_import(self):
         rows = self._load_source_rows()
         stats = {
@@ -454,6 +499,7 @@ class UfsalesProductImporter(models.AbstractModel):
             "categories_updated": 0,
             "products_created": 0,
             "products_updated": 0,
+            "products_taxes_cleared": 0,
             "uoms_created": 0,
         }
         internal_cache = {}
@@ -481,13 +527,16 @@ class UfsalesProductImporter(models.AbstractModel):
                 stats=stats,
             )
 
+        self._clear_all_product_taxes(stats)
+
         _logger.info(
             "UF Sales import finished: %s created / %s updated products, "
-            "%s created / %s updated categories, %s UoMs created.",
+            "%s created / %s updated categories, %s products had taxes cleared, %s UoMs created.",
             stats["products_created"],
             stats["products_updated"],
             stats["categories_created"],
             stats["categories_updated"],
+            stats["products_taxes_cleared"],
             stats["uoms_created"],
         )
         return stats
