@@ -97,8 +97,16 @@ class UfsalesProductImporter(models.AbstractModel):
         if cwd:
             search_roots.append(Path(cwd).resolve())
 
-        addons_path = config.get("addons_path") or ""
-        for raw_path in addons_path.split(","):
+        addons_path = config.get("addons_path") or []
+        if isinstance(addons_path, str):
+            addons_paths = addons_path.split(",")
+        elif isinstance(addons_path, (list, tuple, set)):
+            addons_paths = addons_path
+        else:
+            addons_paths = [addons_path]
+
+        for raw_path in addons_paths:
+            raw_path = str(raw_path)
             raw_path = raw_path.strip()
             if not raw_path:
                 continue
