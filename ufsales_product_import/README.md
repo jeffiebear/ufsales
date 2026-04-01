@@ -26,7 +26,11 @@ The import runs automatically from the module `post_init_hook`.
 
 ## Source file path
 
-By default the importer looks for:
+For `odoo.sh`, the source file is now bundled in the addon at:
+
+- `ufsales_product_import/data/ufsales_products.json`
+
+The importer also looks for:
 
 - `ufsales_products.json` next to the custom addons
 - `/Applications/MAMP/htdocs/UFS/UFS/ufsales/ufsales_products.json`

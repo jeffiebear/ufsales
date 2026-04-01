@@ -2,13 +2,15 @@ import base64
 import html
 import json
 import logging
+import os
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools import html2plaintext
+from odoo.modules.module import get_module_path
+from odoo.tools import config, html2plaintext
 
 _logger = logging.getLogger(__name__)
 
@@ -75,21 +77,65 @@ class UfsalesProductImporter(models.AbstractModel):
     _description = "UF Sales Product Importer"
 
     @api.model
-    def _get_json_path(self):
-        module_root = Path(__file__).resolve().parents[2]
+    def _candidate_json_paths(self):
+        filename = "ufsales_products.json"
         configured_path = self.env["ir.config_parameter"].sudo().get_param("ufsales_product_import.json_path")
-        candidate_paths = [
-            Path(configured_path).expanduser() if configured_path else None,
-            module_root / "ufsales_products.json",
-            Path(_DEFAULT_JSON_PATH),
-        ]
+        candidate_paths = []
+
+        if configured_path:
+            candidate_paths.append(Path(configured_path).expanduser())
+
+        module_path = get_module_path("ufsales_product_import", display_warning=False)
+        search_roots = []
+        if module_path:
+            module_dir = Path(module_path).resolve()
+            candidate_paths.append(module_dir / "data" / filename)
+            candidate_paths.append(module_dir / filename)
+            search_roots.extend([module_dir, *module_dir.parents[:4]])
+
+        cwd = os.getcwd()
+        if cwd:
+            search_roots.append(Path(cwd).resolve())
+
+        addons_path = config.get("addons_path") or ""
+        for raw_path in addons_path.split(","):
+            raw_path = raw_path.strip()
+            if not raw_path:
+                continue
+            addons_dir = Path(raw_path).expanduser().resolve()
+            search_roots.extend([addons_dir, addons_dir.parent])
+
+        search_roots.append(Path(_DEFAULT_JSON_PATH).parent)
+
+        seen = set()
+        for root in search_roots:
+            if not root:
+                continue
+            for candidate in (root / filename, root / "ufsales" / filename):
+                try:
+                    resolved = candidate.resolve()
+                except FileNotFoundError:
+                    resolved = candidate
+                key = str(resolved)
+                if key in seen:
+                    continue
+                seen.add(key)
+                candidate_paths.append(resolved)
+
+        candidate_paths.append(Path(_DEFAULT_JSON_PATH))
+        return candidate_paths
+
+    @api.model
+    def _get_json_path(self):
+        candidate_paths = self._candidate_json_paths()
         for candidate in candidate_paths:
             if candidate and candidate.exists():
                 return candidate
+        searched = "\n".join("- %s" % path for path in candidate_paths if path)
         raise UserError(
             "UF Sales source JSON was not found. Set the system parameter "
             "'ufsales_product_import.json_path' or place ufsales_products.json "
-            "next to the custom addons."
+            "next to the custom addons.\nSearched:\n%s" % searched
         )
 
     @api.model
