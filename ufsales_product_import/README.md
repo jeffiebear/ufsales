@@ -25,6 +25,7 @@ This addon is set up to work on `odoo.sh`, where the JSON must be shipped inside
 3. Install **UF Sales Product Import**.
 
 The import runs automatically from the module `post_init_hook`.
+Module upgrades also rerun the importer through a versioned migration script, so `-u ufsales_product_import` reapplies tax clearing, image fallback, and catalog updates.
 
 ## Source file path
 
