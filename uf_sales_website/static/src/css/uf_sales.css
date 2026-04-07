@@ -98,6 +98,10 @@
   white-space: nowrap;
 }
 
+.ufs-mega-item__trigger span {
+    color: #f7f7f7;
+}
+
 .ufs-mega-item:hover .ufs-mega-item__trigger,
 .ufs-mega-item:focus-within .ufs-mega-item__trigger,
 .ufs-mega-item__trigger:hover,
