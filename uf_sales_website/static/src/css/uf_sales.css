@@ -36,6 +36,85 @@
   display: none !important;
 }
 
+/* ========================================
+   Main Header Styling
+   ======================================== */
+
+/* Main navigation bar - navy background */
+#wrapwrap header,
+#wrapwrap header nav.navbar {
+  background: var(--uf-color-ink) !important;
+}
+
+/* Navigation links - white text */
+#wrapwrap header .navbar-nav .nav-link,
+#wrapwrap header .navbar-nav a {
+  color: #fff !important;
+  font-weight: 600;
+}
+
+#wrapwrap header .navbar-nav .nav-link:hover,
+#wrapwrap header .navbar-nav a:hover {
+  color: var(--uf-color-accent) !important;
+}
+
+/* Active nav item underline */
+#wrapwrap header .navbar-nav .nav-item.active .nav-link,
+#wrapwrap header .navbar-nav .nav-link.active {
+  border-bottom: 3px solid var(--uf-color-accent);
+}
+
+/* Header icons (cart, search) - white */
+#wrapwrap header .fa,
+#wrapwrap header .oi,
+#wrapwrap header i {
+  color: #fff !important;
+}
+
+/* Phone number styling */
+#wrapwrap header a[href^="tel:"] {
+  color: #fff !important;
+  font-weight: 600;
+}
+
+/* Company dropdown */
+#wrapwrap header .dropdown-toggle {
+  color: #fff !important;
+}
+
+/* Order Online button - gold/tan pill */
+#wrapwrap header .btn-primary,
+#wrapwrap header a.btn,
+#wrapwrap header .o_navbarm_user a.btn,
+#wrapwrap header nav > div > a.btn {
+  background: linear-gradient(135deg, var(--uf-color-accent), #e5e0b4) !important;
+  border: none !important;
+  border-radius: 999px !important;
+  color: var(--uf-color-ink) !important;
+  font-family: var(--uf-font-heading);
+  font-weight: 600 !important;
+  padding: 0.6rem 1.2rem !important;
+  text-transform: none;
+}
+
+#wrapwrap header .btn-primary:hover,
+#wrapwrap header a.btn:hover {
+  background: linear-gradient(135deg, #e5e0b4, var(--uf-color-accent)) !important;
+  color: var(--uf-color-ink) !important;
+}
+
+/* Exclude nav links from button styling */
+#wrapwrap header .navbar-nav .nav-link {
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 0.5rem 1rem !important;
+}
+
+/* Ensure navbar brand/logo is visible */
+#wrapwrap header .navbar-brand img {
+  max-height: 45px;
+}
+
 #ufs_catalog_bar {
   background:
     linear-gradient(135deg, rgba(31, 54, 81, 0.98), rgba(24, 41, 60, 0.96)),
