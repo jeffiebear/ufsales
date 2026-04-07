@@ -36,85 +36,6 @@
   display: none !important;
 }
 
-/* ========================================
-   Main Header Styling
-   ======================================== */
-
-/* Main navigation bar - navy background */
-#wrapwrap header,
-#wrapwrap header nav.navbar {
-  background: var(--uf-color-ink) !important;
-}
-
-/* Navigation links - white text */
-#wrapwrap header .navbar-nav .nav-link,
-#wrapwrap header .navbar-nav a {
-  color: #fff !important;
-  font-weight: 600;
-}
-
-#wrapwrap header .navbar-nav .nav-link:hover,
-#wrapwrap header .navbar-nav a:hover {
-  color: var(--uf-color-accent) !important;
-}
-
-/* Active nav item underline */
-#wrapwrap header .navbar-nav .nav-item.active .nav-link,
-#wrapwrap header .navbar-nav .nav-link.active {
-  border-bottom: 3px solid var(--uf-color-accent);
-}
-
-/* Header icons (cart, search) - white */
-#wrapwrap header .fa,
-#wrapwrap header .oi,
-#wrapwrap header i {
-  color: #fff !important;
-}
-
-/* Phone number styling */
-#wrapwrap header a[href^="tel:"] {
-  color: #fff !important;
-  font-weight: 600;
-}
-
-/* Company dropdown */
-#wrapwrap header .dropdown-toggle {
-  color: #fff !important;
-}
-
-/* Order Online button - gold/tan pill */
-#wrapwrap header .btn-primary,
-#wrapwrap header a.btn,
-#wrapwrap header .o_navbarm_user a.btn,
-#wrapwrap header nav > div > a.btn {
-  background: linear-gradient(135deg, var(--uf-color-accent), #e5e0b4) !important;
-  border: none !important;
-  border-radius: 999px !important;
-  color: var(--uf-color-ink) !important;
-  font-family: var(--uf-font-heading);
-  font-weight: 600 !important;
-  padding: 0.6rem 1.2rem !important;
-  text-transform: none;
-}
-
-#wrapwrap header .btn-primary:hover,
-#wrapwrap header a.btn:hover {
-  background: linear-gradient(135deg, #e5e0b4, var(--uf-color-accent)) !important;
-  color: var(--uf-color-ink) !important;
-}
-
-/* Exclude nav links from button styling */
-#wrapwrap header .navbar-nav .nav-link {
-  background: transparent !important;
-  border-radius: 0 !important;
-  padding: 0.5rem 1rem !important;
-}
-
-/* Ensure navbar brand/logo is visible */
-#wrapwrap header .navbar-brand img {
-  max-height: 45px;
-}
-
 #ufs_catalog_bar {
   background:
     linear-gradient(135deg, rgba(31, 54, 81, 0.98), rgba(24, 41, 60, 0.96)),
@@ -166,7 +87,7 @@
 
 .ufs-mega-item__trigger {
   border-radius: 999px;
-  color: #fff;
+  color: #f7f7f7;
   display: inline-flex;
   font-size: 0.94rem;
   font-weight: 600;
@@ -182,25 +103,27 @@
 .ufs-mega-item__trigger:hover,
 .ufs-mega-item__trigger:focus {
   background: rgba(205, 202, 158, 0.18);
-  color: #fff;
+  color: #f7f7f7;
   text-decoration: none;
 }
 
 .ufs-mega-panel {
   background: #fff;
   border: 1px solid rgba(31, 54, 81, 0.08);
-  border-radius: 20px;
+  border-radius: 16px;
   box-shadow: var(--uf-shadow-soft);
   left: 0;
-  min-width: min(1080px, calc(100vw - 2rem));
+  max-width: min(1200px, calc(100vw - 2rem));
+  min-width: 220px;
   opacity: 0;
-  padding: 1.5rem;
+  padding: 1.25rem;
   pointer-events: none;
   position: absolute;
   top: calc(100% + 0.4rem);
   transform: translateY(10px);
   transition: opacity 0.18s ease, transform 0.18s ease;
   visibility: hidden;
+  width: fit-content;
 }
 
 .ufs-mega-item:hover .ufs-mega-panel,
@@ -212,15 +135,17 @@
 }
 
 .ufs-mega-panel__grid {
-  display: grid;
-  gap: 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 2rem;
 }
 
 .ufs-mega-panel__column {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.4rem;
+  min-width: 180px;
+  max-width: 240px;
 }
 
 .ufs-mega-panel__heading,
@@ -256,7 +181,7 @@
 }
 
 .ufs-catalog-bar__mobile {
-  color: #fff;
+  color: #f7f7f7;
   display: block;
   margin-left: auto;
   width: 100%;
@@ -293,7 +218,7 @@
 }
 
 .ufs-mobile-menu__group summary {
-  color: #fff;
+  color: #f7f7f7;
   cursor: pointer;
   display: block;
   font-weight: 700;
