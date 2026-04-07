@@ -114,20 +114,25 @@
 .ufs-mega-panel {
   background: #fff;
   border: 1px solid rgba(31, 54, 81, 0.08);
-  border-radius: 16px;
+  border-radius: 4px;
   box-shadow: var(--uf-shadow-soft);
   left: 0;
-  max-width: min(1200px, calc(100vw - 2rem));
-  min-width: 220px;
   opacity: 0;
-  padding: 1.25rem;
+  padding: 1.25rem 1.5rem;
   pointer-events: none;
   position: absolute;
-  top: calc(100% + 0.4rem);
-  transform: translateY(10px);
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  top: 100%;
+  transform: translateY(5px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
   visibility: hidden;
-  width: fit-content;
+  /* Auto-size: small panels stay compact, large ones expand */
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+}
+
+/* For panels with many columns, use container width */
+.ufs-mega-panel:has(.ufs-mega-panel__column:nth-child(5)) {
+  width: min(1140px, calc(100vw - 2rem));
 }
 
 .ufs-mega-item:hover .ufs-mega-panel,
@@ -138,44 +143,78 @@
   visibility: visible;
 }
 
+/* 4-column grid layout like Bootstrap col-sm-3 */
 .ufs-mega-panel__grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem 2rem;
+  display: grid;
+  gap: 1.25rem 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+/* For panels with 5+ columns, enforce 4-column layout */
+.ufs-mega-panel:has(.ufs-mega-panel__column:nth-child(5)) .ufs-mega-panel__grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* For small panels (1-4 columns), auto-fit to content */
+.ufs-mega-panel:not(:has(.ufs-mega-panel__column:nth-child(5))) .ufs-mega-panel__grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
 }
 
 .ufs-mega-panel__column {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  min-width: 180px;
-  max-width: 240px;
+  gap: 0.35rem;
+  min-width: 0;
 }
 
 .ufs-mega-panel__heading,
 .ufs-mega-panel__link,
 .ufs-mega-panel__more {
   text-decoration: none;
+  display: block;
+  line-height: 1.4;
 }
 
+/* Category header - like .dropdown-header */
 .ufs-mega-panel__heading {
   color: var(--uf-color-ink);
   font-family: var(--uf-font-heading);
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--uf-color-border);
 }
 
+.ufs-mega-panel__heading:hover {
+  color: var(--uf-color-brand);
+}
+
+/* Subcategory items - like .dropdown-item */
 .ufs-mega-panel__link {
   color: var(--uf-color-text);
-  font-size: 0.92rem;
+  font-size: 0.875rem;
+  padding: 0.15rem 0;
 }
 
+.ufs-mega-panel__link:hover {
+  color: var(--uf-color-ink);
+  text-decoration: underline;
+}
+
+/* Show All link - like .show-more */
 .ufs-mega-panel__more {
   color: var(--uf-color-brand);
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  margin-top: 0.35rem;
+  margin-top: 0.5rem;
   text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.ufs-mega-panel__more:hover {
+  color: var(--uf-color-ink);
+  text-decoration: underline;
 }
 
 .ufs-mega-panel__heading:hover,
