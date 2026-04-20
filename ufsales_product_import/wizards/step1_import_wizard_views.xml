@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_ufsales_step1_import_wizard_form" model="ir.ui.view">
+        <field name="name">ufsales.step1.import.wizard.form</field>
+        <field name="model">ufsales.step1.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import from STEP1">
+                <sheet>
+                    <group invisible="state == 'done'">
+                        <group string="Steps to Run">
+                            <field name="import_vendors"/>
+                            <field name="import_products"/>
+                            <field name="import_warehouse"/>
+                        </group>
+                        <group string="Override CSVs (optional)">
+                            <field name="vendors_file" filename="vendors_filename"/>
+                            <field name="vendors_filename" invisible="1"/>
+                            <field name="products_file" filename="products_filename"/>
+                            <field name="products_filename" invisible="1"/>
+                            <field name="warehouse_file" filename="warehouse_filename"/>
+                            <field name="warehouse_filename" invisible="1"/>
+                        </group>
+                    </group>
+                    <group invisible="state != 'done'">
+                        <field name="log" widget="text" readonly="1" nolabel="1"/>
+                    </group>
+                    <field name="state" invisible="1"/>
+                </sheet>
+                <footer>
+                    <button name="action_import" type="object"
+                            string="Run Import" class="btn-primary"
+                            invisible="state == 'done'"/>
+                    <button string="Close" class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ufsales_step1_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import from STEP1</field>
+        <field name="res_model">ufsales.step1.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_ufsales_step1_import_root"
+              name="UF Sales Import"
+              parent="stock.menu_stock_root"
+              sequence="90"
+              groups="stock.group_stock_manager"/>
+
+    <menuitem id="menu_ufsales_step1_import_wizard"
+              name="Import from STEP1"
+              parent="menu_ufsales_step1_import_root"
+              action="action_ufsales_step1_import_wizard"
+              sequence="10"
+              groups="stock.group_stock_manager"/>
+
+</odoo>

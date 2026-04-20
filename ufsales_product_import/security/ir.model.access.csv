@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ufsales_step1_import_wizard,ufsales.step1.import.wizard user,model_ufsales_step1_import_wizard,stock.group_stock_manager,1,1,1,1
