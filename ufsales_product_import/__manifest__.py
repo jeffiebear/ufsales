@@ -17,7 +17,6 @@
         "security/ir.model.access.csv",
         "wizards/step1_import_wizard_views.xml",
     ],
-    "post_init_hook": "post_init_hook",
     "installable": True,
     "application": False,
 }

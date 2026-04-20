@@ -1,18 +1,18 @@
 # UF Sales Product Import (`ufsales_product_import`)
 
-Two-stage importer for the UF Sales catalog on Odoo 19:
+Two importers for the UF Sales catalog on Odoo 19:
 
-- **Stage 1 — JSON catalog** (auto, on install): imports the
-  website-scraped catalog from `data/ufsales_products.json` into
-  `product.category`, `product.public.category`, `product.template`,
-  and `product.image`. Products are created **published** with real
-  images.
-- **Stage 2 — STEP1 CSV backfill** (manual, via wizard): imports
-  vendors, per-product inventory info, warehouse stock, reorder
-  rules, and quantity-bracket pricing from STEP1 exports. Products
-  new to Odoo come in **unpublished with the UFS placeholder image**;
-  existing products are updated in place and their publish state /
-  images are preserved.
+- **JSON catalog** (manual): imports the website-scraped catalog from
+  `data/ufsales_products.json` into `product.category`,
+  `product.public.category`, `product.template`, and `product.image`.
+  Products are created **published** with real images. Already run
+  against production — no longer triggered on install or upgrade.
+- **STEP1 CSV backfill** (manual, via wizard): imports vendors,
+  per-product inventory info, warehouse stock, reorder rules, and
+  quantity-bracket pricing from STEP1 exports. Products new to Odoo
+  come in **unpublished with the UFS placeholder image**; existing
+  products are updated in place and their publish state / images are
+  preserved.
 
 Depends on: `product`, `website_sale`, `stock`, `purchase`,
 `ufs_customer_pricing`.
@@ -23,13 +23,14 @@ Depends on: `product`, `website_sale`, `stock`, `purchase`,
 
 1. Drop `ufsales_product_import/` into the Odoo addons path.
 2. **Apps → Update Apps List** → install **UF Sales Product Import**.
-3. The JSON importer fires from `post_init_hook`. On re-install or
-   `-u`, migrations under `migrations/<version>/` re-run the importer
-   so changes (tax clearing, image fallback, catalog updates) apply.
+
+No auto-run on install or upgrade. Both importers are manual — run
+the JSON one from the shell if ever needed, and the STEP1 CSV one
+from the wizard under *Inventory → UF Sales Import*.
 
 ---
 
-## Stage 1 — JSON catalog
+## JSON catalog (manual)
 
 ### Source file
 
@@ -54,7 +55,9 @@ Alternate lookup order:
 
 ### Rerun
 
-Idempotent. From an Odoo shell:
+Already run against production — no longer triggered on install or
+upgrade. Idempotent, so it's safe to re-run from an Odoo shell if
+you need to reapply the catalog:
 
 ```python
 env["ufsales.product.importer"].run_import()
@@ -62,7 +65,7 @@ env["ufsales.product.importer"].run_import()
 
 ---
 
-## Stage 2 — STEP1 CSV backfill
+## STEP1 CSV backfill (wizard)
 
 ### What it does
 
