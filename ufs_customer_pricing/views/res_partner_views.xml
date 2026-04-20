@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_form_ufs_pricing" model="ir.ui.view">
+        <field name="name">res.partner.form.ufs.pricing</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Smart button -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" type="object"
+                        name="action_open_ufs_price_rules"
+                        icon="fa-tag"
+                        invisible="ufs_price_rule_count == 0">
+                    <field name="ufs_price_rule_count" widget="statinfo"
+                           string="Price Rules"/>
+                </button>
+            </xpath>
+
+            <!-- New tab on the partner form -->
+            <xpath expr="//notebook" position="inside">
+                <page string="UFS Pricing" name="ufs_pricing">
+                    <group>
+                        <group>
+                            <field name="ufs_step1_cust_acct"/>
+                            <field name="ufs_default_price_opt"/>
+                        </group>
+                        <group>
+                            <field name="ufs_pricelist_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <separator string="Price Rules"/>
+                    <field name="ufs_price_rule_ids" context="{'default_partner_id': id}">
+                        <list editable="bottom">
+                            <field name="product_id"/>
+                            <field name="rule_type"/>
+                            <field name="special_price"/>
+                            <field name="margin_pct"/>
+                            <field name="markup_pct"/>
+                            <field name="computed_price"/>
+                            <field name="customer_part_num" optional="hide"/>
+                            <field name="last_price_paid" optional="hide"/>
+                            <field name="last_sale_date" optional="hide"/>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="currency_id" column_invisible="1"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

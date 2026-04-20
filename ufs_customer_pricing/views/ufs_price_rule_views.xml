@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree / list view -->
+    <record id="view_ufs_price_rule_list" model="ir.ui.view">
+        <field name="name">ufs.price.rule.list</field>
+        <field name="model">ufs.price.rule</field>
+        <field name="arch" type="xml">
+            <list string="Customer Price Rules" multi_edit="1" sample="1">
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="rule_type"/>
+                <field name="special_price" optional="show"/>
+                <field name="margin_pct" optional="show"/>
+                <field name="markup_pct" optional="hide"/>
+                <field name="bracket_no" optional="hide"/>
+                <field name="computed_price" optional="show"/>
+                <field name="customer_part_num" optional="hide"/>
+                <field name="sales_class" optional="hide"/>
+                <field name="last_price_paid" optional="hide"/>
+                <field name="last_sale_date" optional="hide"/>
+                <field name="step1_imported" optional="hide"/>
+                <field name="active" optional="hide" widget="boolean_toggle"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_ufs_price_rule_form" model="ir.ui.view">
+        <field name="name">ufs.price.rule.form</field>
+        <field name="model">ufs.price.rule</field>
+        <field name="arch" type="xml">
+            <form string="Customer Price Rule">
+                <header>
+                    <button name="action_resync_all" type="object"
+                            string="Re-sync to Pricelist" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Imported from STEP1"
+                            invisible="not step1_imported"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Identity">
+                            <field name="partner_id"/>
+                            <field name="product_id"/>
+                            <field name="customer_part_num"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Pricing">
+                            <field name="rule_type"/>
+                            <field name="special_price"
+                                   invisible="rule_type != 'special'"
+                                   required="rule_type == 'special'"/>
+                            <field name="margin_pct"
+                                   invisible="rule_type != 'margin'"
+                                   required="rule_type == 'margin'"/>
+                            <field name="markup_pct"
+                                   invisible="rule_type != 'markup'"
+                                   required="rule_type == 'markup'"/>
+                            <field name="bracket_no"
+                                   invisible="rule_type != 'bracket'"/>
+                            <field name="computed_price" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Validity &amp; Flags">
+                            <group>
+                                <group>
+                                    <field name="active"/>
+                                    <field name="date_start"/>
+                                    <field name="date_end"/>
+                                </group>
+                                <group>
+                                    <field name="tax_flag"/>
+                                    <field name="commission_flag"/>
+                                    <field name="print_on_order_form"/>
+                                    <field name="sales_class"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Sales History">
+                            <group>
+                                <group>
+                                    <field name="last_price_paid"/>
+                                    <field name="last_qty_ordered"/>
+                                </group>
+                                <group>
+                                    <field name="first_sale_date"/>
+                                    <field name="last_sale_date"/>
+                                    <field name="next_sale_date"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <group>
+                                <field name="notes_date"/>
+                                <field name="notes_add_to_order"/>
+                            </group>
+                            <field name="note1"/>
+                            <field name="note2"/>
+                            <field name="note3"/>
+                        </page>
+                        <page string="STEP1 Import" invisible="not step1_imported">
+                            <group>
+                                <group>
+                                    <field name="step1_price_opt"/>
+                                    <field name="step1_cp_price_opt"/>
+                                </group>
+                                <group>
+                                    <field name="list_price_at_import"/>
+                                    <field name="current_price_at_import"/>
+                                    <field name="pricelist_item_id"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search view -->
+    <record id="view_ufs_price_rule_search" model="ir.ui.view">
+        <field name="name">ufs.price.rule.search</field>
+        <field name="model">ufs.price.rule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="customer_part_num"/>
+                <field name="sales_class"/>
+                <separator/>
+                <filter string="Special Price" name="f_special"
+                        domain="[('rule_type','=','special')]"/>
+                <filter string="Margin" name="f_margin"
+                        domain="[('rule_type','=','margin')]"/>
+                <filter string="Markup" name="f_markup"
+                        domain="[('rule_type','=','markup')]"/>
+                <filter string="List Price" name="f_list"
+                        domain="[('rule_type','=','list')]"/>
+                <filter string="Use Customer Default" name="f_default"
+                        domain="[('rule_type','=','default')]"/>
+                <separator/>
+                <filter string="Imported from STEP1" name="f_step1"
+                        domain="[('step1_imported','=',True)]"/>
+                <filter string="Archived" name="f_archived"
+                        domain="[('active','=',False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Customer" name="g_partner"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter string="Product" name="g_product"
+                            context="{'group_by': 'product_id'}"/>
+                    <filter string="Rule Type" name="g_type"
+                            context="{'group_by': 'rule_type'}"/>
+                    <filter string="Sales Class" name="g_class"
+                            context="{'group_by': 'sales_class'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_ufs_price_rule" model="ir.actions.act_window">
+        <field name="name">Customer Price Rules</field>
+        <field name="res_model">ufs.price.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_ufs_price_rule_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first customer-specific price rule
+            </p>
+            <p>
+                Or use <b>Import from STEP1</b> to bulk-load your existing
+                CustomerPriceRules export.
+            </p>
+        </field>
+    </record>
+
+</odoo>

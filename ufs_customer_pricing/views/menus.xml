@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_ufs_pricing_root"
+              name="Customer Pricing"
+              parent="sale.sale_menu_root"
+              sequence="55"/>
+
+    <menuitem id="menu_ufs_price_rule"
+              name="Customer Price Rules"
+              parent="menu_ufs_pricing_root"
+              action="action_ufs_price_rule"
+              sequence="10"/>
+
+    <menuitem id="menu_ufs_price_rule_import"
+              name="Import from STEP1"
+              parent="menu_ufs_pricing_root"
+              action="action_ufs_price_rule_import"
+              sequence="20"
+              groups="sales_team.group_sale_manager"/>
+
+</odoo>

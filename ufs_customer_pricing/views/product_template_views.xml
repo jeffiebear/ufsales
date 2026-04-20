@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_product_template_form_ufs_pricing" model="ir.ui.view">
+        <field name="name">product.template.form.ufs.pricing</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" type="object"
+                        name="action_open_ufs_customer_rules"
+                        icon="fa-users"
+                        invisible="ufs_customer_rule_count == 0">
+                    <field name="ufs_customer_rule_count" widget="statinfo"
+                           string="Customer Rules"/>
+                </button>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Customer Pricing" name="ufs_customer_pricing">
+                    <group>
+                        <field name="ufs_step1_item_code"/>
+                    </group>
+                    <separator string="Per-Customer Rules"/>
+                    <field name="ufs_customer_rule_ids" readonly="0"
+                           context="{'default_product_tmpl_id': id}">
+                        <list>
+                            <field name="partner_id"/>
+                            <field name="rule_type"/>
+                            <field name="special_price"/>
+                            <field name="margin_pct"/>
+                            <field name="markup_pct" optional="hide"/>
+                            <field name="computed_price"/>
+                            <field name="last_price_paid" optional="show"/>
+                            <field name="last_sale_date" optional="show"/>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="currency_id" column_invisible="1"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
