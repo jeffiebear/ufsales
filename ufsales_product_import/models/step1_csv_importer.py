@@ -147,7 +147,21 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
             p.ufs_step1_vendor_acct: p
             for p in Partner.search([("ufs_step1_vendor_acct", "!=", False)])
         }
-        created = updated = skipped = 0
+
+        def _norm(s):
+            return (s or "").strip().lower()
+        by_name = {}
+        by_email = {}
+        for p in Partner.search([
+            ("supplier_rank", ">", 0),
+            ("parent_id", "=", False),
+        ]):
+            if p.name:
+                by_name.setdefault(_norm(p.name), p)
+            if p.email:
+                by_email.setdefault(_norm(p.email), p)
+
+        created = updated = skipped = matched_by_fallback = 0
         for row in rows:
             acct = _s(row.get("VendorAcct"))
             name = _s(row.get("VendorName"))
@@ -156,19 +170,43 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
                 continue
             vals = self._vendor_vals(row)
             partner = by_acct.get(acct)
+            if not partner:
+                email_key = _norm(
+                    _s(row.get("OfficeContactEmailAddress"))
+                    or _s(row.get("POContactEmailAddress"))
+                )
+                partner = by_name.get(_norm(name))
+                if not partner and email_key:
+                    partner = by_email.get(email_key)
+                if partner:
+                    matched_by_fallback += 1
             if partner:
+                vals["ufs_step1_vendor_acct"] = acct
                 partner.write(vals)
+                by_acct[acct] = partner
+                by_name.setdefault(_norm(partner.name), partner)
+                if partner.email:
+                    by_email.setdefault(_norm(partner.email), partner)
                 updated += 1
             else:
                 vals["ufs_step1_vendor_acct"] = acct
                 partner = Partner.create(vals)
                 by_acct[acct] = partner
+                by_name.setdefault(_norm(partner.name), partner)
+                if partner.email:
+                    by_email.setdefault(_norm(partner.email), partner)
                 created += 1
         _logger.info(
-            "UFS vendor import: %s created, %s updated, %s skipped",
-            created, updated, skipped,
+            "UFS vendor import: %s created, %s updated "
+            "(%s matched by name/email), %s skipped",
+            created, updated, matched_by_fallback, skipped,
         )
-        return {"created": created, "updated": updated, "skipped": skipped}
+        return {
+            "created": created,
+            "updated": updated,
+            "matched_by_name_or_email": matched_by_fallback,
+            "skipped": skipped,
+        }
 
     @api.model
     def _vendor_vals(self, row):
@@ -241,7 +279,23 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
             p.ufs_step1_cust_acct: p
             for p in Partner.search([("ufs_step1_cust_acct", "!=", False)])
         }
-        created = updated = skipped = ship_created = 0
+        # Fallback caches: existing partners keyed on a normalized name
+        # and email. Populated once and mutated as we go so repeated
+        # imports don't create duplicates.
+        def _norm(s):
+            return (s or "").strip().lower()
+        by_name = {}
+        by_email = {}
+        for p in Partner.search([
+            ("customer_rank", ">", 0),
+            ("parent_id", "=", False),
+        ]):
+            if p.name:
+                by_name.setdefault(_norm(p.name), p)
+            if p.email:
+                by_email.setdefault(_norm(p.email), p)
+
+        created = updated = skipped = ship_created = matched_by_fallback = 0
         for row in rows:
             acct = _s(row.get("CustAcct"))
             # STEP1 exports carry '*' / '^' prefixes for flagged accounts;
@@ -252,13 +306,35 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
                 continue
             vals = self._customer_vals(row)
             partner = by_acct.get(acct)
+            if not partner:
+                # No acct match — try to adopt an existing Odoo partner by
+                # name, then by email. Stamp ufs_step1_cust_acct so the
+                # next run hits the fast path.
+                email_key = _norm(
+                    _s(row.get("OfficeContactEmailAddress"))
+                    or _s(row.get("SalesContactEmailAddress"))
+                    or _s(row.get("ARContactEmailAddress"))
+                )
+                partner = by_name.get(_norm(name))
+                if not partner and email_key:
+                    partner = by_email.get(email_key)
+                if partner:
+                    matched_by_fallback += 1
             if partner:
+                vals["ufs_step1_cust_acct"] = acct
                 partner.write(vals)
+                by_acct[acct] = partner
+                by_name.setdefault(_norm(partner.name), partner)
+                if partner.email:
+                    by_email.setdefault(_norm(partner.email), partner)
                 updated += 1
             else:
                 vals["ufs_step1_cust_acct"] = acct
                 partner = Partner.create(vals)
                 by_acct[acct] = partner
+                by_name.setdefault(_norm(partner.name), partner)
+                if partner.email:
+                    by_email.setdefault(_norm(partner.email), partner)
                 created += 1
 
             # Primary ShipTo → child partner with type='delivery'
@@ -267,12 +343,14 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
                     ship_created += 1
 
         _logger.info(
-            "UFS customer import: %s created, %s updated, %s skipped, %s shiptos",
-            created, updated, skipped, ship_created,
+            "UFS customer import: %s created, %s updated "
+            "(%s matched by name/email), %s skipped, %s shiptos",
+            created, updated, matched_by_fallback, skipped, ship_created,
         )
         return {
             "created": created,
             "updated": updated,
+            "matched_by_name_or_email": matched_by_fallback,
             "skipped": skipped,
             "shiptos": ship_created,
         }
