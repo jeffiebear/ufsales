@@ -151,7 +151,7 @@
                         domain="[('step1_imported','=',True)]"/>
                 <filter string="Archived" name="f_archived"
                         domain="[('active','=',False)]"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter string="Customer" name="g_partner"
                             context="{'group_by': 'partner_id'}"/>
                     <filter string="Product" name="g_product"
