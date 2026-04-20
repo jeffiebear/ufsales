@@ -9,11 +9,14 @@
                 <sheet>
                     <group invisible="state == 'done'">
                         <group string="Steps to Run">
+                            <field name="import_customers"/>
                             <field name="import_vendors"/>
                             <field name="import_products"/>
                             <field name="import_warehouse"/>
                         </group>
                         <group string="Override CSVs (optional)">
+                            <field name="customers_file" filename="customers_filename"/>
+                            <field name="customers_filename" invisible="1"/>
                             <field name="vendors_file" filename="vendors_filename"/>
                             <field name="vendors_filename" invisible="1"/>
                             <field name="products_file" filename="products_filename"/>

@@ -26,6 +26,7 @@ _logger = logging.getLogger(__name__)
 
 
 _DEFAULT_VENDORS_CSV = "data/vendors.csv"
+_DEFAULT_CUSTOMERS_CSV = "data/customers.csv"
 _DEFAULT_PRODUCTS_CSV = "data/product_inventory_info.csv"
 _DEFAULT_WAREHOUSE_CSV = "data/warehouse.csv"
 _BRACKET_PRICELIST_NAME = "UFS Quantity Brackets"
@@ -223,6 +224,207 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
         return self.env["res.country"].sudo().search(
             [("code", "=", code.upper())], limit=1,
         )
+
+    # ================================================================
+    # 1b. Customers
+    # ================================================================
+    @api.model
+    def run_customer_import(self, csv_source=None):
+        rows = self._read_csv(csv_source, _DEFAULT_CUSTOMERS_CSV)
+        if not rows or "CustAcct" not in (rows[0].keys() if rows else ()):
+            raise UserError(_(
+                "This doesn't look like a Customer export (no CustAcct column)."
+            ))
+        Partner = self.env["res.partner"].sudo().with_context(active_test=False)
+
+        by_acct = {
+            p.ufs_step1_cust_acct: p
+            for p in Partner.search([("ufs_step1_cust_acct", "!=", False)])
+        }
+        created = updated = skipped = ship_created = 0
+        for row in rows:
+            acct = _s(row.get("CustAcct"))
+            # STEP1 exports carry '*' / '^' prefixes for flagged accounts;
+            # keep them as the canonical key so ufs_customer_pricing matches.
+            name = _s(row.get("CustomerName"))
+            if not acct or not name:
+                skipped += 1
+                continue
+            vals = self._customer_vals(row)
+            partner = by_acct.get(acct)
+            if partner:
+                partner.write(vals)
+                updated += 1
+            else:
+                vals["ufs_step1_cust_acct"] = acct
+                partner = Partner.create(vals)
+                by_acct[acct] = partner
+                created += 1
+
+            # Primary ShipTo → child partner with type='delivery'
+            if self._has_primary_shipto(row):
+                if self._upsert_primary_shipto(partner, row):
+                    ship_created += 1
+
+        _logger.info(
+            "UFS customer import: %s created, %s updated, %s skipped, %s shiptos",
+            created, updated, skipped, ship_created,
+        )
+        return {
+            "created": created,
+            "updated": updated,
+            "skipped": skipped,
+            "shiptos": ship_created,
+        }
+
+    @api.model
+    def _customer_vals(self, row):
+        state = self._find_state(_s(row.get("State")))
+        country = state.country_id if state else self._find_country("US")
+
+        # Build comments block
+        comments = [
+            _s(row.get(k))
+            for k in ("Comments1", "Comments2", "Comments3")
+            if _s(row.get(k))
+        ]
+        comments_text = "\n".join(comments) if comments else False
+
+        # Terms: STEP1 stores a code like "N10" / "NET30" in free text.
+        # Resolve to an account.payment.term when one matches by name,
+        # otherwise stash in ufs_terms_text.
+        terms_text = _s(row.get("Terms"))
+        payment_term = self._find_payment_term(terms_text)
+
+        # Default Pricing Scheme lives in ufs_customer_pricing; feed
+        # CustPriceOpt into it only when the field exists.
+        pricing_scheme = _s(row.get("CustPriceOpt"))
+
+        # Primary email picks the first non-empty from office→sales→AR.
+        email = (
+            _s(row.get("OfficeContactEmailAddress"))
+            or _s(row.get("SalesContactEmailAddress"))
+            or _s(row.get("ARContactEmailAddress"))
+            or False
+        )
+        contact_name = " ".join(filter(None, [
+            _s(row.get("OfficeContactFirstName")),
+            _s(row.get("OfficeContactLastName")),
+        ])) or False
+
+        vals = {
+            "name": _s(row.get("CustomerName")),
+            "company_type": "company",
+            "customer_rank": 1,
+            "supplier_rank": 0,
+            "ref": _s(row.get("CustAcct")) or False,
+            "street": _s(row.get("Address1")) or False,
+            "street2": _s(row.get("Address2")) or False,
+            "city": _s(row.get("City")) or False,
+            "zip": _s(row.get("Zip")) or False,
+            "phone": _s(row.get("OfficePhone")) or False,
+            "email": email,
+            "website": _s(row.get("WebAddress")) or False,
+            "comment": comments_text,
+            "active": not _yesno(row.get("ObsoleteFlag")),
+            "ufs_step1_cust_id": _s(row.get("CustID")) or False,
+            "ufs_cust_status": _s(row.get("CustStatus")) or False,
+            "ufs_sman_code": _s(row.get("SmanCode")) or False,
+            "ufs_sman_name": _s(row.get("SalesmanName")) or False,
+            "ufs_branch_code": _s(row.get("BranchCode")) or False,
+            "ufs_market_group": _s(row.get("MarketGroup")) or False,
+            "ufs_pricing_class": _s(row.get("PricingClassCode")) or False,
+            "ufs_sales_class": _s(row.get("SalesClass")) or False,
+            "ufs_fob": _s(row.get("FOB")) or False,
+            "ufs_frt_ppd_collect": _s(row.get("FrtPpdCollect")) or False,
+            "ufs_warehouse_code": _s(row.get("WHCode")) or False,
+            "ufs_resale_tax_num": _s(row.get("ResaleTaxNum")) or False,
+            "ufs_po_required": _yesno(row.get("PORequiredFlag")),
+            "ufs_blanket_po": _s(row.get("BlanketPONum")) or False,
+            "ufs_key_customer": _yesno(row.get("KeyCust")),
+            "ufs_terms_text": terms_text or False,
+            "ufs_carrier": _s(row.get("Carrier")) or False,
+        }
+        # Office contact name is captured on the ship-to child partner
+        # (when present); no direct field for it on the main record.
+        _ = contact_name
+        if state:
+            vals["state_id"] = state.id
+        if country:
+            vals["country_id"] = country.id
+        if payment_term and "property_payment_term_id" in self.env["res.partner"]._fields:
+            vals["property_payment_term_id"] = payment_term.id
+        # Credit limit lives in the accounting module; only set if present.
+        if "credit_limit" in self.env["res.partner"]._fields:
+            vals["credit_limit"] = _to_float(row.get("CreditLimit"))
+        # Wholesale state: imported customers count as approved (they're
+        # established accounts, not applicants).
+        if "ufs_wholesale_state" in self.env["res.partner"]._fields:
+            vals["ufs_wholesale_state"] = "approved"
+        # Default pricing scheme (from ufs_customer_pricing)
+        if pricing_scheme and "ufs_default_price_opt" in self.env["res.partner"]._fields:
+            vals["ufs_default_price_opt"] = pricing_scheme
+        return vals
+
+    @api.model
+    def _find_payment_term(self, text):
+        if not text:
+            return None
+        Term = self.env.get("account.payment.term")
+        if Term is None:
+            return None
+        return Term.sudo().with_context(active_test=False).search(
+            [("name", "=ilike", text)], limit=1,
+        ) or None
+
+    @api.model
+    def _has_primary_shipto(self, row):
+        return bool(
+            _s(row.get("PrimaryShipCustomerName"))
+            or _s(row.get("PrimaryShipAddress1"))
+            or _s(row.get("PrimaryShipCity"))
+        )
+
+    @api.model
+    def _upsert_primary_shipto(self, parent, row):
+        Partner = self.env["res.partner"].sudo()
+        code = _s(row.get("PrimaryShipToCode"))
+        name = _s(row.get("PrimaryShipCustomerName")) or parent.name
+        state = self._find_state(_s(row.get("PrimaryShipState")))
+        country = state.country_id if state else self._find_country("US")
+        instructions = "\n".join(filter(None, [
+            _s(row.get("PrimaryShipInstructions1")),
+            _s(row.get("PrimaryShipInstructions2")),
+            _s(row.get("PrimaryShipInstructions3")),
+        ])) or False
+        vals = {
+            "parent_id": parent.id,
+            "type": "delivery",
+            "name": name,
+            "street": _s(row.get("PrimaryShipAddress1")) or False,
+            "street2": _s(row.get("PrimaryShipAddress2")) or False,
+            "city": _s(row.get("PrimaryShipCity")) or False,
+            "zip": _s(row.get("PrimaryShipZip")) or False,
+            "ref": ("ST:%s" % code) if code else False,
+            "comment": instructions,
+        }
+        if state:
+            vals["state_id"] = state.id
+        if country:
+            vals["country_id"] = country.id
+        domain = [("parent_id", "=", parent.id), ("type", "=", "delivery")]
+        if code:
+            existing = Partner.search(domain + [("ref", "=", "ST:%s" % code)], limit=1)
+        else:
+            existing = Partner.search(
+                domain + [("street", "=", _s(row.get("PrimaryShipAddress1")))],
+                limit=1,
+            )
+        if existing:
+            existing.write(vals)
+            return False
+        Partner.create(vals)
+        return True
 
     # ================================================================
     # 2. Products (inventory info)

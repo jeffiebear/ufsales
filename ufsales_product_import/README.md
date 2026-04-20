@@ -71,6 +71,7 @@ env["ufsales.product.importer"].run_import()
 
 | CSV                          | Target                                           |
 |------------------------------|--------------------------------------------------|
+| `customers.csv`              | `res.partner` (customer_rank=1) + ShipTo child   |
 | `vendors.csv`                | `res.partner` (supplier_rank=1)                  |
 | `product_inventory_info.csv` | `product.template` + `product.supplierinfo` + quantity-tier pricelist |
 | `warehouse.csv`              | `stock.quant` + `stock.warehouse.orderpoint` + bin # on template |
@@ -107,6 +108,63 @@ Live in `ufsales_product_import/data/`:
 
 Replace them in-repo to update the default import, or just upload
 fresh ones via the wizard.
+
+---
+
+## Customer import (`customers.csv`)
+
+**Key:** `CustAcct` → `res.partner.ufs_step1_cust_acct` (the same field
+used by `ufs_customer_pricing`).
+
+STEP1 prefixes some accounts with `*` or `^`; the importer keeps the
+prefix as the canonical key so the customer-price-rule importer
+matches.
+
+### What is written on every customer
+
+| CSV column                                                    | Odoo target                      |
+|---------------------------------------------------------------|----------------------------------|
+| `CustAcct`                                                    | `ufs_step1_cust_acct`, `ref`     |
+| `CustID`                                                      | `ufs_step1_cust_id`              |
+| `CustomerName`                                                | `name`                           |
+| `Address1` / `Address2`                                       | `street` / `street2`             |
+| `City`, `State`, `Zip`                                        | `city`, `state_id`, `zip` (state resolved US code then name) |
+| `OfficePhone`                                                 | `phone`                          |
+| `OfficeContactEmailAddress` → `SalesContactEmailAddress` → `ARContactEmailAddress` | `email` (first non-empty) |
+| `WebAddress`                                                  | `website`                        |
+| `Comments1–3`                                                 | `comment` (joined)               |
+| `Terms`                                                       | `property_payment_term_id` (matched by name) + `ufs_terms_text` |
+| `CreditLimit`                                                 | `credit_limit` (when `account` is present) |
+| `CustPriceOpt`                                                | `ufs_default_price_opt`          |
+| `BranchCode`, `MarketGroup`, `PricingClassCode`, `SalesClass` | `ufs_branch_code`, `ufs_market_group`, `ufs_pricing_class`, `ufs_sales_class` |
+| `SmanCode`, `SalesmanName`                                    | `ufs_sman_code`, `ufs_sman_name` |
+| `Carrier`, `FOB`, `FrtPpdCollect`                             | `ufs_carrier`, `ufs_fob`, `ufs_frt_ppd_collect` |
+| `WHCode`                                                      | `ufs_warehouse_code`             |
+| `ResaleTaxNum`                                                | `ufs_resale_tax_num`             |
+| `PORequiredFlag`, `BlanketPONum`                              | `ufs_po_required`, `ufs_blanket_po` |
+| `KeyCust`                                                     | `ufs_key_customer`               |
+| `CustStatus`                                                  | `ufs_cust_status`                |
+| `ObsoleteFlag`                                                | `active` (inverse)               |
+
+Partner defaults: `company_type='company'`, `customer_rank=1`,
+`supplier_rank=0`. When `ufs_wholesale` is installed, imported
+customers are stamped `ufs_wholesale_state='approved'` so they can
+shop immediately.
+
+### Primary ShipTo
+
+When any of `PrimaryShipCustomerName`, `PrimaryShipAddress1`, or
+`PrimaryShipCity` is present, the importer creates or updates a child
+partner with `type='delivery'`:
+
+- `ref = "ST:<PrimaryShipToCode>"` (used as the upsert key)
+- `name = PrimaryShipCustomerName` (falls back to the parent's name)
+- Address fields from `PrimaryShipAddress1/2`, `PrimaryShipCity`,
+  `PrimaryShipState`, `PrimaryShipZip`
+- `comment = PrimaryShipInstructions1 + 2 + 3` (joined)
+
+Additional ship-tos (when `NumShipTos > 1`) are not currently
+migrated — add them manually or extend the importer.
 
 ---
 
@@ -234,10 +292,25 @@ records and drop `ufs_bin_number`.
 
 ### `res.partner`
 
-- `ufs_step1_vendor_acct` *(indexed)*
-- `ufs_step1_vendor_id`
+Vendor side:
+- `ufs_step1_vendor_acct` *(indexed)*, `ufs_step1_vendor_id`
 - `ufs_vendor_group_code`
+
+Customer side:
+- `ufs_step1_cust_id` *(indexed)*, `ufs_cust_status`
+- `ufs_sman_code` *(indexed)*, `ufs_sman_name`
+- `ufs_branch_code`, `ufs_market_group`
+- `ufs_pricing_class` *(indexed)*, `ufs_sales_class`
+- `ufs_fob`, `ufs_frt_ppd_collect`, `ufs_warehouse_code`
+- `ufs_resale_tax_num`
+- `ufs_po_required`, `ufs_blanket_po`, `ufs_key_customer`
+- `ufs_terms_text`, `ufs_comments`
+
+Shared:
 - `ufs_carrier`
+
+`ufs_step1_cust_acct` and `ufs_default_price_opt` come from
+`ufs_customer_pricing`.
 
 ### `product.template`
 

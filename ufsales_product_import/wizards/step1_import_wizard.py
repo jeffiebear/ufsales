@@ -17,11 +17,14 @@ class UfsalesStep1ImportWizard(models.TransientModel):
     _description = "UF Sales STEP1 Import Wizard"
 
     import_vendors = fields.Boolean(default=True, string="Import Vendors")
+    import_customers = fields.Boolean(default=True, string="Import Customers")
     import_products = fields.Boolean(default=True, string="Import Products")
     import_warehouse = fields.Boolean(default=True, string="Import Warehouse / Inventory")
 
     vendors_file = fields.Binary(string="Vendors CSV (optional)")
     vendors_filename = fields.Char()
+    customers_file = fields.Binary(string="Customers CSV (optional)")
+    customers_filename = fields.Char()
     products_file = fields.Binary(string="Product Inventory CSV (optional)")
     products_filename = fields.Char()
     warehouse_file = fields.Binary(string="Warehouse CSV (optional)")
@@ -35,7 +38,10 @@ class UfsalesStep1ImportWizard(models.TransientModel):
 
     def action_import(self):
         self.ensure_one()
-        if not (self.import_vendors or self.import_products or self.import_warehouse):
+        if not (
+            self.import_vendors or self.import_customers
+            or self.import_products or self.import_warehouse
+        ):
             raise UserError(_("Pick at least one import step."))
         importer = self.env["ufsales.step1.csv.importer"]
         lines = []
@@ -51,7 +57,11 @@ class UfsalesStep1ImportWizard(models.TransientModel):
                 lines.append("%s: ERROR — %s" % (label, e))
 
         # Order matters: vendors before products (for supplierinfo),
-        # products before warehouse (for stock/orderpoints).
+        # products before warehouse (for stock/orderpoints). Customers
+        # are independent and run first so later steps that rely on the
+        # partner table (none today) are safe.
+        if self.import_customers:
+            _run("Customers", importer.run_customer_import, self.customers_file)
         if self.import_vendors:
             _run("Vendors", importer.run_vendor_import, self.vendors_file)
         if self.import_products:

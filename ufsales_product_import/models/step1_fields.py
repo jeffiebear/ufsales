@@ -22,6 +22,26 @@ class ResPartner(models.Model):
     )
     ufs_carrier = fields.Char(string="Default Carrier", copy=False)
 
+    # Customer-side STEP1 identifiers (paired with ufs_customer_pricing's
+    # ufs_step1_cust_acct / ufs_default_price_opt).
+    ufs_step1_cust_id = fields.Char(string="STEP1 CustID", index=True, copy=False)
+    ufs_cust_status = fields.Char(string="STEP1 CustStatus", copy=False)
+    ufs_sman_code = fields.Char(string="Salesman Code", copy=False, index=True)
+    ufs_sman_name = fields.Char(string="Salesman Name", copy=False)
+    ufs_branch_code = fields.Char(string="Branch Code", copy=False)
+    ufs_market_group = fields.Char(string="Market Group", copy=False)
+    ufs_pricing_class = fields.Char(string="Pricing Class", copy=False, index=True)
+    ufs_sales_class = fields.Char(string="Customer Sales Class", copy=False)
+    ufs_fob = fields.Char(string="FOB", copy=False)
+    ufs_frt_ppd_collect = fields.Char(string="Freight Prepaid/Collect", copy=False)
+    ufs_warehouse_code = fields.Char(string="Preferred WHCode", copy=False)
+    ufs_resale_tax_num = fields.Char(string="Resale Tax Number", copy=False)
+    ufs_po_required = fields.Boolean(string="PO Required", copy=False)
+    ufs_blanket_po = fields.Char(string="Blanket PO", copy=False)
+    ufs_key_customer = fields.Boolean(string="Key Customer", copy=False)
+    ufs_terms_text = fields.Char(string="Payment Terms (legacy)", copy=False)
+    ufs_comments = fields.Text(string="STEP1 Customer Comments", copy=False)
+
 
 class ProductTemplate(models.Model):
     _inherit = "product.template"
