@@ -266,7 +266,7 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
                 continue
             template = existing_by_item.get(sku) or existing_by_default.get(sku)
             is_new = not template
-            vals = self._product_vals(row, has_item_code_field)
+            vals = self._product_vals(row, has_item_code_field, is_new=is_new)
 
             if is_new:
                 vals["default_code"] = sku
@@ -307,7 +307,7 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
         return {"created": created, "updated": updated, "skipped": skipped}
 
     @api.model
-    def _product_vals(self, row, has_item_code_field):
+    def _product_vals(self, row, has_item_code_field, is_new=False):
         Template = self.env["product.template"]
         fields_map = Template._fields
         name = _s(row.get("ItemDescription")) or _normalize_item_code(row.get("ItemCode"))
@@ -316,10 +316,6 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
         cost = (_to_float(row.get("LastUnitCost"))
                 or _to_float(row.get("AveUnitCost"))
                 or _to_float(row.get("StdUnitCost")))
-        uom = self.env["ufsales.product.importer"]._ensure_uom(
-            row.get("StockUnit") or row.get("PriceUnit"),
-            {"uoms_created": 0},
-        )
         vals = {
             "name": name,
             "list_price": _to_float(row.get("ListPrice")),
@@ -347,12 +343,19 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
         # Description
         if ext_desc and "description_sale" in fields_map:
             vals["description_sale"] = ext_desc
-        # UoM (purchase + stock)
-        if uom:
-            if "uom_id" in fields_map:
-                vals["uom_id"] = uom.id
-            if "uom_po_id" in fields_map:
-                vals["uom_po_id"] = uom.id
+        # UoM (purchase + stock). Changing uom_id on a product that already
+        # has posted journal entries raises a hard error in Odoo, so only
+        # set it for brand-new products.
+        if is_new:
+            uom = self.env["ufsales.product.importer"]._ensure_uom(
+                row.get("StockUnit") or row.get("PriceUnit"),
+                {"uoms_created": 0},
+            )
+            if uom:
+                if "uom_id" in fields_map:
+                    vals["uom_id"] = uom.id
+                if "uom_po_id" in fields_map:
+                    vals["uom_po_id"] = uom.id
         # Product type — storable (Odoo 19 uses `is_storable` on consu)
         if "type" in fields_map:
             vals["type"] = "consu"
@@ -514,11 +517,15 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
                 variant = template.product_variant_id
                 self._apply_on_hand(variant, warehouse, on_hand)
 
-            # Reorder rule
+            # Reorder rule. Odoo enforces product_min_qty <= product_max_qty;
+            # STEP1 occasionally ships LinePoint < ReorderPoint, so clamp.
             reorder_pt = _to_float(row.get("ReorderPoint"))
             line_pt = _to_float(row.get("LinePoint"))
             reorder_qty = _to_float(row.get("ReorderQty"))
             if (reorder_pt or line_pt or reorder_qty) and template.product_variant_ids:
+                max_qty = line_pt or (reorder_pt + reorder_qty) or reorder_pt
+                if max_qty < reorder_pt:
+                    max_qty = reorder_pt
                 variant = template.product_variant_id
                 rule = OrderPoint.search([
                     ("product_id", "=", variant.id),
@@ -529,7 +536,7 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
                     "warehouse_id": warehouse.id,
                     "location_id": warehouse.lot_stock_id.id,
                     "product_min_qty": reorder_pt,
-                    "product_max_qty": line_pt or (reorder_pt + reorder_qty),
+                    "product_max_qty": max_qty,
                     "qty_to_order_manual": reorder_qty or 0.0,
                 }
                 if rule:
