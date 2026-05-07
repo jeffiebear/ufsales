@@ -921,12 +921,18 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
 
         created = skipped_existing = skipped_no_vendor = 0
         skipped_no_lines = lines_dropped = 0
-        # silence chatter and avoid auto-subscribe overhead during bulk import
+        vendors_stubbed = products_stubbed = 0
+        # is_storable lives on product.template in Odoo 19
+        has_is_storable = "is_storable" in Template._fields
+        # silence chatter and avoid auto-subscribe overhead during bulk
+        # import. active_test=False so archived stub products/vendors are
+        # accepted as PO targets.
         ctx = {
             "tracking_disable": True,
             "mail_create_nolog": True,
             "mail_create_nosubscribe": True,
             "mail_notrack": True,
+            "active_test": False,
         }
         Order = Order.with_context(**ctx)
         OrderLine = OrderLine.with_context(**ctx)
@@ -938,13 +944,29 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
             if pono in existing_pos:
                 skipped_existing += 1
                 continue
-            vendor = vendors_by_acct.get(_s(row.get("VendorAcct")))
+            vacct = _s(row.get("VendorAcct"))
+            vendor = vendors_by_acct.get(vacct)
             if not vendor:
-                skipped_no_vendor += 1
-                continue
+                vendor = self._po_stub_vendor(
+                    vacct, _s(row.get("VendorName")) or _s(row.get("POVendorName")),
+                )
+                if vendor:
+                    vendors_by_acct[vacct] = vendor
+                    vendors_stubbed += 1
+                else:
+                    skipped_no_vendor += 1
+                    continue
 
             line_vals_list = []
             for lrow in lines_by_po.get(pono, []):
+                sku = _normalize_item_code(lrow.get("ItemCode"))
+                if sku and sku not in products_by_code:
+                    stub = self._po_stub_product(
+                        sku, _s(lrow.get("Description")), has_is_storable,
+                    )
+                    if stub:
+                        products_by_code[sku] = stub
+                        products_stubbed += 1
                 lv = self._po_line_vals(lrow, products_by_code)
                 if lv is None:
                     lines_dropped += 1
@@ -986,7 +1008,50 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
             "skipped_no_vendor": skipped_no_vendor,
             "skipped_no_lines": skipped_no_lines,
             "lines_dropped": lines_dropped,
+            "vendors_stubbed": vendors_stubbed,
+            "products_stubbed": products_stubbed,
         }
+
+    @api.model
+    def _po_stub_vendor(self, acct, name):
+        """Create an archived placeholder vendor for an unknown acct so a
+        historical PO can still link to *something*. Toggle active=True
+        later if the vendor turns out to be real and current."""
+        if not acct:
+            return None
+        Partner = self.env["res.partner"].sudo()
+        return Partner.create({
+            "name": name or ("STEP1 Vendor %s" % acct),
+            "company_type": "company",
+            "supplier_rank": 1,
+            "customer_rank": 0,
+            "active": False,
+            "ref": acct,
+            "ufs_step1_vendor_acct": acct,
+        })
+
+    @api.model
+    def _po_stub_product(self, sku, description, has_is_storable):
+        """Create an archived placeholder product for an unknown SKU."""
+        if not sku:
+            return None
+        Template = self.env["product.template"].sudo()
+        vals = {
+            "name": description or ("STEP1 Item %s" % sku),
+            "default_code": sku,
+            "type": "consu",
+            "purchase_ok": True,
+            "sale_ok": False,
+            "active": False,
+        }
+        if has_is_storable:
+            vals["is_storable"] = True
+        if "ufs_step1_item_code" in Template._fields:
+            vals["ufs_step1_item_code"] = sku
+        if "ufs_is_obsolete" in Template._fields:
+            vals["ufs_is_obsolete"] = True
+        tmpl = Template.create(vals)
+        return tmpl.product_variant_id
 
     @api.model
     def _po_header_vals(self, row, vendor):
