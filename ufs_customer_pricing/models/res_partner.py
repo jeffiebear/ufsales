@@ -62,6 +62,17 @@ class ResPartner(models.Model):
             'ufs_pricelist_id': pl.id,
             'property_product_pricelist': pl.id,
         })
+        # Seed the new pricelist with mirrors of any existing UFS Quantity
+        # Bracket items so brackets keep winning at qty thresholds for
+        # this customer too.
+        Item = self.env['product.pricelist.item'].sudo()
+        bracket_pl = Item._ufs_bracket_pricelist()
+        if bracket_pl:
+            for src in Item.search([
+                ('pricelist_id', '=', bracket_pl.id),
+                ('ufs_bracket_source_id', '=', False),
+            ]):
+                src._ufs_mirror_to(pl)
         return pl
 
     def write(self, vals):

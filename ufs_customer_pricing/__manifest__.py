@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customer Pricing',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'summary': 'Customer-specific pricing rules migrated from STEP1, with auto-sync to Odoo pricelists.',
     'description': """
 UFS Customer Pricing
@@ -37,6 +37,7 @@ Key features
         'views/res_partner_views.xml',
         'views/product_template_views.xml',
         'wizards/ufs_price_rule_import_views.xml',
+        'wizards/ufs_pricing_maintenance_views.xml',
         'views/menus.xml',
     ],
     'installable': True,

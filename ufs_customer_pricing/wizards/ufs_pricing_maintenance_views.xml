@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_ufs_pricing_maintenance" model="ir.ui.view">
+        <field name="name">ufs.pricing.maintenance.form</field>
+        <field name="model">ufs.pricing.maintenance</field>
+        <field name="arch" type="xml">
+            <form string="Pricing Maintenance">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Pricing Maintenance</h1>
+                        <p>
+                            Use these tools sparingly — each button rewrites
+                            data across the whole catalog.
+                        </p>
+                    </div>
+                    <group>
+                        <field name="log" widget="text" readonly="1" nolabel="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_wipe_brackets" type="object"
+                            string="Wipe Quantity Brackets"
+                            class="btn-warning"
+                            confirm="This deletes every item on the UFS Quantity Brackets pricelist and removes the mirrors from every customer pricelist. Continue?"/>
+                    <button name="action_reprice_30" type="object"
+                            string="Reprice All to 30% Markup"
+                            class="btn-primary"
+                            confirm="This sets list_price = standard_price × 1.30 for every product with a positive cost. Continue?"/>
+                    <button string="Close" class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ufs_pricing_maintenance" model="ir.actions.act_window">
+        <field name="name">Pricing Maintenance</field>
+        <field name="res_model">ufs.pricing.maintenance</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_ufs_pricing_maintenance"
+              name="Pricing Maintenance"
+              parent="menu_ufs_pricing_root"
+              action="action_ufs_pricing_maintenance"
+              sequence="30"
+              groups="sales_team.group_sale_manager"/>
+
+</odoo>
