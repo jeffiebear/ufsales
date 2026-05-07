@@ -1044,7 +1044,7 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
             "name": desc,
             "product_qty": qty,
             "price_unit": unit_cost,
-            "product_uom": product.uom_po_id.id or product.uom_id.id,
+            "product_uom_id": product.uom_id.id,
             "ufs_step1_line_num": _to_int(row.get("LineNum")),
             "ufs_step1_qty_received": _to_float(row.get("StockQtyReceived"))
                 or _to_float(row.get("NumReceived")),
