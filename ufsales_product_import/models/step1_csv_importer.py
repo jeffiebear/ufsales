@@ -1020,7 +1020,7 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
             vals["date_planned"] = datetime.combine(
                 exp_receive, datetime.min.time(),
             )
-        if notes_bits:
+        if notes_bits and "notes" in self.env["purchase.order"]._fields:
             vals["notes"] = " | ".join(notes_bits)
         return vals
 
