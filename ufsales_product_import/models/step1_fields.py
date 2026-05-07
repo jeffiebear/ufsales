@@ -69,3 +69,28 @@ class StockWarehouse(models.Model):
     ufs_step1_wh_code = fields.Char(
         string="STEP1 WH Code", index=True, copy=False,
     )
+
+
+class PurchaseOrder(models.Model):
+    _inherit = "purchase.order"
+
+    ufs_step1_po_number = fields.Char(
+        string="STEP1 PO Number", index=True, copy=False,
+        help="Legacy STEP1 PONumber. Used as the import key for historical POs.",
+    )
+    ufs_step1_status = fields.Char(string="STEP1 Status", copy=False)
+    ufs_step1_wh_code = fields.Char(string="STEP1 WH Code", copy=False)
+    ufs_step1_carrier = fields.Char(string="STEP1 Carrier", copy=False)
+    ufs_step1_terms = fields.Char(string="STEP1 Terms", copy=False)
+    ufs_step1_imported = fields.Boolean(
+        string="Imported from STEP1", index=True, copy=False,
+        help="Inert historical record — no pickings or invoices were generated.",
+    )
+
+
+class PurchaseOrderLine(models.Model):
+    _inherit = "purchase.order.line"
+
+    ufs_step1_line_num = fields.Integer(string="STEP1 Line #", copy=False)
+    ufs_step1_qty_received = fields.Float(string="STEP1 Qty Received", copy=False)
+    ufs_step1_qty_backorder = fields.Float(string="STEP1 Qty BO", copy=False)

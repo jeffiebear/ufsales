@@ -20,6 +20,7 @@ class UfsalesStep1ImportWizard(models.TransientModel):
     import_customers = fields.Boolean(default=True, string="Import Customers")
     import_products = fields.Boolean(default=True, string="Import Products")
     import_warehouse = fields.Boolean(default=True, string="Import Warehouse / Inventory")
+    import_po_history = fields.Boolean(default=False, string="Import PO History (inert)")
 
     vendors_file = fields.Binary(string="Vendors CSV (optional)")
     vendors_filename = fields.Char()
@@ -29,6 +30,10 @@ class UfsalesStep1ImportWizard(models.TransientModel):
     products_filename = fields.Char()
     warehouse_file = fields.Binary(string="Warehouse CSV (optional)")
     warehouse_filename = fields.Char()
+    po_summary_file = fields.Binary(string="PO Summary CSV (optional)")
+    po_summary_filename = fields.Char()
+    po_detail_file = fields.Binary(string="PO Detail CSV (optional)")
+    po_detail_filename = fields.Char()
 
     log = fields.Text(string="Log", readonly=True)
     state = fields.Selection(
@@ -41,6 +46,7 @@ class UfsalesStep1ImportWizard(models.TransientModel):
         if not (
             self.import_vendors or self.import_customers
             or self.import_products or self.import_warehouse
+            or self.import_po_history
         ):
             raise UserError(_("Pick at least one import step."))
         importer = self.env["ufsales.step1.csv.importer"]
@@ -68,6 +74,17 @@ class UfsalesStep1ImportWizard(models.TransientModel):
             _run("Products", importer.run_product_import, self.products_file)
         if self.import_warehouse:
             _run("Warehouse", importer.run_warehouse_import, self.warehouse_file)
+        if self.import_po_history:
+            try:
+                result = importer.run_po_history_import(
+                    self.po_summary_file, self.po_detail_file,
+                )
+                lines.append("PO History: %s" % ", ".join(
+                    "%s=%s" % (k, v) for k, v in result.items()
+                ))
+            except Exception as e:
+                _logger.exception("PO History failed")
+                lines.append("PO History: ERROR — %s" % e)
 
         self.write({"log": "\n".join(lines), "state": "done"})
         return {

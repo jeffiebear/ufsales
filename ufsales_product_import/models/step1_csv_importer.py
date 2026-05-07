@@ -29,7 +29,10 @@ _DEFAULT_VENDORS_CSV = "data/vendors.csv"
 _DEFAULT_CUSTOMERS_CSV = "data/customers.csv"
 _DEFAULT_PRODUCTS_CSV = "data/product_inventory_info.csv"
 _DEFAULT_WAREHOUSE_CSV = "data/warehouse.csv"
+_DEFAULT_PO_SUMMARY_CSV = "data/po_summary.csv"
+_DEFAULT_PO_DETAIL_CSV = "data/po_detail.csv"
 _BRACKET_PRICELIST_NAME = "UFS Quantity Brackets"
+_PO_COMMIT_BATCH = 500
 
 
 # ---------------------------------------------------------------------------
@@ -848,6 +851,229 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
             "code": wh_code[:5].upper() or "WH",
             "ufs_step1_wh_code": wh_code,
         })
+
+    # ================================================================
+    # 5. PO History (inert)
+    # ================================================================
+    @api.model
+    def run_po_history_import(self, summary_source=None, detail_source=None):
+        """Import historical purchase orders as inert reference records.
+
+        - Idempotent on `purchase.order.ufs_step1_po_number`.
+        - State is written directly (no `button_confirm`), so no pickings,
+          stock moves, or vendor bills are generated.
+        - Vendors are matched by `ufs_step1_vendor_acct`. POs whose vendor
+          can't be resolved are skipped.
+        - Lines whose ItemCode doesn't resolve to a product are dropped
+          (the header is still imported with the lines that do resolve).
+        - Commits every %d POs so very large imports don't blow up the
+          transaction.
+        """ % _PO_COMMIT_BATCH
+        summary_rows = self._read_csv(summary_source, _DEFAULT_PO_SUMMARY_CSV)
+        detail_rows = self._read_csv(detail_source, _DEFAULT_PO_DETAIL_CSV)
+        if not summary_rows:
+            raise UserError(_("PO Summary CSV is empty."))
+        if "PONumber" not in summary_rows[0].keys():
+            raise UserError(_(
+                "This doesn't look like a PO Summary export (no PONumber column)."
+            ))
+        if detail_rows and "PONumber" not in detail_rows[0].keys():
+            raise UserError(_(
+                "This doesn't look like a PO Detail export (no PONumber column)."
+            ))
+
+        Order = self.env["purchase.order"].sudo()
+        OrderLine = self.env["purchase.order.line"].sudo()
+        Partner = self.env["res.partner"].sudo()
+        Product = self.env["product.product"].sudo()
+        Template = self.env["product.template"].sudo()
+
+        # ---- prefetch lookups ----
+        vendors_by_acct = {
+            p.ufs_step1_vendor_acct: p
+            for p in Partner.search([("ufs_step1_vendor_acct", "!=", False)])
+        }
+        existing_pos = set(
+            r["ufs_step1_po_number"] for r in Order.search_read(
+                [("ufs_step1_po_number", "!=", False)],
+                ["ufs_step1_po_number"],
+            )
+        )
+        # product map by default_code (variant) and template default_code
+        products_by_code = {}
+        for p in Product.search([("default_code", "!=", False)]):
+            products_by_code.setdefault(p.default_code, p)
+        # also map item_code stamp if present
+        if "ufs_step1_item_code" in Template._fields:
+            for t in Template.search([("ufs_step1_item_code", "!=", False)]):
+                if t.product_variant_id:
+                    products_by_code.setdefault(
+                        t.ufs_step1_item_code, t.product_variant_id,
+                    )
+
+        # ---- group detail by PONumber ----
+        lines_by_po = {}
+        for row in detail_rows:
+            pono = _s(row.get("PONumber"))
+            if not pono:
+                continue
+            lines_by_po.setdefault(pono, []).append(row)
+
+        created = skipped_existing = skipped_no_vendor = 0
+        skipped_no_lines = lines_dropped = 0
+        # silence chatter and avoid auto-subscribe overhead during bulk import
+        ctx = {
+            "tracking_disable": True,
+            "mail_create_nolog": True,
+            "mail_create_nosubscribe": True,
+            "mail_notrack": True,
+        }
+        Order = Order.with_context(**ctx)
+        OrderLine = OrderLine.with_context(**ctx)
+
+        for idx, row in enumerate(summary_rows, start=1):
+            pono = _s(row.get("PONumber"))
+            if not pono:
+                continue
+            if pono in existing_pos:
+                skipped_existing += 1
+                continue
+            vendor = vendors_by_acct.get(_s(row.get("VendorAcct")))
+            if not vendor:
+                skipped_no_vendor += 1
+                continue
+
+            line_vals_list = []
+            for lrow in lines_by_po.get(pono, []):
+                lv = self._po_line_vals(lrow, products_by_code)
+                if lv is None:
+                    lines_dropped += 1
+                    continue
+                line_vals_list.append((0, 0, lv))
+
+            if not line_vals_list:
+                skipped_no_lines += 1
+                continue
+
+            header_vals = self._po_header_vals(row, vendor)
+            header_vals["order_line"] = line_vals_list
+            header_vals["ufs_step1_po_number"] = pono
+            header_vals["ufs_step1_imported"] = True
+
+            order = Order.create(header_vals)
+            # Bypass workflow: write state directly so no picking/invoice
+            # is generated and no stock moves are created.
+            target_state = self._po_target_state(row)
+            if target_state and target_state != order.state:
+                order.write({"state": target_state})
+            created += 1
+            existing_pos.add(pono)
+
+            if created % _PO_COMMIT_BATCH == 0:
+                self.env.cr.commit()
+                _logger.info("UFS PO history: committed %s POs", created)
+
+        _logger.info(
+            "UFS PO history: %s created, %s already existed, "
+            "%s skipped (vendor missing), %s skipped (no resolvable lines), "
+            "%s lines dropped (product missing)",
+            created, skipped_existing, skipped_no_vendor,
+            skipped_no_lines, lines_dropped,
+        )
+        return {
+            "created": created,
+            "skipped_existing": skipped_existing,
+            "skipped_no_vendor": skipped_no_vendor,
+            "skipped_no_lines": skipped_no_lines,
+            "lines_dropped": lines_dropped,
+        }
+
+    @api.model
+    def _po_header_vals(self, row, vendor):
+        po_date = _to_date(row.get("PODate"))
+        date_order = datetime.combine(po_date, datetime.min.time()) \
+            if po_date else fields.Datetime.now()
+        date_received = _to_date(row.get("DateReceived"))
+        exp_receive = _to_date(row.get("ExpReceiveDate"))
+        notes_bits = []
+        for k in (
+            "SpecialInstructions1", "SpecialInstructions2",
+            "SpecialInstructions3", "MiscChgDesc",
+        ):
+            v = _s(row.get(k))
+            if v:
+                notes_bits.append(v)
+        vals = {
+            "partner_id": vendor.id,
+            "partner_ref": _s(row.get("PONumber")) or False,
+            "date_order": date_order,
+            "ufs_step1_status": _s(row.get("Status")) or False,
+            "ufs_step1_wh_code": _s(row.get("WHCode")) or False,
+            "ufs_step1_carrier": _s(row.get("Carrier")) or False,
+            "ufs_step1_terms": _s(row.get("Terms")) or False,
+        }
+        if "date_approve" in self.env["purchase.order"]._fields and date_received:
+            vals["date_approve"] = datetime.combine(
+                date_received, datetime.min.time(),
+            )
+        if exp_receive and "date_planned" in self.env["purchase.order"]._fields:
+            vals["date_planned"] = datetime.combine(
+                exp_receive, datetime.min.time(),
+            )
+        if notes_bits:
+            vals["notes"] = " | ".join(notes_bits)
+        return vals
+
+    @api.model
+    def _po_line_vals(self, row, products_by_code):
+        sku = _normalize_item_code(row.get("ItemCode"))
+        if not sku:
+            return None
+        product = products_by_code.get(sku)
+        if not product:
+            return None
+        qty = _to_float(row.get("StockQtyOrdered")) or _to_float(row.get("NumOrdered"))
+        if qty <= 0:
+            qty = 1.0
+        unit_cost = _to_float(row.get("StockUnitCost")) or _to_float(row.get("POCost"))
+        desc = _s(row.get("Description")) or product.display_name
+        date_planned = _to_date(row.get("ExpReceiveDate")) \
+            or _to_date(row.get("BOExpReceiveDate"))
+        vals = {
+            "product_id": product.id,
+            "name": desc,
+            "product_qty": qty,
+            "price_unit": unit_cost,
+            "product_uom": product.uom_po_id.id or product.uom_id.id,
+            "ufs_step1_line_num": _to_int(row.get("LineNum")),
+            "ufs_step1_qty_received": _to_float(row.get("StockQtyReceived"))
+                or _to_float(row.get("NumReceived")),
+            "ufs_step1_qty_backorder": _to_float(row.get("StockQtyBO"))
+                or _to_float(row.get("NumBO")),
+        }
+        if date_planned:
+            vals["date_planned"] = datetime.combine(
+                date_planned, datetime.min.time(),
+            )
+        return vals
+
+    @api.model
+    def _po_target_state(self, row):
+        """Map STEP1 status to an Odoo purchase.order state. We bypass the
+        workflow by writing state directly, so this purely affects how the
+        record is displayed and filtered."""
+        code = _s(row.get("StatusCode")).upper()
+        status = _s(row.get("Status")).upper()
+        if code == "R" or status == "RECEIVED":
+            return "purchase"
+        if code == "I" or _yesno(row.get("POIssuedFlag")):
+            return "purchase"
+        if code == "B" or status == "BACKORDER":
+            return "purchase"
+        if status in ("CANCELLED", "CANCELED", "VOID", "VOIDED"):
+            return "cancel"
+        # Default: leave as draft for anything that wasn't issued.
+        return "draft"
 
     @api.model
     def _apply_on_hand(self, variant, warehouse, qty):
