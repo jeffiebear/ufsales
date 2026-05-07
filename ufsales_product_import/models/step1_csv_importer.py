@@ -84,6 +84,42 @@ def _normalize_item_code(v):
     return s.lstrip("[").strip() if s else s
 
 
+def _sku_lookup_key(s):
+    """Aggressive normalization for matching SKUs across STEP1 generations:
+    case-insensitive and whitespace-stripped."""
+    return (s or "").strip().upper().replace(" ", "")
+
+
+_GARBAGE_SKU_RE = None
+
+
+def _is_garbage_sku(sku):
+    """Filter out PO ItemCode values that obviously aren't SKUs.
+    These came from data-entry slips over the years (e.g. `*DOLLAR GENERAL*`,
+    `0.612244`, `.`). Stubbing them as archived products would just create
+    noise."""
+    import re
+    global _GARBAGE_SKU_RE
+    if _GARBAGE_SKU_RE is None:
+        _GARBAGE_SKU_RE = re.compile(
+            r"^("
+            r"\d+\.\d+"        # decimal numbers like 0.612244
+            r"|\*.*\*"          # *...* wrapped tokens
+            r"|0+"              # plain zeros
+            r"|\.+"             # dots only
+            r")$"
+        )
+    if not sku:
+        return True
+    if len(sku) < 2:
+        return True
+    if sku.startswith("*"):
+        return True
+    if _GARBAGE_SKU_RE.match(sku):
+        return True
+    return False
+
+
 def _decode_csv(raw):
     """Decode a raw bytes payload from one of several common encodings."""
     for enc in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
@@ -899,16 +935,23 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
                 ["ufs_step1_po_number"],
             )
         )
-        # product map by default_code (variant) and template default_code
+        # Product lookup is keyed on a normalized SKU (uppercase, no spaces)
+        # so we tolerate case/whitespace drift between PO history and the
+        # current catalog. Pull from product.product (variants) and also
+        # from any ufs_step1_item_code stamp on templates.
         products_by_code = {}
-        for p in Product.search([("default_code", "!=", False)]):
-            products_by_code.setdefault(p.default_code, p)
-        # also map item_code stamp if present
+        for p in Product.with_context(active_test=False).search(
+            [("default_code", "!=", False)]
+        ):
+            products_by_code.setdefault(_sku_lookup_key(p.default_code), p)
         if "ufs_step1_item_code" in Template._fields:
-            for t in Template.search([("ufs_step1_item_code", "!=", False)]):
+            for t in Template.with_context(active_test=False).search(
+                [("ufs_step1_item_code", "!=", False)]
+            ):
                 if t.product_variant_id:
                     products_by_code.setdefault(
-                        t.ufs_step1_item_code, t.product_variant_id,
+                        _sku_lookup_key(t.ufs_step1_item_code),
+                        t.product_variant_id,
                     )
 
         # ---- group detail by PONumber ----
@@ -920,7 +963,7 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
             lines_by_po.setdefault(pono, []).append(row)
 
         created = skipped_existing = skipped_no_vendor = 0
-        skipped_no_lines = lines_dropped = 0
+        skipped_no_lines = lines_dropped = lines_garbage = 0
         vendors_stubbed = products_stubbed = 0
         # is_storable lives on product.template in Odoo 19
         has_is_storable = "is_storable" in Template._fields
@@ -960,12 +1003,16 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
             line_vals_list = []
             for lrow in lines_by_po.get(pono, []):
                 sku = _normalize_item_code(lrow.get("ItemCode"))
-                if sku and sku not in products_by_code:
+                if _is_garbage_sku(sku):
+                    lines_garbage += 1
+                    continue
+                key = _sku_lookup_key(sku)
+                if key not in products_by_code:
                     stub = self._po_stub_product(
                         sku, _s(lrow.get("Description")), has_is_storable,
                     )
                     if stub:
-                        products_by_code[sku] = stub
+                        products_by_code[key] = stub
                         products_stubbed += 1
                 lv = self._po_line_vals(lrow, products_by_code)
                 if lv is None:
@@ -1008,6 +1055,7 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
             "skipped_no_vendor": skipped_no_vendor,
             "skipped_no_lines": skipped_no_lines,
             "lines_dropped": lines_dropped,
+            "lines_garbage": lines_garbage,
             "vendors_stubbed": vendors_stubbed,
             "products_stubbed": products_stubbed,
         }
@@ -1092,9 +1140,9 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
     @api.model
     def _po_line_vals(self, row, products_by_code):
         sku = _normalize_item_code(row.get("ItemCode"))
-        if not sku:
+        if not sku or _is_garbage_sku(sku):
             return None
-        product = products_by_code.get(sku)
+        product = products_by_code.get(_sku_lookup_key(sku))
         if not product:
             return None
         qty = _to_float(row.get("StockQtyOrdered")) or _to_float(row.get("NumOrdered"))
