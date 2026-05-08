@@ -1155,9 +1155,15 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
         for chunk in _chunks(vals_list, 200):
             keys = [k for k, _v in chunk]
             templates = Template.create([v for _k, v in chunk])
-            for key, tmpl in zip(keys, templates):
-                if tmpl.product_variant_id:
-                    products_by_code[key] = tmpl.product_variant_id
+            # Archived templates produce archived variants, which the
+            # default active_test context filters out — so read the
+            # variants explicitly with active_test=False, otherwise the
+            # in-run lookup dict misses every stub we just made.
+            templates_atf = templates.with_context(active_test=False)
+            for key, tmpl in zip(keys, templates_atf):
+                variant = tmpl.product_variant_ids[:1]
+                if variant:
+                    products_by_code[key] = variant
             n += len(chunk)
             self.env.cr.commit()
             _logger.info(
