@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Sale order form — margin columns on the order-line list.
+
+        We inject Cost / Margin / Margin% as `optional="show"` columns
+        positioned right after price_subtotal, so they sit alongside the
+        money the customer sees but are clearly internal-side numbers.
+
+        The `groups` attribute on each <field> hides the columns from
+        anyone who isn't an internal sales user (most importantly, the
+        portal user group). That, combined with the `groups=` on the
+        field definitions themselves, means the data never reaches the
+        customer-facing portal/website templates.
+    -->
+    <record id="view_order_form_ufs_margin" model="ir.ui.view">
+        <field name="name">sale.order.form.ufs.margin</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <!--
+                Header button: snapshot the order's hand-tuned line
+                prices into customer-specific Special Price rules. Only
+                visible to internal sales users. Hidden in the cancel
+                state since rule-creation off a cancelled quote is
+                almost never what's intended.
+            -->
+            <xpath expr="//header" position="inside">
+                <button name="action_ufs_create_price_rules"
+                        type="object"
+                        string="Create Customer Price Rules"
+                        groups="sales_team.group_sale_salesman"
+                        invisible="state == 'cancel' or not partner_id"
+                        help="Create a Special Price customer rule for each line whose product doesn't already have a rule for this customer. Uses the line's unit price as the special price."/>
+            </xpath>
+
+            <!--
+                The order-line list lives inside the `order_line` o2m
+                field in the standard sale order form. We anchor on
+                price_subtotal and add our columns immediately after.
+            -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='price_subtotal']" position="after">
+                <field name="ufs_cost_unit"
+                       optional="show"
+                       groups="sales_team.group_sale_salesman"/>
+                <field name="ufs_margin_amount"
+                       optional="show"
+                       groups="sales_team.group_sale_salesman"/>
+                <!--
+                    Color-coded margin %, mutually exclusive bands:
+                      < 10%        → red    (loss / razor-thin)
+                      10% – < 25%  → orange (light, watch it)
+                      ≥ 25%        → green  (healthy)
+                    Tune the cutoffs to match house policy.
+                -->
+                <field name="ufs_margin_percent"
+                       optional="show"
+                       groups="sales_team.group_sale_salesman"
+                       decoration-danger="ufs_margin_percent &lt; 10"
+                       decoration-warning="ufs_margin_percent &gt;= 10 and ufs_margin_percent &lt; 25"
+                       decoration-success="ufs_margin_percent &gt;= 25"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
