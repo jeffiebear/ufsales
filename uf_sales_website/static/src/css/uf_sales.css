@@ -465,3 +465,114 @@
     height: 112px;
   }
 }
+
+/* ============================================================
+   Product detail page — typography & layout
+   ============================================================
+   Fixes the inverted hierarchy where the product name (H1.h3) was
+   smaller than the section labels (H2 = 38px) and the price (16px)
+   was visually subordinate to the body copy. */
+
+.o_wsale_content_contained.js_product h1,
+.o_wsale_content_contained.js_product [data-oe-field="name"] {
+  font-family: var(--uf-font-heading);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--uf-color-ink);
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+  text-transform: none;
+}
+
+/* Section labels inside the product description (Highlights, Description,
+   Resources). Concatenated as plain h2 nodes by the importer; we shrink
+   them so they read as section dividers, not page-dominant headings. */
+.o_wsale_content_contained.js_product [data-oe-field="description_ecommerce"] h2,
+.o_wsale_content_contained.js_product [data-oe-field="website_description"] h2 {
+  font-family: var(--uf-font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--uf-color-ink);
+  margin-top: 1.4rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--uf-color-border);
+}
+
+.o_wsale_content_contained.js_product [data-oe-field="description_ecommerce"] h2:first-child,
+.o_wsale_content_contained.js_product [data-oe-field="website_description"] h2:first-child {
+  margin-top: 0.25rem;
+}
+
+/* Brighten body copy — the importer wraps description_ecommerce with
+   .text-muted by default, which leaves the bullets/copy gray and low-
+   contrast against the white surface. */
+.o_wsale_content_contained.js_product [data-oe-field="description_ecommerce"],
+.o_wsale_content_contained.js_product [data-oe-field="website_description"] {
+  color: var(--uf-color-text);
+  font-size: 0.94rem;
+  line-height: 1.5;
+}
+
+.o_wsale_content_contained.js_product [data-oe-field="description_ecommerce"] ul,
+.o_wsale_content_contained.js_product [data-oe-field="website_description"] ul {
+  margin-bottom: 0.5rem;
+  padding-left: 1.1rem;
+}
+
+.o_wsale_content_contained.js_product [data-oe-field="description_ecommerce"] ul li,
+.o_wsale_content_contained.js_product [data-oe-field="website_description"] ul li {
+  margin-bottom: 0.25rem;
+}
+
+/* Price — make it the visual hero of the buy box. */
+.o_wsale_content_contained.js_product .product_price {
+  font-family: var(--uf-font-heading);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--uf-color-ink);
+  line-height: 1.1;
+}
+
+.o_wsale_content_contained.js_product .product_price .oe_currency_value {
+  font-weight: 700;
+}
+
+/* Sale-price strikethrough should be smaller and quieter. */
+.o_wsale_content_contained.js_product .product_price del,
+.o_wsale_content_contained.js_product .product_price s {
+  font-size: 1rem;
+  font-weight: 400;
+  color: rgba(42, 42, 43, 0.55);
+  margin-right: 0.4rem;
+}
+
+/* Tighten section spacing. */
+.o_wsale_content_contained.js_product .o_wsale_product_details_content_section {
+  margin-bottom: 1rem;
+}
+
+/* Breadcrumb — quieter, lower contrast. */
+.o_wsale_content_contained.js_product .breadcrumb,
+#wrapwrap .o_wsale_content_contained .breadcrumb {
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+/* Quantity + add-to-cart row. */
+.o_wsale_content_contained.js_product .css_quantity {
+  font-size: 0.95rem;
+}
+
+.o_wsale_content_contained.js_product .a-submit {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Trailing meta lines (Terms, money-back, shipping). */
+.o_wsale_content_contained.js_product .o_wsale_product_information_trailing,
+.o_wsale_content_contained.js_product .o_wsale_product_buy_now ~ * {
+  font-size: 0.85rem;
+}
