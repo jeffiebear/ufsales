@@ -143,21 +143,24 @@
   visibility: visible;
 }
 
-/* 4-column grid layout like Bootstrap col-sm-3 */
+/* CSS multi-column layout: short and tall sections pack naturally with no
+   wasted vertical space. Children flow top-to-bottom, then wrap to the next
+   visual column — blocks stay together via break-inside: avoid. */
 .ufs-mega-panel__grid {
-  display: grid;
-  gap: 1.25rem 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  column-gap: 1.5rem;
+  column-count: 4;
 }
 
-/* For panels with 5+ columns, enforce 4-column layout */
-.ufs-mega-panel:has(.ufs-mega-panel__column:nth-child(5)) .ufs-mega-panel__grid {
-  grid-template-columns: repeat(4, 1fr);
+/* Small panels (1-4 sections): match column count to section count so they
+   stay side-by-side instead of stacking. */
+.ufs-mega-panel:not(:has(.ufs-mega-panel__column:nth-child(2))) .ufs-mega-panel__grid {
+  column-count: 1;
 }
-
-/* For small panels (1-4 columns), auto-fit to content */
-.ufs-mega-panel:not(:has(.ufs-mega-panel__column:nth-child(5))) .ufs-mega-panel__grid {
-  grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
+.ufs-mega-panel:has(.ufs-mega-panel__column:nth-child(2)):not(:has(.ufs-mega-panel__column:nth-child(3))) .ufs-mega-panel__grid {
+  column-count: 2;
+}
+.ufs-mega-panel:has(.ufs-mega-panel__column:nth-child(3)):not(:has(.ufs-mega-panel__column:nth-child(4))) .ufs-mega-panel__grid {
+  column-count: 3;
 }
 
 .ufs-mega-panel__column {
@@ -165,6 +168,10 @@
   flex-direction: column;
   gap: 0.35rem;
   min-width: 0;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  margin-bottom: 1rem;
 }
 
 .ufs-mega-panel__heading,

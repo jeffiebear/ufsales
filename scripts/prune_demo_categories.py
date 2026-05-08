@@ -4,51 +4,39 @@
 # Run from odoo-bin shell:
 #   exec(open('/home/odoo/src/user/scripts/prune_demo_categories.py').read())
 #
-# Safe to re-run. Touches ONLY product.public.category records where:
-#   - ufsales_source_path IS NULL  (i.e. not from STEP1 import)
-#   - product_tmpl_ids is empty (no products attached, directly or via descendants)
+# Idempotent. Safe to re-run.
 #
-# Internal product.category records are NOT touched — those 4 root entries
+# Strategy: leaf-by-leaf. In each pass, find every demo record (no
+# ufsales_source_path) that has no children and no products, delete them,
+# and repeat. This naturally peels demo subtrees from the bottom up — any
+# parent that still has products through a non-demo descendant is left alone
+# (because that descendant will keep the parent's child_id non-empty).
+#
+# Internal product.category records are NOT touched — those root entries
 # (Goods/Expenses/Services/Deliveries) are core Odoo and must stay.
 
 Cat = env['product.public.category'].with_context(active_test=False).sudo()
 
-# Find every public category that is "demo" (no source_path).
-demo = Cat.search([('ufsales_source_path', '=', False)])
-print('candidates (no source_path): %s' % len(demo))
+total_deleted = 0
+pass_no = 0
+while True:
+    pass_no += 1
+    # demo leaves: no source_path, no children, no products
+    demo_leaves = Cat.search([
+        ('ufsales_source_path', '=', False),
+    ]).filtered(lambda c: not c.child_id and not c.product_tmpl_ids)
+    if not demo_leaves:
+        break
+    print('pass %s: deleting %s demo leaves' % (pass_no, len(demo_leaves)))
+    for c in demo_leaves.sorted('id'):
+        parent = c.parent_id.name if c.parent_id else '(root)'
+        print('  - %s "%s" (parent=%s)' % (c.id, c.name, parent))
+    total_deleted += len(demo_leaves)
+    demo_leaves.unlink()
 
-# Walk descendants; only delete a category if every category in its subtree
-# has zero products attached. This protects against accidentally killing a
-# real category that happens to be missing the source_path stamp.
-def _subtree(cat):
-    out = cat
-    if cat.child_id:
-        for c in cat.child_id:
-            out |= _subtree(c)
-    return out
+remaining = Cat.search_count([('ufsales_source_path', '=', False)])
+print('total deleted: %s' % total_deleted)
+print('remaining demo records (have products via descendants): %s' % remaining)
 
-to_keep_for_products = Cat.browse()
-for c in demo:
-    sub = _subtree(c)
-    total_products = sum(len(x.product_tmpl_ids) for x in sub)
-    if total_products:
-        to_keep_for_products |= c
-        print('  KEEP %s "%s" — subtree has %s products' % (c.id, c.name, total_products))
-
-doomed = demo - to_keep_for_products
-
-# Include their demo descendants too (also stamped with no source_path).
-all_doomed = Cat.browse()
-for c in doomed:
-    all_doomed |= _subtree(c)
-# Don't accidentally include real (source_path-stamped) descendants.
-all_doomed = all_doomed.filtered(lambda x: not x.ufsales_source_path)
-
-print('will delete %s public categories' % len(all_doomed))
-for c in all_doomed.sorted('id'):
-    parent = c.parent_id.name if c.parent_id else '(root)'
-    print('  - %s "%s" (parent=%s)' % (c.id, c.name, parent))
-
-all_doomed.unlink()
 env.cr.commit()
 print('done.')
