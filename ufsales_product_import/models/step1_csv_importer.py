@@ -120,6 +120,12 @@ def _is_garbage_sku(sku):
     return False
 
 
+def _chunks(seq, size):
+    """Yield successive chunks of `size` items from `seq`."""
+    for i in range(0, len(seq), size):
+        yield seq[i:i + size]
+
+
 def _decode_csv(raw):
     """Decode a raw bytes payload from one of several common encodings."""
     for enc in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
@@ -967,6 +973,25 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
         vendors_stubbed = products_stubbed = 0
         # is_storable lives on product.template in Odoo 19
         has_is_storable = "is_storable" in Template._fields
+
+        # ---- pre-batch missing vendor & product stubs ----
+        # Per-row stub creation is dramatically slow because every
+        # product.template create triggers the full inheritance chain
+        # (account default taxes, stock GS1 lookup, barcodelookup, etc).
+        # We collect the set of missing keys up front and bulk-create them
+        # in one go, then commit, so the heavy lifting happens once.
+        vendors_stubbed = self._po_bulk_stub_vendors(
+            summary_rows, vendors_by_acct,
+        )
+        products_stubbed = self._po_bulk_stub_products(
+            detail_rows, products_by_code, has_is_storable,
+        )
+        if vendors_stubbed or products_stubbed:
+            self.env.cr.commit()
+            _logger.info(
+                "UFS PO history: pre-stub committed (%s vendors, %s products)",
+                vendors_stubbed, products_stubbed,
+            )
         # silence chatter and avoid auto-subscribe overhead during bulk
         # import. active_test=False so archived stub products/vendors are
         # accepted as PO targets.
@@ -990,15 +1015,10 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
             vacct = _s(row.get("VendorAcct"))
             vendor = vendors_by_acct.get(vacct)
             if not vendor:
-                vendor = self._po_stub_vendor(
-                    vacct, _s(row.get("VendorName")) or _s(row.get("POVendorName")),
-                )
-                if vendor:
-                    vendors_by_acct[vacct] = vendor
-                    vendors_stubbed += 1
-                else:
-                    skipped_no_vendor += 1
-                    continue
+                # bulk pre-stub didn't catch it (acct blank or missing
+                # name). Drop the PO.
+                skipped_no_vendor += 1
+                continue
 
             line_vals_list = []
             for lrow in lines_by_po.get(pono, []):
@@ -1006,14 +1026,6 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
                 if _is_garbage_sku(sku):
                     lines_garbage += 1
                     continue
-                key = _sku_lookup_key(sku)
-                if key not in products_by_code:
-                    stub = self._po_stub_product(
-                        sku, _s(lrow.get("Description")), has_is_storable,
-                    )
-                    if stub:
-                        products_by_code[key] = stub
-                        products_stubbed += 1
                 lv = self._po_line_vals(lrow, products_by_code)
                 if lv is None:
                     lines_dropped += 1
@@ -1061,45 +1073,97 @@ class UfsalesStep1CsvImporter(models.AbstractModel):
         }
 
     @api.model
-    def _po_stub_vendor(self, acct, name):
-        """Create an archived placeholder vendor for an unknown acct so a
-        historical PO can still link to *something*. Toggle active=True
-        later if the vendor turns out to be real and current."""
-        if not acct:
-            return None
-        Partner = self.env["res.partner"].sudo()
-        return Partner.create({
-            "name": name or ("STEP1 Vendor %s" % acct),
+    def _po_bulk_stub_vendors(self, summary_rows, vendors_by_acct):
+        """Pre-create archived placeholder vendors for all unknown accts
+        in the PO summary. Bulk create is dramatically faster than
+        per-row because account/stock/website inheritance chains amortize
+        across the batch."""
+        Partner = self.env["res.partner"].sudo().with_context(
+            tracking_disable=True,
+            mail_create_nolog=True,
+            mail_create_nosubscribe=True,
+            mail_notrack=True,
+        )
+        missing = {}  # acct -> name
+        for row in summary_rows:
+            acct = _s(row.get("VendorAcct"))
+            if not acct or acct in vendors_by_acct or acct in missing:
+                continue
+            missing[acct] = _s(row.get("VendorName")) \
+                or _s(row.get("POVendorName")) \
+                or ("STEP1 Vendor %s" % acct)
+        if not missing:
+            return 0
+        vals_list = [{
+            "name": name,
             "company_type": "company",
             "supplier_rank": 1,
             "customer_rank": 0,
             "active": False,
             "ref": acct,
             "ufs_step1_vendor_acct": acct,
-        })
+        } for acct, name in missing.items()]
+        # chunk to keep transaction memory bounded
+        for chunk in _chunks(vals_list, 200):
+            partners = Partner.create(chunk)
+            for p in partners:
+                vendors_by_acct[p.ufs_step1_vendor_acct] = p
+        _logger.info("UFS PO history: stubbed %s vendors", len(missing))
+        return len(missing)
 
     @api.model
-    def _po_stub_product(self, sku, description, has_is_storable):
-        """Create an archived placeholder product for an unknown SKU."""
-        if not sku:
-            return None
-        Template = self.env["product.template"].sudo()
-        vals = {
-            "name": description or ("STEP1 Item %s" % sku),
-            "default_code": sku,
-            "type": "consu",
-            "purchase_ok": True,
-            "sale_ok": False,
-            "active": False,
-        }
-        if has_is_storable:
-            vals["is_storable"] = True
-        if "ufs_step1_item_code" in Template._fields:
-            vals["ufs_step1_item_code"] = sku
-        if "ufs_is_obsolete" in Template._fields:
-            vals["ufs_is_obsolete"] = True
-        tmpl = Template.create(vals)
-        return tmpl.product_variant_id
+    def _po_bulk_stub_products(self, detail_rows, products_by_code,
+                               has_is_storable):
+        """Pre-create archived placeholder products for all unknown SKUs
+        in the PO detail. Bulk create amortizes the heavy create chain."""
+        Template = self.env["product.template"].sudo().with_context(
+            tracking_disable=True,
+            mail_create_nolog=True,
+            mail_create_nosubscribe=True,
+            mail_notrack=True,
+        )
+        missing = {}  # key -> (sku, description)
+        for row in detail_rows:
+            sku = _normalize_item_code(row.get("ItemCode"))
+            if _is_garbage_sku(sku):
+                continue
+            key = _sku_lookup_key(sku)
+            if key in products_by_code or key in missing:
+                continue
+            missing[key] = (sku, _s(row.get("Description")))
+        if not missing:
+            return 0
+        vals_list = []
+        for key, (sku, desc) in missing.items():
+            vals = {
+                "name": desc or ("STEP1 Item %s" % sku),
+                "default_code": sku,
+                "type": "consu",
+                "purchase_ok": True,
+                "sale_ok": False,
+                "active": False,
+            }
+            if has_is_storable:
+                vals["is_storable"] = True
+            if "ufs_step1_item_code" in Template._fields:
+                vals["ufs_step1_item_code"] = sku
+            if "ufs_is_obsolete" in Template._fields:
+                vals["ufs_is_obsolete"] = True
+            vals_list.append((key, vals))
+        # chunk so a partial run still makes progress
+        n = 0
+        for chunk in _chunks(vals_list, 200):
+            keys = [k for k, _v in chunk]
+            templates = Template.create([v for _k, v in chunk])
+            for key, tmpl in zip(keys, templates):
+                if tmpl.product_variant_id:
+                    products_by_code[key] = tmpl.product_variant_id
+            n += len(chunk)
+            self.env.cr.commit()
+            _logger.info(
+                "UFS PO history: stubbed %s/%s products", n, len(missing),
+            )
+        return len(missing)
 
     @api.model
     def _po_header_vals(self, row, vendor):
