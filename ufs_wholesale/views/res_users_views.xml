@@ -18,26 +18,115 @@
         <field name="name">res.users.list.wholesale.applications</field>
         <field name="model">res.users</field>
         <field name="arch" type="xml">
-            <list string="Wholesale Applications" create="false" delete="false">
+            <list string="Wholesale Applications" create="false" delete="false"
+                  decoration-warning="ufs_wholesale_state == 'pending'"
+                  decoration-success="ufs_wholesale_state == 'approved'"
+                  decoration-muted="ufs_wholesale_state == 'rejected'">
+                <field name="ufs_wholesale_state" widget="badge"
+                       decoration-warning="ufs_wholesale_state == 'pending'"
+                       decoration-success="ufs_wholesale_state == 'approved'"
+                       decoration-muted="ufs_wholesale_state == 'rejected'"/>
                 <field name="name"/>
                 <field name="login"/>
                 <field name="ufs_company_name"/>
                 <field name="ufs_fein_taxid"/>
-                <field name="ufs_wholesale_state"/>
-                <field name="create_date"/>
+                <field name="ufs_state_text" optional="show"/>
+                <field name="ufs_country_text" optional="show"/>
+                <field name="create_date" string="Submitted"/>
             </list>
+        </field>
+    </record>
+
+    <!--
+        Kanban view: a quick at-a-glance review queue. The default
+        list view stays the primary, but kanban lets admins triage
+        with a softer visual when the pile is large.
+    -->
+    <record id="view_users_kanban_wholesale_applications" model="ir.ui.view">
+        <field name="name">res.users.kanban.wholesale.applications</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="ufs_wholesale_state" create="false">
+                <field name="ufs_wholesale_state"/>
+                <field name="ufs_company_name"/>
+                <field name="ufs_fein_taxid"/>
+                <field name="ufs_state_text"/>
+                <field name="ufs_country_text"/>
+                <field name="create_date"/>
+                <field name="email"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_title">
+                                <strong><field name="ufs_company_name"/></strong>
+                            </div>
+                            <div class="o_kanban_record_subtitle text-muted">
+                                <field name="name"/>
+                            </div>
+                            <div class="mt8">
+                                <i class="fa fa-envelope-o me-1"/>
+                                <field name="email"/>
+                            </div>
+                            <div t-if="record.ufs_fein_taxid.raw_value">
+                                <i class="fa fa-id-badge me-1"/>
+                                FEIN: <field name="ufs_fein_taxid"/>
+                            </div>
+                            <div t-if="record.ufs_state_text.raw_value">
+                                <i class="fa fa-map-marker me-1"/>
+                                <field name="ufs_state_text"/>, <field name="ufs_country_text"/>
+                            </div>
+                            <div class="mt8 text-muted small">
+                                Submitted <field name="create_date" widget="date"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 
     <record id="action_wholesale_applications" model="ir.actions.act_window">
         <field name="name">Wholesale Applications</field>
         <field name="res_model">res.users</field>
-        <field name="view_mode">list,form</field>
-        <field name="domain">[('share', '=', True)]</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('share', '=', True), ('ufs_wholesale_state', '!=', False)]</field>
         <field name="search_view_id" ref="ufs_wholesale.view_users_search_wholesale_applications"/>
         <field name="context">{'search_default_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No wholesale applications waiting.
+            </p>
+            <p>
+                When a visitor submits the wholesale signup form, their
+                application lands here for review. Approve or reject from
+                the application's form view.
+            </p>
+        </field>
     </record>
 
+    <!--
+        Quick-access action filtered to just the pending pile, used by
+        the Sales-side menu shortcut for admins who live in Sales day to
+        day rather than under Website → Configuration.
+    -->
+    <record id="action_wholesale_applications_pending" model="ir.actions.act_window">
+        <field name="name">Pending Wholesale Applications</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('share', '=', True), ('partner_id.ufs_wholesale_state', '=', 'pending')]</field>
+        <field name="search_view_id" ref="ufs_wholesale.view_users_search_wholesale_applications"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Nothing pending. 🎉
+            </p>
+            <p>
+                New wholesale signups land here for review. Approve from
+                the application's form.
+            </p>
+        </field>
+    </record>
+
+    <!-- Original home: Website → Configuration → Wholesale -->
     <menuitem id="menu_ufs_wholesale_root"
               name="Wholesale"
               parent="website.menu_website_global_configuration"
@@ -50,6 +139,17 @@
               action="ufs_wholesale.action_wholesale_applications"
               sequence="10"
               groups="base.group_system"/>
+
+    <!--
+        Sales-side shortcut so the admins who manage approvals don't
+        have to dig into Website → Configuration to find them.
+    -->
+    <menuitem id="menu_ufs_wholesale_applications_sales"
+              name="Wholesale Applications"
+              parent="sale.sale_menu_root"
+              action="ufs_wholesale.action_wholesale_applications"
+              sequence="95"
+              groups="sales_team.group_sale_manager"/>
 
     <record id="view_users_form_wholesale_fields" model="ir.ui.view">
         <field name="name">res.users.form.wholesale.fields</field>

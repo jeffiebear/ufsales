@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="res_config_settings_view_form_ufs_wholesale" model="ir.ui.view">
+    <field name="name">res.config.settings.view.form.ufs.wholesale</field>
+    <field name="model">res.config.settings</field>
+    <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//form" position="inside">
+        <app data-string="UFS Wholesale" string="UFS Wholesale" name="ufs_wholesale"
+             groups="base.group_system">
+          <block title="Application Notifications" id="ufs_wholesale_admin_alert">
+            <setting id="ufs_wholesale_admin_alert_setting"
+                     string="Notify when a new wholesale application is submitted"
+                     help="Each user in this list receives an email as soon as someone completes the wholesale signup form. Configure at least one or no admin alerts will be sent.">
+              <field name="ufs_wholesale_admin_alert_user_ids" widget="many2many_tags"/>
+            </setting>
+          </block>
+        </app>
+      </xpath>
+    </field>
+  </record>
+</odoo>

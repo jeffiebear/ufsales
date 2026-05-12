@@ -19,6 +19,45 @@
             </field>
         </record>
 
+        <!--
+            Admin alert. Fires once when a new wholesale signup is moved
+            into the "pending" state. Renders against the new res.users
+            record so we have access to partner_id for the company info.
+            Recipients are resolved at send-time from the configurable
+            user list in ir.config_parameter (see res.config.settings).
+        -->
+        <record id="mail_template_wholesale_admin_alert" model="mail.template">
+            <field name="name">UFS Wholesale - New Application (Admin Alert)</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="subject">New wholesale application: {{ object.ufs_company_name or object.name or object.login }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted or 'noreply@example.com') }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#0F172A;">
+                    <p>A new wholesale application is waiting for review.</p>
+                    <table style="border-collapse:collapse;margin:12px 0;">
+                        <tr><td style="padding:4px 12px 4px 0;color:#64748B;">Applicant</td><td style="padding:4px 0;"><b><t t-out="object.name or 'Unnamed'"/></b></td></tr>
+                        <tr><td style="padding:4px 12px 4px 0;color:#64748B;">Email</td><td style="padding:4px 0;"><t t-out="object.email or object.login or ''"/></td></tr>
+                        <tr><td style="padding:4px 12px 4px 0;color:#64748B;">Company</td><td style="padding:4px 0;"><t t-out="object.ufs_company_name or ''"/></td></tr>
+                        <tr><td style="padding:4px 12px 4px 0;color:#64748B;">FEIN / Tax ID</td><td style="padding:4px 0;"><t t-out="object.ufs_fein_taxid or ''"/></td></tr>
+                        <tr><td style="padding:4px 12px 4px 0;color:#64748B;">Location</td><td style="padding:4px 0;"><t t-out="object.ufs_state_text or ''"/>, <t t-out="object.ufs_country_text or ''"/></td></tr>
+                        <tr><td style="padding:4px 12px 4px 0;color:#64748B;">Submitted</td><td style="padding:4px 0;"><t t-out="object.create_date and object.create_date.strftime('%b %d, %Y %H:%M UTC') or ''"/></td></tr>
+                    </table>
+                    <p>
+                        <a t-attf-href="{{ object.get_base_url() }}/odoo/action-ufs_wholesale.action_wholesale_applications"
+                           style="display:inline-block;background:#4E2DE3;color:#fff;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;">
+                            Review pending applications
+                        </a>
+                    </p>
+                    <p style="color:#64748B;font-size:12px;">
+                        The applicant cannot place orders until an admin approves them.
+                        Open the queue, verify the resale certificate, then click
+                        <b>Approve Wholesale</b> or <b>Reject Wholesale</b> on their record.
+                    </p>
+                </div>
+            </field>
+        </record>
+
         <record id="mail_template_wholesale_welcome" model="mail.template">
             <field name="name">UFS Wholesale - Approval Welcome</field>
             <field name="model_id" ref="base.model_res_users"/>

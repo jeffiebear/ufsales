@@ -79,15 +79,48 @@ class ResUsers(models.Model):
             if user.email:
                 template.sudo().send_mail(user.id, force_send=True)
 
+    def _ufs_notify_admins_of_pending(self):
+        """Email the configured admin recipients that a new wholesale
+        application is in the queue. One email per applicant.
+
+        No-op if no recipients are configured. We don't raise — a misconfigured
+        recipient list shouldn't break the public signup flow."""
+        partner_ids = self.env['res.config.settings']._ufs_wholesale_admin_partner_ids()
+        if not partner_ids:
+            return
+        template = self.env.ref(
+            'ufs_wholesale.mail_template_wholesale_admin_alert',
+            raise_if_not_found=False,
+        )
+        if not template:
+            return
+        for user in self.sudo():
+            template.sudo().with_context(
+                ufs_admin_partner_ids=partner_ids,
+            ).send_mail(
+                user.id,
+                force_send=True,
+                email_values={'recipient_ids': [(6, 0, partner_ids)]},
+            )
+
     def action_ufs_set_wholesale_pending(self):
+        newly_pending = self.env['res.users']
         for user in self.sudo():
             if user._is_internal():
                 continue
+            previous_state = user.partner_id.ufs_wholesale_state
             user.partner_id.write({
                 "ufs_wholesale_state": "pending",
                 "ufs_wholesale_approved_by_id": False,
                 "ufs_wholesale_approved_on": False,
             })
+            # Only notify admins on the *first* transition into pending.
+            # Re-running this action on an already-pending user shouldn't
+            # re-spam recipients.
+            if previous_state != 'pending':
+                newly_pending |= user
+        if newly_pending:
+            newly_pending._ufs_notify_admins_of_pending()
 
     def action_ufs_wholesale_approve(self):
         now = fields.Datetime.now()
