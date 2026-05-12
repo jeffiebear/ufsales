@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!--
+    Surface the margin alert on the sale order form.
+
+    Two surfaces:
+      1. An order-level header banner that lights up when any line is
+         flagged, with a one-line summary so the salesperson sees it
+         without scrolling.
+      2. Per-line indicator: the existing margin % column already shows
+         red below 10% / orange below 25%. We add a tiny "FIXED" chip
+         next to the price on flagged lines so it's obvious *why* the
+         line is being highlighted (locked-in special price vs. an
+         editable line that just happens to be low-margin).
+  -->
+
+  <record id="view_order_form_ufs_alerts" model="ir.ui.view">
+    <field name="name">sale.order.form.ufs.alerts</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="ufs_customizations.view_order_form_ufs_margin"/>
+    <field name="arch" type="xml">
+
+      <!-- Header banner -->
+      <xpath expr="//header" position="after">
+        <div class="alert alert-warning mb-0"
+             role="alert"
+             invisible="not ufs_has_margin_alert"
+             groups="sales_team.group_sale_salesman">
+          <i class="fa fa-warning me-2"/>
+          <strong>Margin alert:</strong>
+          One or more fixed-price lines are below the configured margin
+          threshold. Review the highlighted lines before confirming.
+          <field name="ufs_has_margin_alert" invisible="1"/>
+        </div>
+      </xpath>
+
+      <!-- "FIXED" chip on flagged lines (uses ufs_is_fixed_price as the
+           condition, but only visually pops via decoration-danger when
+           ufs_margin_alert is also true). -->
+      <xpath expr="//field[@name='order_line']/list/field[@name='ufs_margin_percent']" position="after">
+        <field name="ufs_is_fixed_price" column_invisible="1"/>
+        <field name="ufs_margin_alert"
+               optional="show"
+               groups="sales_team.group_sale_salesman"
+               widget="boolean_toggle"
+               readonly="1"
+               string="Locked Below Threshold"
+               decoration-danger="ufs_margin_alert"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

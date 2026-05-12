@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!--
+    Product form: expose annual moving, threshold, and the manual
+    override field on the Inventory tab. Threshold is read-only; the
+    override is editable.
+
+    Search view: add a filter "Below reorder threshold" for purchasing
+    workflows.
+  -->
+
+  <record id="product_template_form_view_ufs_alerts" model="ir.ui.view">
+    <field name="name">product.template.form.ufs.alerts</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//page[@name='general_information']" position="after">
+        <page string="Reorder Alert" name="ufs_inventory_alert"
+              groups="stock.group_stock_user">
+          <group>
+            <group string="UFS Reorder Threshold">
+              <field name="ufs_inventory_alert_override"/>
+              <field name="ufs_annual_moving_qty" readonly="1"/>
+              <field name="ufs_inventory_alert_threshold" readonly="1"/>
+              <field name="ufs_inventory_alert_active" readonly="1"
+                     widget="boolean_toggle"/>
+            </group>
+            <group string="How this works">
+              <div colspan="2" class="text-muted">
+                <p>
+                  Annual Moving Qty is the rolling 365-day total of
+                  confirmed sales for this product. Recomputed nightly.
+                </p>
+                <p>
+                  Effective Threshold = Fixed Reorder Threshold (if set)
+                  or the global percentage of Annual Moving Qty (default
+                  10%, configurable in Settings → UFS Alerts).
+                </p>
+                <p>
+                  Below Reorder Threshold becomes true when on-hand is
+                  at or below the effective threshold. Products with no
+                  sales history and no override are never flagged.
+                </p>
+              </div>
+            </group>
+          </group>
+        </page>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="product_template_search_view_ufs_alerts" model="ir.ui.view">
+    <field name="name">product.template.search.ufs.alerts</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_search_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//search" position="inside">
+        <separator/>
+        <filter string="Below Reorder Threshold"
+                name="ufs_below_reorder_threshold"
+                domain="[('ufs_inventory_alert_active', '=', True)]"/>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- Quick-access action for the menu -->
+  <record id="action_ufs_inventory_alerts" model="ir.actions.act_window">
+    <field name="name">Below Reorder Threshold</field>
+    <field name="res_model">product.template</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('ufs_inventory_alert_active', '=', True)]</field>
+    <field name="context">{}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">
+        Nothing to reorder right now. 🎉
+      </p>
+      <p>
+        Products appear here when on-hand quantity reaches their
+        configured reorder threshold. Threshold = fixed override (if
+        set) or 10% of rolling 365-day sales volume.
+      </p>
+    </field>
+  </record>
+</odoo>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+  <!--
+    Placeholder template records so the data file loads cleanly.
+    Actual digest bodies are rendered in Python (sale_order.py and
+    product_template.py) since they aggregate across many records.
+    Keeping these here as anchors lets admins customise the From /
+    subject lines if they ever want to.
+  -->
+
+  <record id="mail_template_margin_digest" model="mail.template">
+    <field name="name">UFS Margin Alert Digest</field>
+    <field name="model_id" ref="sale.model_sale_order"/>
+    <field name="subject">UFS margin alert digest</field>
+    <field name="body_html"><![CDATA[<p>See attached / rendered digest body.</p>]]></field>
+  </record>
+
+  <record id="mail_template_inventory_digest" model="mail.template">
+    <field name="name">UFS Inventory Alert Digest</field>
+    <field name="model_id" ref="product.model_product_template"/>
+    <field name="subject">UFS inventory alert digest</field>
+    <field name="body_html"><![CDATA[<p>See attached / rendered digest body.</p>]]></field>
+  </record>
+</odoo>

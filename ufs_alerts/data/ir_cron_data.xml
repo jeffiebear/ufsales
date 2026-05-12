@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+  <!--
+    Nightly crons. Sequence matters: we recompute annual moving volume
+    before evaluating alerts so the threshold uses fresh numbers.
+  -->
+
+  <record id="ir_cron_recompute_annual_moving" model="ir.cron">
+    <field name="name">UFS Alerts: Recompute Annual Moving Qty</field>
+    <field name="model_id" ref="product.model_product_template"/>
+    <field name="state">code</field>
+    <field name="code">model._ufs_cron_recompute_annual_moving()</field>
+    <field name="active" eval="True"/>
+    <field name="interval_number">1</field>
+    <field name="interval_type">days</field>
+    <field name="numbercall">-1</field>
+    <field name="priority">10</field>
+  </record>
+
+  <record id="ir_cron_inventory_alert" model="ir.cron">
+    <field name="name">UFS Alerts: Inventory Alert Digest</field>
+    <field name="model_id" ref="product.model_product_template"/>
+    <field name="state">code</field>
+    <field name="code">model._ufs_cron_inventory_alert()</field>
+    <field name="active" eval="True"/>
+    <field name="interval_number">1</field>
+    <field name="interval_type">days</field>
+    <field name="numbercall">-1</field>
+    <field name="priority">20</field>
+  </record>
+
+  <record id="ir_cron_margin_alert_digest" model="ir.cron">
+    <field name="name">UFS Alerts: Margin Alert Digest</field>
+    <field name="model_id" ref="sale.model_sale_order"/>
+    <field name="state">code</field>
+    <field name="code">model._ufs_cron_margin_alert_digest()</field>
+    <field name="active" eval="True"/>
+    <field name="interval_number">1</field>
+    <field name="interval_type">days</field>
+    <field name="numbercall">-1</field>
+    <field name="priority">30</field>
+  </record>
+</odoo>

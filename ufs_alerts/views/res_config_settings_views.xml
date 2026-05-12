@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="res_config_settings_view_form_ufs_alerts" model="ir.ui.view">
+    <field name="name">res.config.settings.view.form.ufs.alerts</field>
+    <field name="model">res.config.settings</field>
+    <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//form" position="inside">
+        <app data-string="UFS Alerts" string="UFS Alerts" name="ufs_alerts"
+             groups="sales_team.group_sale_manager">
+          <block title="Fixed-Price Margin Alert" id="ufs_alerts_margin">
+            <setting id="ufs_margin_threshold_setting"
+                     string="Margin threshold"
+                     help="Fires when a sale order line uses a customer Special Price rule and the margin falls to or below this percentage.">
+              <field name="ufs_fixed_price_margin_threshold"/>
+              <span>%</span>
+            </setting>
+          </block>
+          <block title="Inventory Alert" id="ufs_alerts_inventory">
+            <setting id="ufs_inventory_threshold_setting"
+                     string="Reorder threshold (% of annual moving)"
+                     help="Fires when on-hand qty drops to or below this percentage of the rolling 365-day sales volume. Per-product overrides win.">
+              <field name="ufs_inventory_threshold_pct"/>
+              <span>%</span>
+            </setting>
+          </block>
+          <block title="Digest Recipients" id="ufs_alerts_digest">
+            <setting id="ufs_alerts_digest_recipients_setting"
+                     string="Daily digest recipients"
+                     help="These users receive the daily UFS Alerts digest emails (both margin and inventory).">
+              <field name="ufs_alerts_digest_recipient_ids" widget="many2many_tags"/>
+            </setting>
+          </block>
+        </app>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="action_ufs_alerts_settings" model="ir.actions.act_window">
+    <field name="name">UFS Alerts Settings</field>
+    <field name="res_model">res.config.settings</field>
+    <field name="view_mode">form</field>
+    <field name="target">inline</field>
+    <field name="context">{'module': 'ufs_alerts'}</field>
+  </record>
+</odoo>

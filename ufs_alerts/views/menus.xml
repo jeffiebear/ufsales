@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!--
+    Single landing point: Inventory → Reporting → Reorder Alerts.
+    Margin alerts surface natively on the sale order activity inbox,
+    so no separate menu is needed.
+  -->
+  <menuitem id="menu_ufs_inventory_alerts"
+            name="Reorder Alerts"
+            parent="stock.menu_warehouse_report"
+            action="action_ufs_inventory_alerts"
+            sequence="50"
+            groups="stock.group_stock_user"/>
+</odoo>
