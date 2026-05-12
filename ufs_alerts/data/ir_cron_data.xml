@@ -13,7 +13,6 @@
     <field name="active" eval="True"/>
     <field name="interval_number">1</field>
     <field name="interval_type">days</field>
-    <field name="numbercall">-1</field>
     <field name="priority">10</field>
   </record>
 
@@ -25,7 +24,6 @@
     <field name="active" eval="True"/>
     <field name="interval_number">1</field>
     <field name="interval_type">days</field>
-    <field name="numbercall">-1</field>
     <field name="priority">20</field>
   </record>
 
@@ -37,7 +35,6 @@
     <field name="active" eval="True"/>
     <field name="interval_number">1</field>
     <field name="interval_type">days</field>
-    <field name="numbercall">-1</field>
     <field name="priority">30</field>
   </record>
 </odoo>
