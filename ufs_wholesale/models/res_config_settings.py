@@ -25,6 +25,22 @@ class ResConfigSettings(models.TransientModel):
              "or the alert won't go out.",
     )
 
+    # Fiscal position auto-applied when a wholesale application is
+    # approved, and the destination of the auto-exemption mapping for
+    # newly-created sales taxes. Defaults to account.fiscal.position(3)
+    # in UFS (the resale exemption position), but stored as a real
+    # config-parameter many2one so admins can repoint without code.
+    ufs_wholesale_fiscal_position_id = fields.Many2one(
+        comodel_name='account.fiscal.position',
+        string='Wholesale Fiscal Position',
+        config_parameter='ufs_wholesale.fiscal_position_id',
+        help="Auto-applied to a customer's partner record when their "
+             "wholesale application is approved. Also receives a "
+             "zero-rate tax mapping for every newly created Sales tax, "
+             "so resale-exempt customers never get charged a new tax "
+             "you add to the catalog later.",
+    )
+
     @api.model
     def get_values(self):
         res = super().get_values()
@@ -42,6 +58,21 @@ class ResConfigSettings(models.TransientModel):
         ICP = self.env['ir.config_parameter'].sudo()
         ids = ','.join(str(uid) for uid in self.ufs_wholesale_admin_alert_user_ids.ids)
         ICP.set_param('ufs_wholesale.admin_alert_user_ids', ids)
+
+    @api.model
+    def _ufs_wholesale_fiscal_position(self):
+        """Return the configured wholesale fiscal position, or empty
+        recordset. Reads ir.config_parameter directly so callers can
+        use this without instantiating a settings record."""
+        ICP = self.env['ir.config_parameter'].sudo()
+        raw = ICP.get_param('ufs_wholesale.fiscal_position_id', '')
+        try:
+            fp_id = int(raw)
+        except (TypeError, ValueError):
+            return self.env['account.fiscal.position']
+        if not fp_id:
+            return self.env['account.fiscal.position']
+        return self.env['account.fiscal.position'].sudo().browse(fp_id).exists()
 
     @api.model
     def _ufs_wholesale_admin_partner_ids(self):

@@ -1,6 +1,6 @@
 {
     "name": "UFS Wholesale Access",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "category": "Website",
     "summary": "Wholesale signup, approval workflow, and eCommerce access control",
     "license": "LGPL-3",
@@ -11,9 +11,11 @@
         "auth_signup",
         "mail",
         "sale_management",
+        "account",
     ],
     "data": [
         "data/mail_templates.xml",
+        "data/ir_config_parameter_data.xml",
         "views/auth_signup_templates.xml",
         "views/website_sale_templates.xml",
         "views/res_users_views.xml",

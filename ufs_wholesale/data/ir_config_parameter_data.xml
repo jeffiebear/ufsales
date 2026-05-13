@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!--
+        Seed the default wholesale fiscal position to id=3, the existing
+        resale exemption position in the UFS database. noupdate="1" so
+        a subsequent admin choice doesn't get reverted on module upgrade.
+
+        If the position id ever changes on this database, an admin can
+        update it via Settings → UFS Wholesale → Tax Treatment.
+    -->
+    <data noupdate="1">
+        <record id="default_wholesale_fiscal_position_id" model="ir.config_parameter">
+            <field name="key">ufs_wholesale.fiscal_position_id</field>
+            <field name="value">3</field>
+        </record>
+    </data>
+</odoo>

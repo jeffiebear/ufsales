@@ -126,16 +126,25 @@ class ResUsers(models.Model):
         now = fields.Datetime.now()
         approver_id = self.env.user.id
         users_to_welcome = self.env["res.users"]
+        # Resolve the configured fiscal position once; reuse per partner.
+        # If unset, we still approve, we just don't apply a position.
+        fp = self.env['res.config.settings']._ufs_wholesale_fiscal_position()
         for user in self.sudo():
             if user._is_internal():
                 continue
             if user.partner_id.ufs_wholesale_state != "approved":
                 users_to_welcome |= user
-            user.partner_id.write({
+            vals = {
                 "ufs_wholesale_state": "approved",
                 "ufs_wholesale_approved_by_id": approver_id,
                 "ufs_wholesale_approved_on": now,
-            })
+            }
+            # Auto-apply the resale fiscal position. Only overwrite if
+            # the partner doesn't already have a position chosen — an
+            # admin who hand-picked a different one keeps theirs.
+            if fp and not user.partner_id.property_account_position_id:
+                vals["property_account_position_id"] = fp.id
+            user.partner_id.write(vals)
         if users_to_welcome:
             users_to_welcome._ufs_send_mail_template("ufs_wholesale.mail_template_wholesale_welcome")
         return True

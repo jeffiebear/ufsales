@@ -15,6 +15,14 @@
               <field name="ufs_wholesale_admin_alert_user_ids" widget="many2many_tags"/>
             </setting>
           </block>
+          <block title="Tax Treatment" id="ufs_wholesale_fiscal_position">
+            <setting id="ufs_wholesale_fp_setting"
+                     string="Wholesale Fiscal Position"
+                     help="Auto-applied to a customer's partner when their wholesale application is approved. Also receives a zero-rate mapping for every new Sales tax you create, so resale-exempt customers never get charged a newly added tax.">
+              <field name="ufs_wholesale_fiscal_position_id"
+                     options="{'no_create': True}"/>
+            </setting>
+          </block>
         </app>
       </xpath>
     </field>
