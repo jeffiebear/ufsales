@@ -6,8 +6,10 @@ need to apply across the whole catalog:
 
 - Wipe Quantity Brackets — clears every item on the shared bracket
   pricelist (and the mirrors copied onto each customer pricelist).
-- Reprice all to 30% markup — sets `list_price = standard_price * 1.30`
-  on every active product with a positive cost.
+- Reprice all to 30% margin — sets `list_price = standard_price / 0.70`
+  on every active product with a positive cost. This is a true 30 %
+  gross margin (margin / price = 0.30), not a 30 % markup. To switch
+  back to markup the formula would be `standard_price * 1.30`.
 """
 import logging
 
@@ -51,6 +53,12 @@ class UfsPricingMaintenance(models.TransientModel):
         return self._reload()
 
     def action_reprice_30(self):
+        """Reprice every product to a true 30 % gross margin.
+
+        Formula: list_price = standard_price / 0.70.  A $10 cost becomes
+        $14.29, yielding margin = 4.29 / 14.29 = 30 %. (Compare to a
+        30 % markup, which would be $13.00 and only ~23 % margin.)
+        """
         self.ensure_one()
         Template = self.env["product.template"].sudo()
         templates = Template.with_context(active_test=False).search([
@@ -58,15 +66,16 @@ class UfsPricingMaintenance(models.TransientModel):
         ])
         updated = unchanged = 0
         for tmpl in templates:
-            new_price = round(tmpl.standard_price * 1.30, 2)
+            new_price = round(tmpl.standard_price / 0.70, 2)
             if abs(tmpl.list_price - new_price) > 0.0001:
                 tmpl.list_price = new_price
                 updated += 1
             else:
                 unchanged += 1
         msg = _(
-            "Repriced %s products to 30%% markup "
-            "(%s already matched, skipped products with no cost)."
+            "Repriced %s products to 30%% margin "
+            "(price = cost / 0.70). %s already matched. "
+            "Products with no cost were skipped."
         ) % (updated, unchanged)
         _logger.info("UFS pricing maintenance: %s", msg)
         self.log = msg

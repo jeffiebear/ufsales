@@ -24,9 +24,9 @@
                             class="btn-warning"
                             confirm="This deletes every item on the UFS Quantity Brackets pricelist and removes the mirrors from every customer pricelist. Continue?"/>
                     <button name="action_reprice_30" type="object"
-                            string="Reprice All to 30% Markup"
+                            string="Reprice All to 30% Margin"
                             class="btn-primary"
-                            confirm="This sets list_price = standard_price × 1.30 for every product with a positive cost. Continue?"/>
+                            confirm="This sets list_price = standard_price ÷ 0.70 for every product with a positive cost (a true 30% gross margin). Continue?"/>
                     <button string="Close" class="btn-secondary"
                             special="cancel"/>
                 </footer>
