@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Alerts',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'summary': 'Margin-floor and low-stock alerting for UFS workflows.',
     'description': """
 UFS Alerts
