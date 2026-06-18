@@ -49,12 +49,6 @@ class SaleOrderLine(models.Model):
              "back to catalog list_price. Click Edit Rule to change.",
     )
 
-    ufs_customer_rule_type = fields.Selection(
-        related='ufs_customer_rule_id.rule_type',
-        string='Rule Type',
-        groups='sales_team.group_sale_salesman',
-    )
-
     ufs_customer_rule_label = fields.Char(
         string='Rule',
         compute='_compute_ufs_customer_rule',

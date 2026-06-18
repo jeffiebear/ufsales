@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customizations',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.2.1',
     'summary': 'Catch-all module for small UFS-specific tweaks to standard Odoo behavior.',
     'description': """
 UFS Customizations
@@ -38,6 +38,12 @@ Current tweaks
     # product is implicit but listed for clarity. ufs_customer_pricing
     # supplies the ufs.price.rule model that the "Create Customer Price
     # Rules" button writes into.
+    # NOTE: deliberately NOT depending on ufs_alerts even though
+    # stock_picking references its margin-alert activity type. That
+    # reference uses env.ref(raise_if_not_found=False) so it degrades
+    # gracefully when ufs_alerts isn't installed, and ufs_alerts itself
+    # depends on this module (for ufs_margin_percent) — declaring the
+    # reverse here would create a dependency loop.
     'depends': [
         'sale_management',
         'purchase',
@@ -45,7 +51,6 @@ Current tweaks
         'account',
         'product',
         'ufs_customer_pricing',
-        'ufs_alerts',
     ],
     'data': [
         'security/ir.model.access.csv',
