@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Surface the customer's standing price rule on each SO line.
+
+        Column layout (left to right, after price_subtotal):
+          * Customer Price — the effective price from the rule. Blank
+            if no rule on file.
+          * Rule — short label like "Margin 30%" / "Markup 25%" /
+            "Bracket #2" so the salesperson knows which rule type is
+            in play.
+          * (pencil-icon button) — opens the rule in a modal. Creates
+            a fresh rule pre-filled with partner+product if none
+            exists.
+
+        We chain this view AFTER the ufs_customizations margin
+        column extension so our columns sit next to the margin
+        ones rather than randomly between price columns.
+    -->
+
+    <record id="view_order_form_ufs_customer_price" model="ir.ui.view">
+        <field name="name">sale.order.form.ufs.customer.price</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='order_line']/list/field[@name='price_subtotal']" position="after">
+                <field name="ufs_customer_price"
+                       optional="show"
+                       groups="sales_team.group_sale_salesman"
+                       readonly="1"
+                       decoration-muted="not ufs_customer_rule_id"/>
+                <field name="ufs_customer_rule_label"
+                       optional="show"
+                       string="Rule"
+                       groups="sales_team.group_sale_salesman"
+                       readonly="1"/>
+                <field name="ufs_customer_rule_id" column_invisible="1"/>
+                <button name="action_ufs_edit_customer_rule"
+                        type="object"
+                        icon="fa-pencil-square-o"
+                        groups="sales_team.group_sale_salesman"
+                        title="Edit Customer Price Rule for this product"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

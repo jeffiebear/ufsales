@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!--
+        Seed the seven default margin tiers. noupdate="1" so renaming
+        or deleting them via the UI sticks across module upgrades.
+        Admins can add more tiers from Sales → Configuration → Margin
+        Presets.
+    -->
+    <data noupdate="1">
+        <record id="margin_preset_15" model="ufs.margin.preset">
+            <field name="name">15 %</field>
+            <field name="margin_pct">15.0</field>
+        </record>
+        <record id="margin_preset_18" model="ufs.margin.preset">
+            <field name="name">18 %</field>
+            <field name="margin_pct">18.0</field>
+        </record>
+        <record id="margin_preset_20" model="ufs.margin.preset">
+            <field name="name">20 %</field>
+            <field name="margin_pct">20.0</field>
+        </record>
+        <record id="margin_preset_25" model="ufs.margin.preset">
+            <field name="name">25 %</field>
+            <field name="margin_pct">25.0</field>
+        </record>
+        <record id="margin_preset_30" model="ufs.margin.preset">
+            <field name="name">30 %</field>
+            <field name="margin_pct">30.0</field>
+        </record>
+        <record id="margin_preset_35" model="ufs.margin.preset">
+            <field name="name">35 %</field>
+            <field name="margin_pct">35.0</field>
+        </record>
+        <record id="margin_preset_40" model="ufs.margin.preset">
+            <field name="name">40 %</field>
+            <field name="margin_pct">40.0</field>
+        </record>
+    </data>
+</odoo>

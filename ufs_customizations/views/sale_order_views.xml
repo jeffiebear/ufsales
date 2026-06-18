@@ -61,6 +61,15 @@
                        decoration-danger="ufs_margin_percent &lt; 10"
                        decoration-warning="ufs_margin_percent &gt;= 10 and ufs_margin_percent &lt; 25"
                        decoration-success="ufs_margin_percent &gt;= 25"/>
+                <!--
+                    Margin preset dropdown. Same UX as the Taxes field:
+                    pick from the seeded list of percentages, the line's
+                    price_unit recomputes immediately from product cost.
+                -->
+                <field name="ufs_margin_preset_id"
+                       optional="hide"
+                       groups="sales_team.group_sale_salesman"
+                       options="{'no_create': True, 'no_open': True}"/>
             </xpath>
         </field>
     </record>

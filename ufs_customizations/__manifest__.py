@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customizations',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.2.0',
     'summary': 'Catch-all module for small UFS-specific tweaks to standard Odoo behavior.',
     'description': """
 UFS Customizations
@@ -23,23 +23,37 @@ Current tweaks
   in ``ufs_customer_pricing``, skipping any product that already has a
   rule for this customer. Lets admins lock in quoted prices in one
   click after hand-tuning a manual order.
+* **Margin Preset dropdown** — a Many2one dropdown on both sale order
+  lines and purchase order lines, seeded with 15 / 18 / 20 / 25 / 30 /
+  35 / 40 %. On SO lines it sets ``price_unit = cost / (1 - margin)``.
+  On PO lines it sets the product's catalog ``list_price`` from the
+  vendor cost. Admins can edit the preset list under Sales →
+  Configuration → Margin Presets (or the same under Purchase).
 """,
     'author': 'Parameter',
     'website': 'https://parameterllc.com/',
     'license': 'LGPL-3',
     'category': 'Tools',
-    # sale_management gives us sale.order / sale.order.line and the
-    # standard order form we extend. product is implicit but listed for
-    # clarity since the margin computation reads product.standard_price.
-    # ufs_customer_pricing supplies the ufs.price.rule model that the
-    # "Create Customer Price Rules" button writes into.
+    # sale_management + purchase give us the order/line models we extend.
+    # product is implicit but listed for clarity. ufs_customer_pricing
+    # supplies the ufs.price.rule model that the "Create Customer Price
+    # Rules" button writes into.
     'depends': [
         'sale_management',
+        'purchase',
+        'stock',
+        'account',
         'product',
         'ufs_customer_pricing',
+        'ufs_alerts',
     ],
     'data': [
+        'security/ir.model.access.csv',
+        'data/ufs_margin_preset_data.xml',
+        'views/ufs_margin_preset_views.xml',
         'views/sale_order_views.xml',
+        'views/purchase_order_views.xml',
+        'views/res_config_settings_views.xml',
     ],
     'installable': True,
     'application': False,

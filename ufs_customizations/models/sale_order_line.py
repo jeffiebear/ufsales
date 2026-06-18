@@ -58,6 +58,19 @@ class SaleOrderLine(models.Model):
              "the subtotal is zero (free lines, 100%-discount lines).",
     )
 
+    # Picking a preset overwrites this line's ``price_unit`` to
+    # cost ÷ (1 − margin/100). Stored so it persists with the line for
+    # audit, but it's a "snapshot of intent" — manually editing
+    # ``price_unit`` afterwards is fine and doesn't clear the preset.
+    ufs_margin_preset_id = fields.Many2one(
+        'ufs.margin.preset',
+        string='Margin Preset',
+        ondelete='restrict',
+        groups='sales_team.group_sale_salesman',
+        help="Pick a margin tier to set this line's unit price from the "
+             "product cost. Catalog price is not affected.",
+    )
+
     @api.depends(
         'product_id', 'product_id.standard_price',
         'product_uom_qty', 'price_subtotal',
@@ -97,3 +110,32 @@ class SaleOrderLine(models.Model):
             line.ufs_cost_unit = cost_unit
             line.ufs_margin_amount = margin_amount
             line.ufs_margin_percent = margin_percent
+
+    @api.onchange('ufs_margin_preset_id')
+    def _onchange_ufs_margin_preset(self):
+        """Set this line's price_unit based on the chosen margin tier.
+
+        We use the current product cost (converted into the order's
+        currency, same way ``_compute_ufs_margin`` does) so the resulting
+        margin actually lines up with the preset name. Doesn't touch the
+        product's catalog price — that's the PO-line job."""
+        for line in self:
+            preset = line.ufs_margin_preset_id
+            if not preset or not line.product_id:
+                continue
+            product = line.product_id
+            order = line.order_id
+            product_currency = product.cost_currency_id or product.company_id.currency_id
+            order_currency = order.currency_id or product_currency
+            cost = product.standard_price
+            if product_currency and order_currency and product_currency != order_currency:
+                cost = product_currency._convert(
+                    cost,
+                    order_currency,
+                    order.company_id or self.env.company,
+                    order.date_order or fields.Date.context_today(line),
+                    round=False,
+                )
+            new_price = preset.apply_to_cost(cost)
+            if new_price > 0:
+                line.price_unit = new_price

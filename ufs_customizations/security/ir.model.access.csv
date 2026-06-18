@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ufs_margin_preset_sales_user,ufs.margin.preset sales user,model_ufs_margin_preset,sales_team.group_sale_salesman,1,0,0,0
+access_ufs_margin_preset_sales_manager,ufs.margin.preset sales manager,model_ufs_margin_preset,sales_team.group_sale_manager,1,1,1,1
+access_ufs_margin_preset_purchase_user,ufs.margin.preset purchase user,model_ufs_margin_preset,purchase.group_purchase_user,1,0,0,0
+access_ufs_margin_preset_purchase_manager,ufs.margin.preset purchase manager,model_ufs_margin_preset,purchase.group_purchase_manager,1,1,1,1
