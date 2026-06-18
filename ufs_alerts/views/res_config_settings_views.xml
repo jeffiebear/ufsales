@@ -35,12 +35,4 @@
       </xpath>
     </field>
   </record>
-
-  <record id="action_ufs_alerts_settings" model="ir.actions.act_window">
-    <field name="name">UFS Alerts Settings</field>
-    <field name="res_model">res.config.settings</field>
-    <field name="view_mode">form</field>
-    <field name="target">inline</field>
-    <field name="context">{'module': 'ufs_alerts'}</field>
-  </record>
 </odoo>
