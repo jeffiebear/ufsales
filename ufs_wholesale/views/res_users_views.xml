@@ -88,7 +88,7 @@
     <record id="action_wholesale_applications" model="ir.actions.act_window">
         <field name="name">Wholesale Applications</field>
         <field name="res_model">res.users</field>
-        <field name="view_mode">kanban,list,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="domain">[('share', '=', True), ('ufs_wholesale_state', '!=', False)]</field>
         <field name="search_view_id" ref="ufs_wholesale.view_users_search_wholesale_applications"/>
         <field name="context">{'search_default_pending': 1}</field>
@@ -102,6 +102,33 @@
                 the application's form view.
             </p>
         </field>
+    </record>
+
+    <!--
+        Explicit view bindings. Without these, res.users already has a
+        stock kanban + list view, and Odoo uses THOSE instead of the
+        custom ones above (you get the generic user card with no
+        wholesale info). Binding our views to the action by id forces
+        the right columns/cards to render. List is sequence 1 so the
+        queue opens as a list (matches the admin guide).
+    -->
+    <record id="act_wholesale_applications_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_users_list_wholesale_applications"/>
+        <field name="act_window_id" ref="action_wholesale_applications"/>
+    </record>
+    <record id="act_wholesale_applications_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="view_users_kanban_wholesale_applications"/>
+        <field name="act_window_id" ref="action_wholesale_applications"/>
+    </record>
+    <record id="act_wholesale_applications_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="3"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="base.view_users_form"/>
+        <field name="act_window_id" ref="action_wholesale_applications"/>
     </record>
 
     <!--
