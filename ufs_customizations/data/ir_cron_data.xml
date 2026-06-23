@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <!--
+    Nightly draft-PO consolidation. The method itself no-ops unless the
+    "Consolidate Draft Purchase Orders Daily" setting is enabled, so this
+    cron is safe to ship active.
+  -->
+  <record id="ir_cron_ufs_merge_draft_pos" model="ir.cron">
+    <field name="name">UFS: Consolidate Draft Purchase Orders</field>
+    <field name="model_id" ref="purchase.model_purchase_order"/>
+    <field name="state">code</field>
+    <field name="code">model._ufs_cron_merge_draft_pos()</field>
+    <field name="active" eval="True"/>
+    <field name="interval_number">1</field>
+    <field name="interval_type">days</field>
+    <field name="priority">40</field>
+  </record>
+
+  <!--
+    On-demand merge from the Purchase Orders list (Action menu). Merges
+    across ALL current draft POs regardless of selection.
+  -->
+  <record id="action_ufs_merge_draft_pos" model="ir.actions.server">
+    <field name="name">Consolidate Draft POs (same vendor)</field>
+    <field name="model_id" ref="purchase.model_purchase_order"/>
+    <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+    <field name="binding_view_types">list</field>
+    <field name="state">code</field>
+    <field name="code">action = model.action_ufs_merge_draft_pos()</field>
+  </record>
+</odoo>

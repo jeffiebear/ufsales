@@ -11,8 +11,15 @@
           <block title="Auto-Invoice" id="ufs_auto_invoice_block">
             <setting id="ufs_auto_invoice_setting"
                      string="Auto-invoice on Delivery"
-                     help="Validating an outgoing delivery creates, posts, and emails the invoice for the delivered quantities. Backorders invoice on later validation.">
+                     help="Validating an outgoing delivery creates, posts, and emails the invoice for the delivered quantities (net-terms customers only; credit-card / no-terms customers are skipped). Backorders invoice on later validation.">
               <field name="ufs_auto_invoice_on_delivery"/>
+            </setting>
+          </block>
+          <block title="Purchasing" id="ufs_purchasing_block">
+            <setting id="ufs_consolidate_pos_setting"
+                     string="Consolidate Draft POs Daily"
+                     help="Nightly merge of same-vendor draft purchase orders into one each, so backordered items stop creating a separate PO per item. Lines move intact; procurement links preserved. Also available on demand from the PO list Action menu.">
+              <field name="ufs_consolidate_draft_pos"/>
             </setting>
           </block>
         </app>

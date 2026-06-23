@@ -87,26 +87,6 @@ class StockPicking(models.Model):
             # Manual delivery without an SO — nothing to invoice.
             return
 
-        # CC-default guard: auto-invoice only net-terms customers. An order
-        # with NO payment term is treated as credit-card / pay-now and must
-        # NOT be auto-invoiced. Skip silently with a chatter note. Placed
-        # before the margin-alert gate so CC orders are never blocked by a
-        # margin alert they'll never invoice from. We read the order's
-        # payment_term_id (what the invoice would actually carry), not the
-        # partner default, so per-order overrides are honored.
-        if not order.payment_term_id:
-            order.message_post(body=_(
-                "Auto-invoice skipped: no payment terms on this order "
-                "(credit-card / prepaid). Delivery %s validated without "
-                "creating an invoice."
-            ) % self.name)
-            _logger.info(
-                "ufs auto-invoice: SO %s has no payment_term_id "
-                "(CC/prepaid) — skipping auto-invoice for delivery %s.",
-                order.name, self.name,
-            )
-            return
-
         if order.state not in ('sale', 'done'):
             raise UserError(_(
                 "Auto-invoice: Sale order %s is in state '%s'. Confirm "
