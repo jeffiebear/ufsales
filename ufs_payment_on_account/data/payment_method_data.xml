@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Mirrors payment_custom's wire_transfer payment.method record.
+        active=False here; setup_provider() (post_init_hook) activates it
+        when the provider is wired up.
+    -->
+    <record id="payment_method_pay_on_account" model="payment.method">
+        <field name="name">Pay on Account</field>
+        <field name="code">pay_on_account</field>
+        <field name="sequence">1010</field>
+        <field name="active">False</field>
+        <field name="support_tokenization">False</field>
+        <field name="support_express_checkout">False</field>
+        <field name="support_manual_capture">none</field>
+        <field name="support_refund">none</field>
+    </record>
+
+</odoo>
