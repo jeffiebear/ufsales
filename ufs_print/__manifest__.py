@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Direct Print',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'summary': 'One-click "Print to Konica" on orders, invoices, deliveries, and POs via a print-relay webhook.',
     'description': """
 UFS Direct Print

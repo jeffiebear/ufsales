@@ -70,9 +70,9 @@ class StockPicking(models.Model):
     @api.model
     def _ufs_auto_invoice_enabled(self):
         ICP = self.env['ir.config_parameter'].sudo()
-        # Default off in code — install enables it via the seeded
-        # ir.config_parameter record. Toggleable from Settings.
-        return ICP.get_param('ufs_customizations.auto_invoice_on_delivery') == '1'
+        # res.config.settings stores a Boolean config_parameter as the
+        # string "True"/"False" (not "1"/"0"), so accept either form.
+        return ICP.get_param('ufs_customizations.auto_invoice_on_delivery') in ('True', '1', 'true')
 
     def _ufs_create_delivery_invoice(self):
         """Create, post, and email the invoice for this picking's

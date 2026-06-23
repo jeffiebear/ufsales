@@ -80,7 +80,9 @@ class UfsPrintWizard(models.TransientModel):
         self.ensure_one()
         ICP = self.env['ir.config_parameter'].sudo()
 
-        if ICP.get_param('ufs_print.enabled') != '1':
+        # res.config.settings stores a Boolean config_parameter as the
+        # string "True"/"False" (not "1"/"0"), so accept either form.
+        if ICP.get_param('ufs_print.enabled') not in ('True', '1', 'true'):
             raise UserError(_(
                 "Konica printing is turned off. Turn it on in "
                 "Settings → UFS Printing."
