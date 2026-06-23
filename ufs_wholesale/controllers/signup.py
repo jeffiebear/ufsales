@@ -44,15 +44,16 @@ class UfsWholesaleSignup(AuthSignupHome):
         zip_code = _required("zip", _("ZIP / Postal Code"))
         country_name = _required("country_name", _("Country"))
         fein_taxid = _required("fein_taxid", _("FEIN / Tax ID"))
+        # Resale certificate is OPTIONAL. Validate and keep it only when a
+        # file was actually uploaded; never block signup on its absence.
         certificate = request.httprequest.files.get("resale_certificate")
-        if not certificate or not certificate.filename:
-            raise UserError(_("Please upload your Tax Resale Certificate."))
-
-        certificate_content = certificate.read()
-        if not certificate_content:
-            raise UserError(_("The uploaded Tax Resale Certificate file is empty."))
-        if len(certificate_content) > 10 * 1024 * 1024:
-            raise UserError(_("The uploaded Tax Resale Certificate must be under 10 MB."))
+        certificate_content = None
+        if certificate and certificate.filename:
+            certificate_content = certificate.read()
+            if not certificate_content:
+                raise UserError(_("The uploaded Tax Resale Certificate file is empty."))
+            if len(certificate_content) > 10 * 1024 * 1024:
+                raise UserError(_("The uploaded Tax Resale Certificate must be under 10 MB."))
 
         partner_fields = request.env["res.partner"]._fields
         vals = {
@@ -66,9 +67,10 @@ class UfsWholesaleSignup(AuthSignupHome):
             "ufs_fein_taxid": fein_taxid,
             "ufs_state_text": state_name,
             "ufs_country_text": country_name,
-            "ufs_resale_certificate": base64.b64encode(certificate_content),
-            "ufs_resale_certificate_filename": certificate.filename,
         }
+        if certificate_content:
+            vals["ufs_resale_certificate"] = base64.b64encode(certificate_content)
+            vals["ufs_resale_certificate_filename"] = certificate.filename
         if "company_name" in partner_fields:
             vals["company_name"] = company_name
         return vals

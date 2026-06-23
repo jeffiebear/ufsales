@@ -45,9 +45,9 @@
                 <input type="text" name="fein_taxid" id="fein_taxid" class="form-control" required="required" t-att-value="fein_taxid"/>
             </div>
             <div class="mb-3">
-                <label for="resale_certificate" class="form-label">Tax Resale Certificate</label>
-                <input type="file" name="resale_certificate" id="resale_certificate" class="form-control" required="required" accept=".pdf,.png,.jpg,.jpeg,.webp"/>
-                <div class="form-text">Accepted file types: PDF, PNG, JPG, JPEG, WEBP (max 10 MB).</div>
+                <label for="resale_certificate" class="form-label">Tax Resale Certificate <span class="text-muted">(optional)</span></label>
+                <input type="file" name="resale_certificate" id="resale_certificate" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.webp"/>
+                <div class="form-text">Optional — you can provide it now or later. Accepted file types: PDF, PNG, JPG, JPEG, WEBP (max 10 MB).</div>
             </div>
         </xpath>
     </template>
@@ -57,7 +57,7 @@
             <div class="alert alert-success" role="status">
                 Thank you. Your wholesale registration was submitted successfully.
             </div>
-            <p>We received your details and resale certificate, and will review your application shortly.</p>
+            <p>We received your details and will review your application shortly.</p>
             <p>You will receive a welcome email as soon as your account is approved.</p>
             <div class="d-grid mt-3">
                 <a href="/web/login" class="btn btn-primary">Back to Login</a>
