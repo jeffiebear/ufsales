@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ufs_print_wizard_user,ufs.print.wizard user,model_ufs_print_wizard,base.group_user,1,1,1,1

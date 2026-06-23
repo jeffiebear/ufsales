@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="res_config_settings_view_form_ufs_print" model="ir.ui.view">
+    <field name="name">res.config.settings.form.ufs.print</field>
+    <field name="model">res.config.settings</field>
+    <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//form" position="inside">
+        <app data-string="UFS Printing" string="UFS Printing" name="ufs_print"
+             groups="base.group_system">
+          <block title="Konica Print Relay" id="ufs_print_block">
+            <setting id="ufs_print_enabled_setting"
+                     string="Enable Konica Printing"
+                     help="Master switch for the Print to Konica buttons.">
+              <field name="ufs_print_enabled"/>
+            </setting>
+            <setting id="ufs_print_url_setting"
+                     string="Print Relay URL"
+                     help="The webhook endpoint that receives the PDF and prints it (CUPS relay).">
+              <field name="ufs_print_webhook_url" placeholder="https://parameter-api.com/ufs/print-webhook.php"/>
+            </setting>
+            <setting id="ufs_print_secret_setting"
+                     string="Shared Secret"
+                     help="Sent as the X-Print-Secret header; must match the relay.">
+              <field name="ufs_print_shared_secret" password="True"/>
+            </setting>
+            <setting id="ufs_print_copies_setting"
+                     string="Default Copies"
+                     help="Pre-filled copy count in the print popup.">
+              <field name="ufs_print_default_copies"/>
+            </setting>
+            <setting id="ufs_print_timeout_setting"
+                     string="Relay Timeout (seconds)"
+                     help="How long to wait for the relay before giving up.">
+              <field name="ufs_print_timeout"/>
+            </setting>
+          </block>
+        </app>
+      </xpath>
+    </field>
+  </record>
+</odoo>
