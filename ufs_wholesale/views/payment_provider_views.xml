@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="payment_provider_form_ufs_terms" model="ir.ui.view">
+    <field name="name">payment.provider.form.ufs.requires.terms</field>
+    <field name="model">payment.provider</field>
+    <field name="inherit_id" ref="payment.payment_provider_form"/>
+    <field name="arch" type="xml">
+      <field name="state" position="after">
+        <field name="ufs_requires_payment_terms"/>
+      </field>
+    </field>
+  </record>
+</odoo>
