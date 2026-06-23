@@ -21,9 +21,12 @@ else:
     print("    custom_mode:", g('custom_mode'))
     print("    redirect_form_view_id:", prov.redirect_form_view_id.xml_id if 'redirect_form_view_id' in prov._fields and prov.redirect_form_view_id else None)
     print("    payment_method_ids:", [(m.code, 'active=%s' % m.active) for m in prov.payment_method_ids])
-    print("    country_ids:", prov.country_ids.mapped('code') or "(all)")
-    if 'available_currency_ids' in prov._fields:
-        print("    available_currency_ids:", prov.available_currency_ids.mapped('name') or "(all)")
+    for cf in ('country_ids', 'available_country_ids'):
+        if cf in prov._fields:
+            print("    %s:" % cf, prov[cf].mapped('code') or "(all)")
+    for cur in ('available_currency_ids', 'currency_ids'):
+        if cur in prov._fields:
+            print("    %s:" % cur, prov[cur].mapped('name') or "(all)")
     print("    maximum_amount:", g('maximum_amount'))
 
 print("\n[B] payment.method 'pay_on_account':")
