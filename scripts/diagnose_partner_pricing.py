@@ -6,8 +6,8 @@
 #   exec(open('/home/odoo/src/user/scripts/diagnose_partner_pricing.py').read())
 # Paste the whole output back.
 
-PARTNER_NAME = "John Customer"   # <-- set to the customer you're testing
-PRODUCT_CODE = ""                 # optional: a product code they should have an override for
+PARTNER_NAME = "CELEBRATION CHURCH OF JAX"   # <-- set to the customer you're testing
+PRODUCT_CODE = "ID-416308-CS"                 # optional: a product code they should have an override for
 
 Partner = env['res.partner'].sudo()
 Item = env['product.pricelist.item'].sudo()
@@ -27,6 +27,12 @@ else:
     same = order_pl and ufs_pl and order_pl.id == ufs_pl.id
     print("    >>> SAME pricelist?", bool(same),
           "" if same else "  <-- MISMATCH: order won't see the override pricelist's items")
+    if 'ufs_default_price_opt' in partner._fields:
+        print("    ufs_default_price_opt (default scheme):", partner.ufs_default_price_opt)
+    if ufs_pl:
+        n = Item.search_count([('pricelist_id', '=', ufs_pl.id)])
+        ng = Item.search_count([('pricelist_id', '=', ufs_pl.id), ('applied_on', '=', '3_global')])
+        print("    UFS pl items: %s total, %s global (fallback) item(s)" % (n, ng))
 
     print("\n[B] Customer's price rules (overrides) and where their item lives:")
     rules = Rule.search([('partner_id', '=', partner.id)])
