@@ -1,0 +1,19 @@
+/* On-the-fly chatter resize handle (see chatter_resize.js). */
+
+.ufs-chatter-resizer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: col-resize;
+    z-index: 10;
+    background: transparent;
+    transition: background-color 0.12s ease;
+}
+
+.ufs-chatter-resizer:hover,
+.ufs-chatter-resizer:active {
+    background-color: #7A5AF8; /* Parameter purple */
+    opacity: 0.45;
+}

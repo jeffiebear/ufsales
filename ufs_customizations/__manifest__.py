@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customizations',
-    'version': '19.0.1.3.0',
+    'version': '19.0.1.4.0',
     'summary': 'Catch-all module for small UFS-specific tweaks to standard Odoo behavior.',
     'description': """
 UFS Customizations
@@ -61,6 +61,12 @@ Current tweaks
         'views/purchase_order_views.xml',
         'views/res_config_settings_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'ufs_customizations/static/src/chatter_resize/chatter_resize.js',
+            'ufs_customizations/static/src/chatter_resize/chatter_resize.css',
+        ],
+    },
     'installable': True,
     'application': False,
     'auto_install': False,
