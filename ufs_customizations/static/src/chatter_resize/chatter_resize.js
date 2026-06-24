@@ -1,192 +1,179 @@
 /*
- * UFS: on-the-fly chatter resizing.
+ * UFS: on-the-fly chatter resizing (Odoo 19 backend).
  *
- * Odoo 19 has no native way to resize the form chatter. This adds a thin
- * drag handle on the chatter's left edge: drag to set its width, the choice
- * is remembered per browser (localStorage), and double-clicking the handle
- * resets to Odoo's default.
+ * Odoo 19 has no native chatter resize. This adds a thin drag handle on the
+ * chatter panel's left edge: drag to set the width, the choice is remembered
+ * per browser (localStorage), double-click resets to Odoo's default.
  *
- * Plain (non-module) script: it runs once when the backend bundle loads and
- * uses a MutationObserver to (re)attach the handle whenever a chatter is
- * rendered, so it survives OWL re-renders and navigation between records.
+ * Odoo 19 form-view DOM (chatter on the side):
+ *   .o_form_view > .o_form_renderer (flex row)
+ *       .o_form_sheet_bg            <- form region; flex:1 1 auto, max-width:1400px
+ *         .o_form_sheet             <- fills the region
+ *       .o-mail-Form-chatter.o-aside <- chatter PANEL; flex:1 0 auto  ← size THIS
+ *         .o-mail-Chatter           <- inner (w-100 flex-grow-1, scrolls)
  *
- * Targets ".o-mail-Chatter" (the Odoo 19 chatter root). Degrades to a no-op
- * if no chatter is present, and only attaches when the chatter is laid out
- * on the SIDE (skipped when it's stacked at the bottom on narrow screens).
+ * So we size the .o-mail-Form-chatter panel (not the inner chatter), and lift
+ * the .o_form_sheet_bg max-width so the form actually widens into the freed
+ * space. Writes use setProperty(..., 'important') to beat Bootstrap's
+ * flex-grow-1 / w-100 utility classes (they carry !important). The handle is
+ * appended to the panel (which doesn't scroll), and the drag listeners are
+ * bound once globally so re-renders don't stack them.
  */
 (function () {
     "use strict";
 
     var KEY = "ufs_chatter_width";
     var MIN = 280;
-    var MAX = 900;
+    var MAX = 1000;
+
+    var drag = null; // { chatter, startX, startW } while dragging
+
+    function clamp(w) {
+        return Math.min(MAX, Math.max(MIN, w));
+    }
 
     function savedWidth() {
         var v = parseInt(localStorage.getItem(KEY), 10);
-        if (isNaN(v)) {
-            return null;
-        }
-        return Math.min(MAX, Math.max(MIN, v));
+        return isNaN(v) ? null : clamp(v);
     }
 
-    // The form view root that contains both the sheet and the chatter.
+    function setImp(el, prop, val) {
+        if (el) {
+            el.style.setProperty(prop, val, "important");
+        }
+    }
+
+    function clearImp(el, prop) {
+        if (el) {
+            el.style.removeProperty(prop);
+        }
+    }
+
     function formRoot(chatter) {
         return chatter.closest(".o_form_view") ||
             chatter.closest(".o_form_renderer") ||
             chatter.parentElement;
     }
 
-    // The growable region holding the sheet (sibling of the chatter).
-    function sheetRegion(chatter) {
-        var root = formRoot(chatter);
-        if (root) {
-            var bg = root.querySelector(".o_form_sheet_bg");
-            if (bg) {
-                return bg;
-            }
-        }
-        return chatter.previousElementSibling || null;
+    function asidePanel(chatter) {
+        return chatter.closest(".o-mail-Form-chatter") ||
+            chatter.closest(".o-mail-ChatterContainer") ||
+            chatter;
     }
 
-    // The sheet itself, which Odoo caps with a max-width and centers — the
-    // reason the form doesn't widen when the chatter shrinks.
-    function sheet(chatter) {
+    function sheetRegion(chatter) {
         var root = formRoot(chatter);
-        return root ? root.querySelector(".o_form_sheet") : null;
+        return root ? root.querySelector(".o_form_sheet_bg") : null;
+    }
+
+    function isSideLayout(chatter) {
+        return !!chatter.closest(".o-aside");
     }
 
     function applyWidth(chatter, w) {
-        chatter.style.flex = "0 0 " + w + "px";
-        chatter.style.width = w + "px";
-        chatter.style.minWidth = w + "px";
-        chatter.style.maxWidth = w + "px";
-        // Let the form region grow into the freed space...
+        var panel = asidePanel(chatter);
+        setImp(panel, "flex", "0 0 " + w + "px");
+        setImp(panel, "width", w + "px");
+        setImp(panel, "min-width", w + "px");
+        setImp(panel, "max-width", w + "px");
+        // Inner chatter just fills the panel; clear any caps and uncap.
+        clearImp(chatter, "flex");
+        clearImp(chatter, "width");
+        clearImp(chatter, "min-width");
+        setImp(chatter, "max-width", "none");
         var region = sheetRegion(chatter);
         if (region) {
-            region.style.flex = "1 1 auto";
-            region.style.minWidth = "0";
-        }
-        // ...and lift the sheet's max-width so its content actually uses it.
-        var sh = sheet(chatter);
-        if (sh) {
-            sh.style.maxWidth = "none";
+            setImp(region, "flex", "1 1 auto");
+            setImp(region, "min-width", "0");
+            setImp(region, "max-width", "none");
         }
     }
 
     function clearWidth(chatter) {
-        chatter.style.flex = "";
-        chatter.style.width = "";
-        chatter.style.minWidth = "";
-        chatter.style.maxWidth = "";
+        var panel = asidePanel(chatter);
+        ["flex", "width", "min-width", "max-width"].forEach(function (p) {
+            clearImp(panel, p);
+            clearImp(chatter, p);
+        });
         var region = sheetRegion(chatter);
         if (region) {
-            region.style.flex = "";
-            region.style.minWidth = "";
-        }
-        var sh = sheet(chatter);
-        if (sh) {
-            sh.style.maxWidth = "";
+            ["flex", "min-width", "max-width"].forEach(function (p) {
+                clearImp(region, p);
+            });
         }
     }
 
-    function isSideLayout(chatter) {
-        // When the chatter is stacked at the bottom (narrow screens) the
-        // parent lays its children out in a column; only add the handle for
-        // the side-by-side layout.
-        var parent = chatter.parentElement;
-        if (!parent) {
-            return false;
-        }
-        var dir = getComputedStyle(parent).flexDirection || "";
-        if (dir.indexOf("column") === 0) {
-            return false;
-        }
-        // Sanity: side chatter is taller than it is wide.
-        var r = chatter.getBoundingClientRect();
-        return r.height >= r.width;
-    }
-
-    function enhance(chatter) {
-        if (chatter.dataset.ufsResizable === "1") {
+    // Global drag handlers (bound once).
+    window.addEventListener("mousemove", function (e) {
+        if (!drag) {
             return;
         }
+        applyWidth(drag.chatter, clamp(drag.startW + (drag.startX - e.clientX)));
+    });
+    window.addEventListener("mouseup", function () {
+        if (!drag) {
+            return;
+        }
+        document.body.style.userSelect = "";
+        localStorage.setItem(
+            KEY,
+            String(Math.round(asidePanel(drag.chatter).getBoundingClientRect().width))
+        );
+        drag = null;
+    });
+
+    function enhance(chatter) {
         if (!isSideLayout(chatter)) {
             return;
         }
-        chatter.dataset.ufsResizable = "1";
-        if (getComputedStyle(chatter).position === "static") {
-            chatter.style.position = "relative";
+        var panel = asidePanel(chatter);
+        if (panel.querySelector(":scope > .ufs-chatter-resizer")) {
+            return; // already enhanced (and not wiped by a re-render)
+        }
+        if (getComputedStyle(panel).position === "static") {
+            panel.style.position = "relative";
         }
 
+        // Restore the saved width (also re-applies after an OWL re-render),
+        // unless the user is mid-drag.
         var w = savedWidth();
-        if (w) {
+        if (w && !drag) {
             applyWidth(chatter, w);
         }
 
         var handle = document.createElement("div");
         handle.className = "ufs-chatter-resizer";
         handle.title = "Drag to resize the chatter · double-click to reset";
-        chatter.appendChild(handle);
-
-        var dragging = false;
-        var startX = 0;
-        var startW = 0;
-
         handle.addEventListener("mousedown", function (e) {
-            dragging = true;
-            startX = e.clientX;
-            startW = chatter.getBoundingClientRect().width;
+            drag = {
+                chatter: chatter,
+                startX: e.clientX,
+                startW: asidePanel(chatter).getBoundingClientRect().width,
+            };
             document.body.style.userSelect = "none";
             e.preventDefault();
             e.stopPropagation();
         });
-
-        window.addEventListener("mousemove", function (e) {
-            if (!dragging) {
-                return;
-            }
-            // The chatter sits to the RIGHT of the form, so dragging the
-            // handle leftward should widen it.
-            var nw = startW + (startX - e.clientX);
-            nw = Math.min(MAX, Math.max(MIN, nw));
-            applyWidth(chatter, nw);
-        });
-
-        window.addEventListener("mouseup", function () {
-            if (!dragging) {
-                return;
-            }
-            dragging = false;
-            document.body.style.userSelect = "";
-            localStorage.setItem(
-                KEY,
-                String(Math.round(chatter.getBoundingClientRect().width))
-            );
-        });
-
         handle.addEventListener("dblclick", function (e) {
             e.preventDefault();
             e.stopPropagation();
             localStorage.removeItem(KEY);
             clearWidth(chatter);
         });
+        panel.appendChild(handle);
     }
 
     function scan() {
-        var chatters = document.querySelectorAll(".o-mail-Chatter");
-        for (var i = 0; i < chatters.length; i++) {
-            enhance(chatters[i]);
-        }
+        document.querySelectorAll(".o-mail-Chatter").forEach(enhance);
     }
 
     function start() {
         try {
-            var obs = new MutationObserver(function () {
-                scan();
+            new MutationObserver(scan).observe(document.body, {
+                childList: true,
+                subtree: true,
             });
-            obs.observe(document.body, { childList: true, subtree: true });
         } catch (err) {
-            // MutationObserver unavailable — fall back to a periodic scan.
             setInterval(scan, 1500);
         }
         scan();
