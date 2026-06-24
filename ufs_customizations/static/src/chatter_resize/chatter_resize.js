@@ -29,11 +29,48 @@
         return Math.min(MAX, Math.max(MIN, v));
     }
 
+    // The form view root that contains both the sheet and the chatter.
+    function formRoot(chatter) {
+        return chatter.closest(".o_form_view") ||
+            chatter.closest(".o_form_renderer") ||
+            chatter.parentElement;
+    }
+
+    // The growable region holding the sheet (sibling of the chatter).
+    function sheetRegion(chatter) {
+        var root = formRoot(chatter);
+        if (root) {
+            var bg = root.querySelector(".o_form_sheet_bg");
+            if (bg) {
+                return bg;
+            }
+        }
+        return chatter.previousElementSibling || null;
+    }
+
+    // The sheet itself, which Odoo caps with a max-width and centers — the
+    // reason the form doesn't widen when the chatter shrinks.
+    function sheet(chatter) {
+        var root = formRoot(chatter);
+        return root ? root.querySelector(".o_form_sheet") : null;
+    }
+
     function applyWidth(chatter, w) {
         chatter.style.flex = "0 0 " + w + "px";
         chatter.style.width = w + "px";
         chatter.style.minWidth = w + "px";
         chatter.style.maxWidth = w + "px";
+        // Let the form region grow into the freed space...
+        var region = sheetRegion(chatter);
+        if (region) {
+            region.style.flex = "1 1 auto";
+            region.style.minWidth = "0";
+        }
+        // ...and lift the sheet's max-width so its content actually uses it.
+        var sh = sheet(chatter);
+        if (sh) {
+            sh.style.maxWidth = "none";
+        }
     }
 
     function clearWidth(chatter) {
@@ -41,6 +78,15 @@
         chatter.style.width = "";
         chatter.style.minWidth = "";
         chatter.style.maxWidth = "";
+        var region = sheetRegion(chatter);
+        if (region) {
+            region.style.flex = "";
+            region.style.minWidth = "";
+        }
+        var sh = sheet(chatter);
+        if (sh) {
+            sh.style.maxWidth = "";
+        }
     }
 
     function isSideLayout(chatter) {
