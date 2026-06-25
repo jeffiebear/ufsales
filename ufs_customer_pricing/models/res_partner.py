@@ -75,6 +75,51 @@ class ResPartner(models.Model):
                 src._ufs_mirror_to(pl)
         return pl
 
+    def _ufs_promote_pricelist(self):
+        """Make the customer's per-customer UFS pricelist their ORDER pricelist.
+
+        A customer's product overrides (ufs.price.rule) sync onto their own
+        "Customer Pricelist — X". But if their order is still pointed at a
+        shared margin-tier pricelist (e.g. "25% MARGIN"), the order never sees
+        those overrides. This repoints ``property_product_pricelist`` to the
+        per-customer pricelist and, the first time, seeds a single GLOBAL
+        fallback item that DEFERS to the previously-assigned pricelist
+        (``base='pricelist'``). Net effect:
+
+            * products with a specific rule  -> their override (variant wins)
+            * every other product            -> the prior default margin (live)
+
+        Idempotent: only seeds the fallback when the pricelist has no global
+        item, and only repoints when the order pricelist differs.
+        """
+        Item = self.env['product.pricelist.item'].sudo()
+        for partner in self:
+            ufs = partner.ufs_pricelist_id
+            if not ufs:
+                continue
+            current = partner.property_product_pricelist
+            if not current or current.id == ufs.id:
+                continue
+            has_global = Item.search_count([
+                ('pricelist_id', '=', ufs.id),
+                ('applied_on', '=', '3_global'),
+            ])
+            if not has_global:
+                # A global rule that simply returns the prior pricelist's price,
+                # so non-overridden products keep the customer's default margin.
+                Item.create({
+                    'pricelist_id': ufs.id,
+                    'applied_on': '3_global',
+                    'min_quantity': 0,
+                    'compute_price': 'formula',
+                    'base': 'pricelist',
+                    'base_pricelist_id': current.id,
+                    'price_discount': 0.0,
+                    'price_surcharge': 0.0,
+                    'price_round': 0.0,
+                })
+            partner.sudo().write({'property_product_pricelist': ufs.id})
+
     def write(self, vals):
         res = super().write(vals)
         # When the customer default changes, every rule of type 'default'
