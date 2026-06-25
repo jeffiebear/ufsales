@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customer Pricing',
-    'version': '19.0.1.4.0',
+    'version': '19.0.1.5.0',
     'summary': 'Customer-specific pricing rules migrated from STEP1, with auto-sync to Odoo pricelists.',
     'description': """
 UFS Customer Pricing

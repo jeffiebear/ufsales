@@ -375,9 +375,12 @@ class UfsPriceRule(models.Model):
                 item = Item.sudo().create(vals)
                 r.pricelist_item_id = item.id
         # Make sure each affected customer's order actually uses their own
-        # UFS pricelist (carrying their prior margin tier as a fallback), so
-        # the overrides we just synced are the ones the sale order sees.
-        self.mapped('partner_id')._ufs_promote_pricelist()
+        # UFS pricelist (carrying their default margin as a global item), so
+        # the overrides we just synced are the ones the sale order sees — then
+        # reprice their open quotes so the change is visible immediately.
+        partners = self.mapped('partner_id')
+        partners._ufs_promote_pricelist()
+        partners._ufs_reprice_open_orders()
 
     # ----- ORM hooks -------------------------------------------------------
     @api.model_create_multi
