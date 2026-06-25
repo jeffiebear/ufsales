@@ -1,5 +1,14 @@
-# Flip every storable / consumable product to "Delivered quantities"
-# invoicing so auto-invoice-on-delivery picks up the right qty_to_invoice.
+# Make invoicing follow DELIVERED quantities, so a partial delivery only
+# ever invoices what actually shipped (the rest stays open on the SO and
+# invoices when its backorder picking validates later).
+#
+# Two things have to be true for that, and BOTH are handled here:
+#   1) Every existing storable / consumable product is flipped to
+#      "Delivered quantities".
+#   2) The COMPANY DEFAULT is set to "Delivered quantities" so every NEW
+#      or imported product is born that way. Without this, new products
+#      default to "Ordered quantities" and silently reintroduce the
+#      over-invoicing bug for any order that includes them.
 #
 # Services stay on "Ordered" — those are deposits, setup fees, etc.
 # that should invoice up front, not at delivery.
@@ -9,6 +18,13 @@
 #
 # Idempotent. Safe to re-run.
 
+# ---- 1) Company default for NEW / imported products -----------------------
+# Mirrors Settings -> Sales -> Invoicing -> "Invoicing Policy = Delivered
+# quantities" (that UI control just writes this ir.default).
+env['ir.default'].set('product.template', 'invoice_policy', 'delivery')
+print('default invoice policy for new products -> "delivery"')
+
+# ---- 2) Flip every existing physical product ------------------------------
 Template = env['product.template'].with_context(active_test=False).sudo()
 
 # Storable + consumable. Services skipped.

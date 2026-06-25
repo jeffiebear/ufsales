@@ -19,12 +19,12 @@ class ResConfigSettings(models.TransientModel):
         default=False,
         help="When enabled, validating an outgoing delivery "
              "automatically creates, posts, and emails the customer "
-             "invoice for the delivered quantities. Backordered "
-             "quantities stay open and invoice when their picking "
-             "validates later. Only customers WITH payment terms are "
-             "invoiced; customers without terms (credit-card / prepaid) "
-             "are skipped. Requires products set to 'Delivered "
-             "quantities' invoicing policy.",
+             "invoice for the delivered quantities only. Backordered "
+             "(undelivered) quantities stay open on the sale order and "
+             "invoice when their picking validates later. Requires "
+             "products set to the 'Delivered quantities' invoicing "
+             "policy (run scripts/set_invoice_policy_delivery.py once to "
+             "flip existing products and set that default).",
     )
 
     ufs_consolidate_draft_pos = fields.Boolean(
