@@ -14,7 +14,22 @@ Template = env['product.template'].with_context(active_test=False).sudo()
 phys = [('type', 'in', ('consu', 'product'))]
 on_order = Template.search_count(phys + [('invoice_policy', '=', 'order')])
 on_deliv = Template.search_count(phys + [('invoice_policy', '=', 'delivery')])
-default = env['ir.default'].get('product.template', 'invoice_policy')
+
+# Company default for NEW products. Read the raw ir.default record — the
+# .get() helper was removed in newer Odoo. None => no default set, so Odoo
+# falls back to the field's own default ('order').
+default = None
+try:
+    import json
+    _d = env['ir.default'].sudo().search([
+        ('field_id.model', '=', 'product.template'),
+        ('field_id.name', '=', 'invoice_policy'),
+        ('user_id', '=', False),
+    ], limit=1)
+    if _d and _d.json_value:
+        default = json.loads(_d.json_value)
+except Exception as _e:
+    print("  (could not read company default: %s)" % _e)
 
 print("=== Invoice policy — physical products ===")
 print("  on 'Ordered quantities'   (over-invoices): %s" % on_order)

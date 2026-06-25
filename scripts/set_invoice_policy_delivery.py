@@ -19,9 +19,13 @@
 # Idempotent. Safe to re-run.
 
 # ---- 1) Company default for NEW / imported products -----------------------
-# Mirrors Settings -> Sales -> Invoicing -> "Invoicing Policy = Delivered
-# quantities" (that UI control just writes this ir.default).
-env['ir.default'].set('product.template', 'invoice_policy', 'delivery')
+# Drive the Sales setting itself ("Invoicing Policy = Delivered quantities"),
+# which is what writes the underlying default for product.template. This is
+# version-stable; the ir.default.set() / .get() helpers were removed in newer
+# Odoo, so we go through res.config.settings exactly like the UI does.
+env['res.config.settings'].create({
+    'default_invoice_policy': 'delivery',
+}).execute()
 print('default invoice policy for new products -> "delivery"')
 
 # ---- 2) Flip every existing physical product ------------------------------
