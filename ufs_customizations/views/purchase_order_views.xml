@@ -20,29 +20,25 @@
     </record>
 
     <!--
-        Surface the real PO order date as a plain, always-visible column.
+        Surface the real PO order date on the "Purchase Orders" list.
 
-        The imported STEP1 history stores the true order date in
-        `date_order` (spanning 2009-2026 and correct). The standard list
-        renders `date_order` under the "Order Deadline" label with the
-        `remaining_days` widget, which only prints a value for open RFQs
-        and shows blank for every confirmed PO — so the historical dates
-        look "missing" even though they are stored. We drop the widget
-        and relabel the column so the actual date prints for every row.
+        That list (this base view) shows Confirmation Date and Expected
+        Arrival but has no order-date column, so the imported STEP1 order
+        date (date_order, spanning 2009-2026 and already correct) is not
+        visible. We ADD date_order as a plain "Order Date" column right
+        after the Reference. It is added, not modified, because date_order
+        is not already present in this view.
 
-        Targets the base list view; the RFQ ("Requests for Quotation")
-        KPI list inherits it, so the column shows in both places. If a
-        future Odoo build moves the base view id, adjust `inherit_id`.
+        Anchored on the "name" (Reference) field, which every purchase
+        list view carries, so the xpath is stable.
     -->
     <record id="purchase_order_tree_ufs_order_date" model="ir.ui.view">
         <field name="name">purchase.order.list.ufs.order.date</field>
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='date_order']" position="attributes">
-                <attribute name="widget"/>
-                <attribute name="string">Order Date</attribute>
-                <attribute name="optional">show</attribute>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="date_order" string="Order Date" optional="show"/>
             </xpath>
         </field>
     </record>

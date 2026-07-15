@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customizations',
-    'version': '19.0.1.5.0',
+    'version': '19.0.1.5.1',
     'summary': 'Catch-all module for small UFS-specific tweaks to standard Odoo behavior.',
     'description': """
 UFS Customizations
