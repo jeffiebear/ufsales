@@ -6,10 +6,9 @@
         THE PROBLEM
         ===========
         Stock Odoo feeds two blocks into web.address_layout: the Shipping
-        Address (information_block, rendered left in a col-6) and the billing
-        address (address, rendered right in col-5 offset-1). On a letter page
-        that lands them at roughly 0.37" and 4.87" from the left edge, running
-        2.49" to 3.43" down the page.
+        Address (information_block, left, col-6) and the billing address
+        (address, right, col-5 ms-auto). That lands them at roughly 0.37" and
+        4.87" from the left edge, running 2.49" to 3.43" down the page.
 
         A standard #9 window (1-1/8" x 4-1/2", set 7/8" from the left edge and
         1/2" up from the bottom) exposes the band 2" to 3-1/8" down the page
@@ -20,68 +19,75 @@
 
         THE FIX
         ===========
-        Blank out both stock blocks so web.address_layout renders nothing (its
-        wrapper is t-if="address"), then print the billing address alone, sized
-        and placed to the window, and put the shipping address back below the
-        window band where it is still useful but cannot bleed through.
+        Feed our own markup into the existing "address" slot rather than
+        blanking it and drawing elsewhere.
 
-        The billing address is deliberately rebuilt from fields rather than
-        reusing the contact widget: the widget emits country and the template
-        appends Tax ID, which pushed the example invoice to seven rendered
-        lines. A 1-1/8" window fits about six. Name, street, street2 and
-        city/state/zip is five at worst.
+        This matters. The invoice heading is not part of the body: it is a
+        t-set (layout_document_title) that the external layout renders just
+        below the address area. Emptying "address" collapses that area, the
+        heading slides up into the window band, and an absolutely positioned
+        block then prints straight through it. Keeping the slot occupied keeps
+        the rest of the document exactly where it was.
 
-        CALIBRATION
+        web.address_layout gives us the hook we need:
+
+            <div name="address" t-att-class="not custom_layout_address
+                 and colclass or information_block and colclass">
+
+        Setting custom_layout_address with no information_block resolves that
+        class to nothing, dropping the col-5/ms-auto that would otherwise pin
+        the block to the right-hand column. We get a full-width, left-aligned
+        slot and size it to the window ourselves.
+
+        The billing address is rebuilt from fields rather than reusing the
+        contact widget: the widget emits country and the stock template
+        appends Tax ID, which pushed a real invoice to seven rendered lines. A
+        1-1/8" window fits about six. Name, street, street2 and city/state/zip
+        is five at worst.
+
+        GEOMETRY
         ===========
-        Every offset below is a tunable in one place. They are measured from
-        the block's natural position in the flow, not the page corner, because
-        the wrapper is position:relative/height:0 so the absolute child hangs
-        off a known point. Expect one render-and-measure pass on staging to
-        settle ufs_win9_shift_y against the real paperformat and printer.
+        Offsets are in the flow, not absolute, so nothing can collide with the
+        heading. The address slot naturally begins about 2.49" down; the
+        negative top margin lifts it to about 2.1", inside the window band.
+        The body's left edge already sits about 0.36" in from the page edge,
+        so the left margin below puts text about 0.95" across, comfortably
+        inside the window's 0.7" to 5.2" span.
+
+        The fixed height reserves the window band so the shipping address
+        that follows it clears the bottom of the window.
     -->
     <template id="report_invoice_document_ufs_win9"
               inherit_id="account.report_invoice_document">
 
         <!--
-            Anchor on the invoice body wrapper. It is the one element in this
-            template that is unique and not repeated across the three
-            shipping-address branches above it, so the xpath stays valid
-            whichever branch a given invoice takes.
+            Anchor on the invoice body wrapper: the one element here that is
+            unique and not repeated across the three shipping-address
+            branches, so the xpath holds whichever branch an invoice takes.
+            Assignments land after those branches, so ours are the ones that
+            reach web.address_layout.
         -->
         <xpath expr="//div[hasclass('invoice_main')]" position="before">
 
-            <!-- ==== calibration knobs ==== -->
-            <!-- Negative moves the window block UP from its natural spot. -->
-            <t t-set="ufs_win9_shift_y" t-value="-9"/>
-            <!-- Left inset, page edge to text. Window starts at 0.7". -->
-            <t t-set="ufs_win9_left" t-value="24"/>
-            <!-- Window is 4.5" wide; stay inside it. -->
-            <t t-set="ufs_win9_width" t-value="108"/>
-            <!-- Window is 1-1/8" tall. Clip rather than overflow. -->
+            <!-- ==== calibration knobs, millimetres ==== -->
+            <!-- Lifts the slot from its natural ~2.49" into the window band. -->
+            <t t-set="ufs_win9_lift" t-value="10"/>
+            <!-- Body edge is ~0.36" in; +15mm puts text ~0.95" across. -->
+            <t t-set="ufs_win9_left" t-value="15"/>
+            <!-- Window is 4-1/2" wide. 100mm keeps a margin at the right. -->
+            <t t-set="ufs_win9_width" t-value="100"/>
+            <!-- Window is 1-1/8" tall. Reserve it and clip anything over. -->
             <t t-set="ufs_win9_height" t-value="27"/>
-            <!-- Push the shipping block clear of the bottom of the window. -->
-            <t t-set="ufs_win9_ship_push" t-value="22"/>
 
-            <!--
-                Suppress the stock two-column address area. web.address_layout
-                guards its wrapper with t-if="address", so emptying these two
-                removes the whole row, label and all. Set after the branches
-                above have run so this assignment is the one that sticks.
-            -->
-            <t t-set="address" t-value="''"/>
+            <!-- Only the mailing address belongs in the window. -->
             <t t-set="information_block" t-value="''"/>
+            <!-- Drops the col-5/ms-auto so the slot is full width and left. -->
+            <t t-set="custom_layout_address" t-value="True"/>
 
-            <!--
-                height:0 keeps the wrapper out of the flow so the rest of the
-                invoice is untouched; the absolute child is then positioned
-                against this known point rather than against the page, which
-                wkhtmltopdf resolves inconsistently.
-            -->
-            <div name="ufs_win9_wrapper" style="position:relative; height:0;">
+            <t t-set="address">
                 <div name="ufs_win9_address"
-                     t-attf-style="position:absolute;
-                                   top:{{ ufs_win9_shift_y }}mm;
-                                   left:{{ ufs_win9_left }}mm;
+                     t-attf-style="margin-top:-{{ ufs_win9_lift }}mm;
+                                   margin-left:{{ ufs_win9_left }}mm;
                                    width:{{ ufs_win9_width }}mm;
                                    height:{{ ufs_win9_height }}mm;
                                    overflow:hidden;
@@ -97,22 +103,21 @@
                         <span t-if="o.partner_id.zip" t-out="o.partner_id.zip"/>
                     </div>
                 </div>
-            </div>
 
-            <!--
-                Shipping address, restored below the window band. Same group
-                gate as stock so it stays hidden for databases that do not use
-                separate delivery addresses.
-            -->
-            <div name="ufs_win9_shipping"
-                 t-attf-style="margin-top:{{ ufs_win9_ship_push }}mm;">
-                <div t-if="o.partner_shipping_id and o.partner_shipping_id != o.partner_id"
+                <!--
+                    Shipping address, kept on the invoice but sitting below the
+                    reserved window band so it cannot show through. Same group
+                    gate as stock, so databases not using separate delivery
+                    addresses are unaffected.
+                -->
+                <div name="ufs_win9_shipping"
+                     t-if="o.partner_shipping_id and o.partner_shipping_id != o.partner_id"
                      groups="account.group_delivery_invoice_address">
                     <strong class="d-block">Shipping Address</strong>
                     <div t-field="o.partner_shipping_id"
                          t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
                 </div>
-            </div>
+            </t>
 
         </xpath>
     </template>
