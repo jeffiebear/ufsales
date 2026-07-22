@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customizations',
-    'version': '19.0.1.5.1',
+    'version': '19.0.1.6.0',
     'summary': 'Catch-all module for small UFS-specific tweaks to standard Odoo behavior.',
     'description': """
 UFS Customizations
@@ -60,6 +60,7 @@ Current tweaks
         'views/sale_order_views.xml',
         'views/purchase_order_views.xml',
         'views/res_config_settings_views.xml',
+        'views/report_invoice_window_envelope.xml',
     ],
     'assets': {
         'web.assets_backend': [

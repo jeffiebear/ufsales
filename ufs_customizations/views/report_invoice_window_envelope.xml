@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Customer invoice layout for #9 window envelopes.
+
+        THE PROBLEM
+        ===========
+        Stock Odoo feeds two blocks into web.address_layout: the Shipping
+        Address (information_block, rendered left in a col-6) and the billing
+        address (address, rendered right in col-5 offset-1). On a letter page
+        that lands them at roughly 0.37" and 4.87" from the left edge, running
+        2.49" to 3.43" down the page.
+
+        A standard #9 window (1-1/8" x 4-1/2", set 7/8" from the left edge and
+        1/2" up from the bottom) exposes the band 2" to 3-1/8" down the page
+        and 0.7" to 5.2" across, once the sheet is folded in thirds. The stock
+        layout straddles that band, so the window frames the tail of the
+        shipping block on the left and the first third of an inch of the
+        billing block on the right. Fragments of two addresses, never one.
+
+        THE FIX
+        ===========
+        Blank out both stock blocks so web.address_layout renders nothing (its
+        wrapper is t-if="address"), then print the billing address alone, sized
+        and placed to the window, and put the shipping address back below the
+        window band where it is still useful but cannot bleed through.
+
+        The billing address is deliberately rebuilt from fields rather than
+        reusing the contact widget: the widget emits country and the template
+        appends Tax ID, which pushed the example invoice to seven rendered
+        lines. A 1-1/8" window fits about six. Name, street, street2 and
+        city/state/zip is five at worst.
+
+        CALIBRATION
+        ===========
+        Every offset below is a tunable in one place. They are measured from
+        the block's natural position in the flow, not the page corner, because
+        the wrapper is position:relative/height:0 so the absolute child hangs
+        off a known point. Expect one render-and-measure pass on staging to
+        settle ufs_win9_shift_y against the real paperformat and printer.
+    -->
+    <template id="report_invoice_document_ufs_win9"
+              inherit_id="account.report_invoice_document">
+
+        <!--
+            Anchor on the invoice body wrapper. It is the one element in this
+            template that is unique and not repeated across the three
+            shipping-address branches above it, so the xpath stays valid
+            whichever branch a given invoice takes.
+        -->
+        <xpath expr="//div[hasclass('invoice_main')]" position="before">
+
+            <!-- ==== calibration knobs ==== -->
+            <!-- Negative moves the window block UP from its natural spot. -->
+            <t t-set="ufs_win9_shift_y" t-value="-9"/>
+            <!-- Left inset, page edge to text. Window starts at 0.7". -->
+            <t t-set="ufs_win9_left" t-value="24"/>
+            <!-- Window is 4.5" wide; stay inside it. -->
+            <t t-set="ufs_win9_width" t-value="108"/>
+            <!-- Window is 1-1/8" tall. Clip rather than overflow. -->
+            <t t-set="ufs_win9_height" t-value="27"/>
+            <!-- Push the shipping block clear of the bottom of the window. -->
+            <t t-set="ufs_win9_ship_push" t-value="22"/>
+
+            <!--
+                Suppress the stock two-column address area. web.address_layout
+                guards its wrapper with t-if="address", so emptying these two
+                removes the whole row, label and all. Set after the branches
+                above have run so this assignment is the one that sticks.
+            -->
+            <t t-set="address" t-value="''"/>
+            <t t-set="information_block" t-value="''"/>
+
+            <!--
+                height:0 keeps the wrapper out of the flow so the rest of the
+                invoice is untouched; the absolute child is then positioned
+                against this known point rather than against the page, which
+                wkhtmltopdf resolves inconsistently.
+            -->
+            <div name="ufs_win9_wrapper" style="position:relative; height:0;">
+                <div name="ufs_win9_address"
+                     t-attf-style="position:absolute;
+                                   top:{{ ufs_win9_shift_y }}mm;
+                                   left:{{ ufs_win9_left }}mm;
+                                   width:{{ ufs_win9_width }}mm;
+                                   height:{{ ufs_win9_height }}mm;
+                                   overflow:hidden;
+                                   line-height:1.25;">
+                    <div t-out="o.partner_id.commercial_company_name or o.partner_id.name"/>
+                    <div t-if="o.partner_id.parent_id and o.partner_id.name and o.partner_id.name != (o.partner_id.commercial_company_name or '')"
+                         t-out="o.partner_id.name"/>
+                    <div t-if="o.partner_id.street" t-out="o.partner_id.street"/>
+                    <div t-if="o.partner_id.street2" t-out="o.partner_id.street2"/>
+                    <div>
+                        <span t-if="o.partner_id.city" t-out="o.partner_id.city"/>
+                        <span t-if="o.partner_id.state_id" t-out="o.partner_id.state_id.code"/>
+                        <span t-if="o.partner_id.zip" t-out="o.partner_id.zip"/>
+                    </div>
+                </div>
+            </div>
+
+            <!--
+                Shipping address, restored below the window band. Same group
+                gate as stock so it stays hidden for databases that do not use
+                separate delivery addresses.
+            -->
+            <div name="ufs_win9_shipping"
+                 t-attf-style="margin-top:{{ ufs_win9_ship_push }}mm;">
+                <div t-if="o.partner_shipping_id and o.partner_shipping_id != o.partner_id"
+                     groups="account.group_delivery_invoice_address">
+                    <strong class="d-block">Shipping Address</strong>
+                    <div t-field="o.partner_shipping_id"
+                         t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                </div>
+            </div>
+
+        </xpath>
+    </template>
+</odoo>
