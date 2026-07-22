@@ -54,8 +54,11 @@
         so the left margin below puts text about 0.95" across, comfortably
         inside the window's 0.7" to 5.2" span.
 
-        The fixed height reserves the window band so the shipping address
-        that follows it clears the bottom of the window.
+        The two blocks sit side by side. The mailing address occupies the
+        window; the shipping address floats to its right, far enough across
+        that it clears the window's right edge entirely. The fixed height on
+        the mailing block reserves the band and clips anything unusually long
+        rather than letting it spill past the window.
     -->
     <template id="report_invoice_document_ufs_win9"
               inherit_id="account.report_invoice_document">
@@ -72,12 +75,23 @@
             <!-- ==== calibration knobs, millimetres ==== -->
             <!-- Measured: 10mm left the block at 2.47", too low. 20mm puts it ~2.07". -->
             <t t-set="ufs_win9_lift" t-value="20"/>
-            <!-- Body edge is ~0.36" in; +15mm puts text ~0.95" across. -->
+            <!-- Body edge is ~0.36" (9mm) in; +15mm puts text ~0.95" across. -->
             <t t-set="ufs_win9_left" t-value="15"/>
-            <!-- Window is 4-1/2" wide. 100mm keeps a margin at the right. -->
-            <t t-set="ufs_win9_width" t-value="105"/>
+            <!-- Ends at ~4.88" on the page, inside the window's 5.2" right edge. -->
+            <t t-set="ufs_win9_width" t-value="100"/>
             <!-- Reserves the band. 6 lines at 1.15 leading is ~1.02", so it fits. -->
             <t t-set="ufs_win9_height" t-value="28"/>
+            <!--
+                THE CONSTRAINT THAT MATTERS. The window's right edge is 5.2"
+                from the page edge, which is 123mm from the body's left edge.
+                Billing ends at 115mm (15 + 100), so this gap must carry the
+                shipping block past 123mm or it reappears in the window and we
+                are back to the original two-addresses-through-one-window bug.
+                13mm starts it at 128mm, about 5.4" on the page.
+            -->
+            <t t-set="ufs_win9_ship_gap" t-value="13"/>
+            <!-- Body is ~197mm wide, so 128 + 65 stays on the page. -->
+            <t t-set="ufs_win9_ship_width" t-value="65"/>
 
             <!-- Only the mailing address belongs in the window. -->
             <t t-set="information_block" t-value="''"/>
@@ -85,8 +99,11 @@
             <t t-set="custom_layout_address" t-value="True"/>
 
             <t t-set="address">
+              <div name="ufs_win9_row"
+                   t-attf-style="margin-top:-{{ ufs_win9_lift }}mm;
+                                 min-height:{{ ufs_win9_height }}mm;">
                 <div name="ufs_win9_address"
-                     t-attf-style="margin-top:-{{ ufs_win9_lift }}mm;
+                     t-attf-style="float:left;
                                    margin-left:{{ ufs_win9_left }}mm;
                                    width:{{ ufs_win9_width }}mm;
                                    height:{{ ufs_win9_height }}mm;
@@ -105,18 +122,30 @@
                 </div>
 
                 <!--
-                    Shipping address, kept on the invoice but sitting below the
-                    reserved window band so it cannot show through. Same group
-                    gate as stock, so databases not using separate delivery
-                    addresses are unaffected.
+                    Shipping address, sitting to the RIGHT of the mailing
+                    address rather than below it, so it reclaims the vertical
+                    space and reads like the original two-column layout. The
+                    left margin is what keeps it clear of the window's right
+                    edge; see ufs_win9_ship_gap above before changing it.
+
+                    Same group gate as stock, so databases not using separate
+                    delivery addresses are unaffected.
                 -->
                 <div name="ufs_win9_shipping"
                      t-if="o.partner_shipping_id and o.partner_shipping_id != o.partner_id"
-                     groups="account.group_delivery_invoice_address">
+                     groups="account.group_delivery_invoice_address"
+                     t-attf-style="float:left;
+                                   margin-left:{{ ufs_win9_ship_gap }}mm;
+                                   width:{{ ufs_win9_ship_width }}mm;
+                                   line-height:1.15;">
                     <strong class="d-block">Shipping Address</strong>
                     <div t-field="o.partner_shipping_id"
                          t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
                 </div>
+
+                <!-- Floats are cleared so the invoice heading below is unaffected. -->
+                <div style="clear:both;"/>
+              </div>
             </t>
 
         </xpath>
