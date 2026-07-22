@@ -70,14 +70,14 @@
         <xpath expr="//div[hasclass('invoice_main')]" position="before">
 
             <!-- ==== calibration knobs, millimetres ==== -->
-            <!-- Lifts the slot from its natural ~2.49" into the window band. -->
-            <t t-set="ufs_win9_lift" t-value="10"/>
+            <!-- Measured: 10mm left the block at 2.47", too low. 20mm puts it ~2.07". -->
+            <t t-set="ufs_win9_lift" t-value="20"/>
             <!-- Body edge is ~0.36" in; +15mm puts text ~0.95" across. -->
             <t t-set="ufs_win9_left" t-value="15"/>
             <!-- Window is 4-1/2" wide. 100mm keeps a margin at the right. -->
-            <t t-set="ufs_win9_width" t-value="100"/>
-            <!-- Window is 1-1/8" tall. Reserve it and clip anything over. -->
-            <t t-set="ufs_win9_height" t-value="27"/>
+            <t t-set="ufs_win9_width" t-value="105"/>
+            <!-- Reserves the band. 6 lines at 1.15 leading is ~1.02", so it fits. -->
+            <t t-set="ufs_win9_height" t-value="28"/>
 
             <!-- Only the mailing address belongs in the window. -->
             <t t-set="information_block" t-value="''"/>
@@ -91,7 +91,7 @@
                                    width:{{ ufs_win9_width }}mm;
                                    height:{{ ufs_win9_height }}mm;
                                    overflow:hidden;
-                                   line-height:1.25;">
+                                   line-height:1.15;">
                     <div t-out="o.partner_id.commercial_company_name or o.partner_id.name"/>
                     <div t-if="o.partner_id.parent_id and o.partner_id.name and o.partner_id.name != (o.partner_id.commercial_company_name or '')"
                          t-out="o.partner_id.name"/>
