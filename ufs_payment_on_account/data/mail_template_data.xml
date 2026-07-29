@@ -2,50 +2,20 @@
 <odoo>
 
     <!--
-        Correct the order confirmation subject line for net-terms orders.
+        Re-point the order confirmation subject at the order's own state.
 
-        THE PROBLEM
-        ===========
-        Stock Odoo builds the subject of sale.mail_template_sale_confirmation
-        by asking the TRANSACTION whether it is pending:
+        This has to be a <function> rather than a <record>. The template
+        belongs to sale and is declared noupdate, and that flag sits on the
+        record's ir.model.data row, so a <record> targeting the same xml id
+        from this module is skipped on every upgrade. A function call is
+        plain Python run by the data loader, which is not subject to the
+        flag, and data files re-run on each module update so the fix is
+        restored if the template is ever reset.
 
-            {{ (object.get_portal_last_transaction().state == 'pending')
-               and 'Pending Order' or 'Order' }}
-
-        while the body asks the ORDER:
-
-            <t t-if="object.state == 'sale' or (tx_sudo and tx_sudo.state
-                     in ('done', 'authorized'))">has been confirmed.
-
-        For every ordinary provider those two agree, because the transaction
-        reaching done is what confirms the order. Pay on Account breaks the
-        tie: the order is confirmed while the transaction stays pending on
-        purpose, since with net terms no money has moved and marking it done
-        would make Odoo post a payment that does not exist (see
-        models/payment_transaction.py).
-
-        The result is an email headed "Pending Order" whose body says the
-        order has been confirmed. That contradiction is the whole complaint
-        this work set out to fix, so confirming the order alone is not
-        enough.
-
-        THE FIX
-        =======
-        Ask the order first, exactly as the body does. "Pending Order" now
-        appears only when the order really is unconfirmed AND a payment is
-        genuinely outstanding, which is still the correct wording for a
-        card customer who abandoned payment midway.
-
-        SCOPE
-        =====
-        This record deliberately omits noupdate, so the subject is
-        re-applied on every module upgrade and stays owned by this file.
-        Only the subject is written. The body, and every other field on the
-        template, is left alone and remains editable in the UI without
-        being overwritten.
+        See models/mail_template.py for why the subject is wrong in the
+        first place and why only one condition is rewritten.
     -->
-    <record id="sale.mail_template_sale_confirmation" model="mail.template">
-        <field name="subject">{{ object.company_id.name }} {{ (object.state != 'sale' and object.get_portal_last_transaction().state == 'pending') and 'Pending Order' or 'Order' }} (Ref {{ object.name or 'n/a' }})</field>
-    </record>
+    <function model="mail.template"
+              name="_ufs_fix_order_confirmation_subject"/>
 
 </odoo>

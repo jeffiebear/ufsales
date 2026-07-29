@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Strip the "already paid" branch from the customer invoice email.
+
+        This has to be a <function> rather than a <record>. The template
+        belongs to account and is declared noupdate, and that flag sits on
+        the record's ir.model.data row, so a <record> targeting the same xml
+        id from this module is skipped on every upgrade, whether the upgrade
+        comes from a build or from the Apps UI.
+
+        A function call is plain Python run by the data loader, which the
+        flag does not gate, and data files re-run on each module update so
+        the edit is restored if the template is ever reset.
+
+        See models/mail_template.py for why the sentence cannot simply be
+        deleted in the editor and why the whole conditional has to go.
+    -->
+    <function model="mail.template"
+              name="_ufs_strip_invoice_already_paid"/>
+
+</odoo>

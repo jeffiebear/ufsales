@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customizations',
-    'version': '19.0.1.7.0',
+    'version': '19.0.1.8.0',
     'summary': 'Catch-all module for small UFS-specific tweaks to standard Odoo behavior.',
     'description': """
 UFS Customizations
@@ -56,6 +56,7 @@ Current tweaks
         'security/ir.model.access.csv',
         'data/ufs_margin_preset_data.xml',
         'data/ir_cron_data.xml',
+        'data/mail_template_data.xml',
         'views/ufs_margin_preset_views.xml',
         'views/sale_order_views.xml',
         'views/purchase_order_views.xml',

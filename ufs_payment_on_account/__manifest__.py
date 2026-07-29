@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Pay on Account',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Accounting/Payment Providers',
     'summary': 'Net-terms "Pay on Account" checkout option for approved wholesale customers.',
     'description': """
