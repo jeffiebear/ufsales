@@ -3,10 +3,13 @@
 Pay-on-Account custom payment provider.
 
 Adds a new custom_mode and tells Odoo which payment method to activate
-for it. The transaction handling itself is inherited unchanged from
-``payment_custom`` (everything there keys on ``provider_code == 'custom'``,
-not on the mode), so selecting this provider confirms the order with the
-transaction set to pending — exactly the net-terms behavior.
+for it. The state machine is inherited unchanged from ``payment_custom``
+(everything there keys on ``provider_code == 'custom'``, not on the
+mode), so selecting this provider leaves the transaction pending.
+
+Pending alone does NOT confirm the order: stock Odoo confirms only on an
+authorized or done transaction. Order confirmation for this mode is
+handled in ``payment_transaction.py``.
 """
 from odoo import fields, models
 

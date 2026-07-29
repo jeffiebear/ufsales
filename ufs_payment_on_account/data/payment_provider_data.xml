@@ -8,7 +8,10 @@
 
         - code='custom' + custom_mode='pay_on_account' satisfies the
           payment_custom SQL constraint and routes through the generic
-          custom transaction flow (-> pending -> order confirmed).
+          custom transaction flow, which leaves the transaction pending.
+          The order is confirmed by our own _post_process override in
+          models/payment_transaction.py, because stock Odoo confirms
+          only on an authorized or done transaction.
         - redirect_form_view_id reuses payment_custom's generic redirect
           form (posts the reference to /payment/custom/process).
         - ufs_requires_payment_terms (from ufs_wholesale) gates it to
