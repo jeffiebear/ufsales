@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Pay on Account',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Accounting/Payment Providers',
     'summary': 'Net-terms "Pay on Account" checkout option for approved wholesale customers.',
     'description': """
@@ -44,6 +44,7 @@ have payment terms set. Everyone else sees credit card (Stripe) only.
     'data': [
         'data/payment_method_data.xml',
         'data/payment_provider_data.xml',
+        'data/mail_template_data.xml',
     ],
     'post_init_hook': 'post_init_hook',
     'uninstall_hook': 'uninstall_hook',
