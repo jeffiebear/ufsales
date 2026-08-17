@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Take the "Picked" tick box off the transfer lines.
+
+        WHY
+        ===
+        Odoo decides what to ship from the per-line ``picked`` flag, and the
+        rule in stock/models/stock_picking.py::_pre_action_done_hook is:
+
+            if has_quantity and not has_pick:
+                picking.move_ids.picked = True
+
+        So if NOTHING is ticked, Odoo helpfully marks the whole transfer
+        picked and ships it in full. But the moment ONE line is ticked,
+        has_pick is True, that blanket assignment is skipped, and
+        _action_done then drops every line that was left unticked:
+
+            moves_todo = moves.filtered(lambda m: not (m.state == 'cancel'
+                or (m.quantity <= 0 and not m.is_inventory) or not m.picked))
+
+        Those lines process as zero and are cancelled or pushed to a
+        backorder, even though the stock was on hand and reserved. To the
+        person clicking Validate the quantity simply changed by itself.
+
+        UFS hit this for real. UFS/PICK/00064 completed with a line for 5
+        showing done 0 and picked false, and at the time of writing 160 open
+        move lines are reserved but unticked, every one of them exposed to
+        the same thing the moment a single sibling line gets ticked. The
+        knock-on effect is stock drift: goods leave the building, Odoo never
+        records it, and a fresh physical count is wrong within days.
+
+        WHAT THIS DOES
+        ==============
+        Odoo already ships this column as ``optional="hide"``, so it is off
+        by default and was switched on here at some point. Turning it back
+        off through the column picker only helps the user who does it,
+        because that choice is stored per user. Forcing column_invisible
+        removes it for everyone regardless of their saved preference, which
+        is what "team-wide" requires.
+
+        With no tick box on screen, nothing gets half-ticked, so the safe
+        branch above always applies and transfers ship in full. Partial
+        deliveries still work the normal way: edit the Quantity on the line
+        and let Odoo raise the backorder.
+
+        SCOPE
+        =====
+        This only touches the Operations list on the transfer form. It does
+        not change the field, so the barcode app and any automation that
+        legitimately sets ``picked`` are unaffected, and nothing in the
+        server-side validation logic changes.
+    -->
+    <record id="view_picking_form_ufs_hide_picked" model="ir.ui.view">
+        <field name="name">stock.picking.form.ufs.hide.picked</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!--
+                Anchored through move_ids/list so it cannot accidentally
+                match a "picked" field in another embedded list.
+            -->
+            <xpath expr="//field[@name='move_ids']/list/field[@name='picked']"
+                   position="attributes">
+                <attribute name="column_invisible">1</attribute>
+                <attribute name="optional">hide</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
