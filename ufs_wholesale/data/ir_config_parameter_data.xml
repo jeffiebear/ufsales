@@ -13,5 +13,17 @@
             <field name="key">ufs_wholesale.fiscal_position_id</field>
             <field name="value">3</field>
         </record>
+    
+        <!--
+            Where new website-order alerts are sent. Comma-separated plain
+            email addresses. Sent by SaleOrder.action_confirm. Change it in
+            Settings > Technical > System Parameters (key below) without a
+            deploy. noupdate keeps an admin edit from being reverted.
+        -->
+        <record id="new_order_notify_emails" model="ir.config_parameter">
+            <field name="key">ufs_wholesale.new_order_notify_emails</field>
+            <field name="value">orders@ufsales.com</field>
+        </record>
+
     </data>
 </odoo>

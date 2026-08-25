@@ -1,6 +1,6 @@
 {
     "name": "UF Sales Product Import",
-    "version": "19.0.1.3.0",
+    "version": "19.0.1.4.0",
     "category": "Website",
     "summary": "Import UF Sales catalog, vendors, inventory, and price tiers from JSON + STEP1 CSV exports",
     "license": "LGPL-3",
@@ -16,6 +16,7 @@
     "data": [
         "security/ir.model.access.csv",
         "wizards/step1_import_wizard_views.xml",
+        "data/ir_filters_data.xml",
     ],
     "installable": True,
     "application": False,

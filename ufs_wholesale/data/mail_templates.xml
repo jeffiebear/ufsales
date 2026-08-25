@@ -75,5 +75,36 @@
                 </div>
             </field>
         </record>
+    
+        <!--
+            Office alert for a new website order. Sent by
+            SaleOrder.action_confirm (models/sale_order.py) the moment a
+            website order is confirmed. Recipients resolve at send-time
+            from ufs_wholesale.new_order_notify_emails (a comma-separated
+            list of plain addresses, orders@ufsales.com by default), passed
+            in as email_to, so no res.partner is required for the inbox.
+        -->
+        <record id="mail_template_new_web_order" model="mail.template">
+            <field name="name">UFS Wholesale - New Website Order (Office Alert)</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="subject">New website order {{ object.name }}: {{ object.partner_id.name }} ({{ format_amount(object.amount_total, object.currency_id) }})</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted or 'noreply@example.com') }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#0F172A;">
+                    <p>A new order came in through the website.</p>
+                    <table style="border-collapse:collapse;margin:12px 0;">
+                        <tr><td style="padding:4px 12px 4px 0;color:#64748B;">Order</td><td style="padding:4px 0;"><b><t t-out="object.name or ''"/></b></td></tr>
+                        <tr><td style="padding:4px 12px 4px 0;color:#64748B;">Customer</td><td style="padding:4px 0;"><t t-out="object.partner_id.name or ''"/></td></tr>
+                        <tr><td style="padding:4px 12px 4px 0;color:#64748B;">Contact</td><td style="padding:4px 0;"><t t-out="object.partner_id.email or ''"/> <t t-out="object.partner_id.phone or ''"/></td></tr>
+                        <tr><td style="padding:4px 12px 4px 0;color:#64748B;">Total</td><td style="padding:4px 0;"><b><t t-out="format_amount(object.amount_total, object.currency_id)"/></b></td></tr>
+                        <tr><td style="padding:4px 12px 4px 0;color:#64748B;">Payment</td><td style="padding:4px 0;"><t t-out="(object.get_portal_last_transaction().provider_id.name) or (object.payment_term_id.name) or 'n/a'"/></td></tr>
+                        <tr><td style="padding:4px 12px 4px 0;color:#64748B;">Ship to</td><td style="padding:4px 0;white-space:pre-line;"><t t-out="object.partner_shipping_id.contact_address or ''"/></td></tr>
+                    </table>
+                    <p style="color:#64748B;">Open it in Odoo to review and process.</p>
+                </div>
+            </field>
+        </record>
+
     </data>
 </odoo>

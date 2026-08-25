@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        A shared favorite that hides the historical purchase orders we
+        imported from STEP1, so the Purchase Orders list shows only real,
+        current POs.
+
+        WHY THIS EXISTS
+        ===============
+        The migration brought roughly 19,000 historical POs across so the
+        buying history is complete. Every one carries a STEP1 PO Number;
+        every PO raised natively in Odoo does not. Without a way to hide
+        the imports, list-level filters mislead: the built-in "Late" filter
+        counts hundreds of imported POs whose expected dates are years in
+        the past even though they were received long ago, and the real,
+        current POs are lost in the volume.
+
+        Selecting this favorite scopes the list to STEP1 PO Number is not
+        set, which is exactly the set of POs raised in Odoo. The Late and
+        unreceived filters then behave sensibly on top of it.
+
+        user_id is unset so the favorite is shared with every user, and
+        noupdate keeps it from being recreated if an admin renames or
+        removes it.
+    -->
+    <data noupdate="1">
+        <record id="ir_filter_purchase_current" model="ir.filters">
+            <field name="name">Current POs (hide imported history)</field>
+            <field name="model_id">purchase.order</field>
+            <field name="user_id" eval="False"/>
+            <field name="domain">[('ufs_step1_po_number', '=', False)]</field>
+            <field name="context">{}</field>
+        </record>
+    </data>
+</odoo>

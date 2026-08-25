@@ -3,6 +3,7 @@
 from . import res_partner
 from . import res_users
 from . import website
+from . import sale_order
 from . import res_config_settings
 from . import account_tax
 from . import payment_provider
