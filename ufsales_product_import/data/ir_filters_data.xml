@@ -19,15 +19,15 @@
         set, which is exactly the set of POs raised in Odoo. The Late and
         unreceived filters then behave sensibly on top of it.
 
-        user_id is unset so the favorite is shared with every user, and
-        noupdate keeps it from being recreated if an admin renames or
-        removes it.
+        user_ids is left empty (Odoo 19 replaced the old user_id many2one
+        with a user_ids many2many); an empty set means the favorite is
+        shared with every user. noupdate keeps it from being recreated if
+        an admin renames or removes it.
     -->
     <data noupdate="1">
         <record id="ir_filter_purchase_current" model="ir.filters">
             <field name="name">Current POs (hide imported history)</field>
             <field name="model_id">purchase.order</field>
-            <field name="user_id" eval="False"/>
             <field name="domain">[('ufs_step1_po_number', '=', False)]</field>
             <field name="context">{}</field>
         </record>
