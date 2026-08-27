@@ -20,12 +20,12 @@
            one test print to confirm the exact amount against the real
            check stock, the same as we did for invoices.
 
-        2. Remove the itemized bill list. The stub lists every invoice being
-           paid (.stub_lines). This hides that table while leaving the stub
-           summary and total. If the "invoices on the check" they mean is
-           actually the memo line on the check face rather than this stub
-           table, switch the second rule to target .ckus_memo instead. We
-           will confirm against their screenshot on the test print.
+        2. Remove the invoices from the check face. When a check pays
+           several bills, their numbers render on the memo line of the
+           check itself (.ckus_memo). Confirmed against a rendered check,
+           this is what UFS asked to remove. We hide the memo and leave the
+           remittance stub intact, so the vendor still gets an itemized
+           list of what was paid, just not on the negotiable check face.
 
         Covers the pre-printed layouts (Print Check Top/Middle/Bottom). If
         UFS switches to a Blank Check layout, ckus_check_blank needs the
@@ -36,7 +36,7 @@
         <xpath expr="//div[hasclass('ckus_check')]" position="inside">
             <style>
                 .ckus_payee_addr { transform: translateY(6.35mm); }
-                .stub_lines { display: none !important; }
+                .ckus_memo { display: none !important; }
             </style>
         </xpath>
     </template>
