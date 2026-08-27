@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Two tweaks to the printed check, requested by UFS.
+
+        Both are done by injecting a small stylesheet into the check face
+        template (l10n_us_check_printing.ckus_check). A style tag rendered
+        anywhere on the page applies to the whole printout, so this one
+        block reaches both the check face and the stub.
+
+        Done as CSS rather than by rearranging the template because the
+        check fields are positioned by fixed coordinates in the layout's
+        own stylesheet, so a nudge is a style override, not a move in the
+        markup, and it carries no risk of breaking the report.
+
+        1. Address down for the window. The payee address (.ckus_payee_addr)
+           sits too high for the #9 window, so we shift it down a quarter
+           inch. translateY moves it relative to its current position, so
+           we do not need to know the layout's original coordinate. Expect
+           one test print to confirm the exact amount against the real
+           check stock, the same as we did for invoices.
+
+        2. Remove the itemized bill list. The stub lists every invoice being
+           paid (.stub_lines). This hides that table while leaving the stub
+           summary and total. If the "invoices on the check" they mean is
+           actually the memo line on the check face rather than this stub
+           table, switch the second rule to target .ckus_memo instead. We
+           will confirm against their screenshot on the test print.
+
+        Covers the pre-printed layouts (Print Check Top/Middle/Bottom). If
+        UFS switches to a Blank Check layout, ckus_check_blank needs the
+        same override added.
+    -->
+    <template id="ckus_check_ufs_tweaks"
+              inherit_id="l10n_us_check_printing.ckus_check">
+        <xpath expr="//div[hasclass('ckus_check')]" position="inside">
+            <style>
+                .ckus_payee_addr { transform: translateY(6.35mm); }
+                .stub_lines { display: none !important; }
+            </style>
+        </xpath>
+    </template>
+</odoo>

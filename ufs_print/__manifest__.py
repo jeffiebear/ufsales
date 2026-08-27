@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Direct Print',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.1.0',
     'summary': 'One-click "Print to Konica" on orders, invoices, deliveries, and POs via a print-relay webhook.',
     'description': """
 UFS Direct Print
@@ -32,12 +32,14 @@ relay's response.
         'stock',
         'purchase',
         'mail',
+        'account_check_printing',
     ],
     'data': [
         'security/ir.model.access.csv',
         'wizards/ufs_print_wizard_views.xml',
         'views/res_config_settings_views.xml',
         'views/print_buttons.xml',
+        'views/check_print_button.xml',
     ],
     'installable': True,
     'application': False,

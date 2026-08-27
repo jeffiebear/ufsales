@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customizations',
-    'version': '19.0.1.9.0',
+    'version': '19.0.1.10.0',
     'summary': 'Catch-all module for small UFS-specific tweaks to standard Odoo behavior.',
     'description': """
 UFS Customizations
@@ -51,6 +51,7 @@ Current tweaks
         'account',
         'product',
         'ufs_customer_pricing',
+        'l10n_us_check_printing',
     ],
     'data': [
         'security/ir.model.access.csv',
@@ -63,6 +64,7 @@ Current tweaks
         'views/res_config_settings_views.xml',
         'views/report_invoice_window_envelope.xml',
         'views/stock_picking_views.xml',
+        'views/check_layout_tweaks.xml',
     ],
     'assets': {
         'web.assets_backend': [

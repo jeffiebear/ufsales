@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        "Print to Konica" on a vendor-payment check. Visible only when the
+        payment uses the Check method (via the ufs_is_check helper). Calls
+        the model method, which renders the configured layout and relays it.
+    -->
+    <record id="view_account_payment_form_ufs_check" model="ir.ui.view">
+        <field name="name">account.payment.form.ufs.check.konica</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="ufs_is_check" invisible="1"/>
+                <button name="action_ufs_print_checks_konica"
+                        type="object"
+                        string="Print to Konica"
+                        class="btn-secondary"
+                        invisible="not ufs_is_check"
+                        groups="account.group_account_user"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
