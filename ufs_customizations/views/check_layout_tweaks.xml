@@ -13,31 +13,33 @@
 
         Calibrated to UFS's pre-printed check stock:
 
-        1. Whole printout down one quarter inch. The page article carries the
+        1. Whole printout down a quarter inch. The page article carries the
            company Check Margins as position: relative; top; we add a 0.25in
            top margin so the check face and both stubs drop together.
 
-        2. Check face fields down one more quarter inch. The date, payee,
-           amount and written amount printed too high, so the check face
-           container (.ckus_check, base top about 0) is set to top: 0.23in, a
-           further 0.25in. Its sibling stubs are not affected, so only the
-           check face moves.
+        2. Check face fields down an eighth inch more. The date, payee, amount
+           and written amount are shifted by the check face container
+           (.ckus_check, base top about 0) set to top: 0.105in. Its sibling
+           stubs are not affected, so only the check face moves. The fields end
+           up three eighths of an inch below the base layout (quarter from the
+           page margin plus the eighth here).
 
-        3. Payee address into the #9 window. Base top is 1.65in. The quarter
-           inch container shift in step 2 would carry the address down with
-           the fields, so its own top is set to 1.90in (1.65 + 0.25) to cancel
-           that. Net address is three quarters of an inch below the base
-           layout (a quarter from the page margin plus half of its own), so it
-           clears the window while the fields above it stay put.
+        3. Payee address into the #9 window. Base top is 1.65in. The container
+           shift in step 2 would carry the address down with the fields, so its
+           own top is raised to 2.025in to cancel that and leave the net
+           address three quarters of an inch below the base layout, clearing
+           the window while the fields above it stay put.
 
         4. Invoices off the check face. When a check pays several bills their
            numbers render on the memo line (.ckus_memo); display:none, which
            wkhtmltopdf honors, hides them. The remittance stub keeps the list.
 
-        Calibration knobs for the next test print: the 0.25in page margin
-        (whole printout) and the two tops, .ckus_check 0.23in (the fields) and
-        .ckus_payee_addr 1.90in (the address). Covers the Print Check (Top)
-        layout UFS uses.
+        Calibration knobs for a future test print: the 0.25in page margin
+        (whole printout) and the two tops, .ckus_check 0.105in (the fields) and
+        .ckus_payee_addr 2.025in (the address). Raise/lower .ckus_check to move
+        the fields, and change .ckus_payee_addr by the same amount in the
+        opposite direction to keep the address put. Covers the Print Check
+        (Top) layout UFS uses.
 
         NOTE: this report has attachment_use=true, so a printed check's PDF is
         cached on the payment and reused on reprint. After changing this file,
@@ -50,8 +52,8 @@
         <xpath expr="//div[hasclass('ckus_check')]" position="inside">
             <style>
                 .ckus_top_page { margin-top: 0.25in !important; }
-                .ckus_check { top: 0.23in !important; transform: none !important; }
-                .ckus_payee_addr { top: 1.90in !important; transform: none !important; }
+                .ckus_check { top: 0.105in !important; transform: none !important; }
+                .ckus_payee_addr { top: 2.025in !important; transform: none !important; }
                 .ckus_memo { display: none !important; }
             </style>
         </xpath>
