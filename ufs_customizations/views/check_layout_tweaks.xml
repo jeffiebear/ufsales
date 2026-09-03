@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!--
-        Two tweaks to the printed check, requested by UFS.
+        Printed-check positioning and content tweaks requested by UFS.
 
-        Both are done by injecting a small stylesheet into the check face
+        These are done by injecting a small stylesheet into the check face
         template (l10n_us_check_printing.ckus_check). A style tag rendered
         anywhere on the page applies to the whole printout, so this one
         block reaches both the check face and the stub.
@@ -13,14 +13,18 @@
         own stylesheet, so a nudge is a style override, not a move in the
         markup, and it carries no risk of breaking the report.
 
-        1. Address down for the window. The payee address (.ckus_payee_addr)
-           sits too high for the #9 window, so we shift it down a quarter
-           inch. translateY moves it relative to its current position, so
-           we do not need to know the layout's original coordinate. Expect
-           one test print to confirm the exact amount against the real
-           check stock, the same as we did for invoices.
+        1. Move the check face down one quarter inch. The September 1 test
+           print showed every variable field one spacing too high on the
+           pre-printed stock, so the whole .ckus_check is shifted 6.35 mm.
 
-        2. Remove the invoices from the check face. When a check pays
+        2. Move the payee address down two quarter-inch spacings from the
+           September 1 test print. It inherits the check-wide 6.35 mm shift;
+           increasing its own shift from 6.35 mm to 12.7 mm supplies the
+           second 6.35 mm, for a 12.7 mm net change from that test print.
+           Keeping the address correction separate also leaves the other
+           fixed-position fields aligned with their pre-printed labels.
+
+        3. Remove the invoices from the check face. When a check pays
            several bills, their numbers render on the memo line of the
            check itself (.ckus_memo). Confirmed against a rendered check,
            this is what UFS asked to remove. We hide the memo and leave the
@@ -35,7 +39,8 @@
               inherit_id="l10n_us_check_printing.ckus_check">
         <xpath expr="//div[hasclass('ckus_check')]" position="inside">
             <style>
-                .ckus_payee_addr { transform: translateY(6.35mm); }
+                .ckus_check { transform: translateY(6.35mm); }
+                .ckus_payee_addr { transform: translateY(12.7mm); }
                 .ckus_memo { display: none !important; }
             </style>
         </xpath>
