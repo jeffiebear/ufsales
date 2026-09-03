@@ -3,44 +3,51 @@
     <!--
         Printed-check positioning and content tweaks requested by UFS.
 
-        These are done by injecting a small stylesheet into the check face
-        template (l10n_us_check_printing.ckus_check). A style tag rendered
-        anywhere on the page applies to the whole printout, so this one
-        block reaches both the check face and the stub.
+        Injected as a small stylesheet into the check face template
+        (l10n_us_check_printing.ckus_check). A style tag rendered anywhere on
+        the page applies to the whole printout, so this one block reaches the
+        check face, the stubs, and the page wrapper.
 
-        Done as CSS rather than by rearranging the template because the
-        check fields are positioned by fixed coordinates in the layout's
-        own stylesheet, so a nudge is a style override, not a move in the
-        markup, and it carries no risk of breaking the report.
+        IMPORTANT, learned the hard way: the check report is a qweb-pdf report,
+        rendered by wkhtmltopdf. Its old WebKit engine SILENTLY DROPS CSS
+        transforms (translate/translateY), so an earlier version that nudged
+        the fields with `transform: translateY(...)` moved them in the browser
+        preview but NOT in the printed PDF. wkhtmltopdf does honor absolute
+        `top` and box `margin`, which is how the whole layout positions itself
+        (every field is `position: absolute; top: <n>in`). So all positioning
+        here uses margin/top, never transform.
 
-        1. Move the check face down one quarter inch. The September 1 test
-           print showed every variable field one spacing too high on the
-           pre-printed stock, so the whole .ckus_check is shifted 6.35 mm.
+        1. Move the whole printout down one spacing (0.25 in). The page article
+           is positioned by the company Check Margins as `position: relative;
+           top: 0.125in`. We add a 0.25 in top margin on top of that, so the
+           check and both stubs shift down together and the company setting
+           still works as a further nudge. UFS reported every field printing a
+           quarter inch too high on their pre-printed stock.
 
-        2. Move the payee address down two quarter-inch spacings from the
-           September 1 test print. It inherits the check-wide 6.35 mm shift;
-           increasing its own shift from 6.35 mm to 12.7 mm supplies the
-           second 6.35 mm, for a 12.7 mm net change from that test print.
-           Keeping the address correction separate also leaves the other
-           fixed-position fields aligned with their pre-printed labels.
+        2. Move the payee address down two more spacings (0.5 in) so it lands
+           in the #9 window. The layout puts it at top: 1.65in; we override to
+           2.15in. This is on top of the page-wide 0.25 in, so the address ends
+           up three quarters of an inch lower than the base layout and half an
+           inch below the rest of the check face.
 
-        3. Remove the invoices from the check face. When a check pays
-           several bills, their numbers render on the memo line of the
-           check itself (.ckus_memo). Confirmed against a rendered check,
-           this is what UFS asked to remove. We hide the memo and leave the
-           remittance stub intact, so the vendor still gets an itemized
-           list of what was paid, just not on the negotiable check face.
+        3. Remove the invoices from the check face. When a check pays several
+           bills their numbers render on the memo line of the check itself
+           (.ckus_memo). display:none is honored by wkhtmltopdf, so this always
+           worked; the remittance stub keeps the itemized list.
 
-        Covers the pre-printed layouts (Print Check Top/Middle/Bottom). If
-        UFS switches to a Blank Check layout, ckus_check_blank needs the
-        same override added.
+        Covers the pre-printed Print Check (Top) layout UFS uses. The margins
+        are calibrated to their check stock; the two values (0.25in page margin
+        and the 2.15in address top) are the knobs to nudge on the next test
+        print. Blank Check and Middle/Bottom layouts would need their own
+        overrides.
     -->
     <template id="ckus_check_ufs_tweaks"
               inherit_id="l10n_us_check_printing.ckus_check">
         <xpath expr="//div[hasclass('ckus_check')]" position="inside">
             <style>
-                .ckus_check { transform: translateY(6.35mm); }
-                .ckus_payee_addr { transform: translateY(12.7mm); }
+                .ckus_top_page { margin-top: 0.25in !important; }
+                .ckus_check { transform: none !important; }
+                .ckus_payee_addr { top: 2.15in !important; transform: none !important; }
                 .ckus_memo { display: none !important; }
             </style>
         </xpath>
