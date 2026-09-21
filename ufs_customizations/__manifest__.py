@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customizations',
-    'version': '19.0.1.15.0',
+    'version': '19.0.1.16.0',
     'summary': 'Catch-all module for small UFS-specific tweaks to standard Odoo behavior.',
     'description': """
 UFS Customizations
@@ -55,6 +55,9 @@ Current tweaks
     ],
     'data': [
         'security/ir.model.access.csv',
+        # Cutover opening chart (structure only) - must load before anything
+        # that references these accounts.
+        'data/account_cutover_chart_data.xml',
         'data/ufs_margin_preset_data.xml',
         'data/ir_cron_data.xml',
         'data/mail_template_data.xml',

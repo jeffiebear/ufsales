@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    UFS cutover opening chart - STRUCTURE ONLY (no balances).
+
+    Purpose: give the July 1, 2026 Step1 -> Odoo cutover a clean, coded home
+    for every balance-sheet line, plus the clearing accounts the opening load
+    needs. Balances are NOT loaded here; they come later via the AR/AP
+    subledger imports, the inventory valuation load, and the opening journal,
+    all offsetting 999998 Opening Balance Equity.
+
+    Why module data (not hand-built in the UI): record ids differ between the
+    staging and production databases, so any account created by hand on staging
+    cannot be copied to production. Defining the chart here with stable xmlids
+    means a git push produces an identical chart in both environments and every
+    change is code-reviewed and reversible.
+
+    Odoo 19 notes: account.account is scoped by company_ids (m2m) and its `code`
+    is written per-company through account.code.mapping; setting `code` +
+    `company_ids` on create handles that automatically (mirrors the existing
+    generic accounts, which sit on company 1 / base.main_company).
+
+    The generic l10n_us accounts already present (121000 AR, 211000 AP, 101406
+    checking, etc.) are reused, not duplicated. Journal re-points, the BNK1
+    retirement, the valuation switch, and the tax fix are deliberately in
+    separate change sets, not this file - this file only *creates accounts*.
+
+    Author: Parameter (https://parameterllc.com/)
+-->
+<odoo>
+
+    <!-- ============================================================
+         CURRENT ASSETS / CLEARING
+         ============================================================ -->
+
+    <!-- Step1 1200 Inventory. Target stock-valuation account once the product
+         categories move from periodic to automated/FIFO valuation. -->
+    <record id="account_130000_stock_valuation" model="account.account">
+        <field name="code">130000</field>
+        <field name="name">Inventory (Stock Valuation)</field>
+        <field name="account_type">asset_current</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- Step1 3250 SUSPENSE (14,786.26 of 2022-2024 plug entries). Reclassed
+         here as a VISIBLE clearing account to be worked off, never buried in
+         equity. Reconcilable so items can be matched and cleared. -->
+    <record id="account_999000_suspense_clearing" model="account.account">
+        <field name="code">999000</field>
+        <field name="name">Suspense / Clearing (to resolve)</field>
+        <field name="account_type">asset_current</field>
+        <field name="reconcile" eval="True"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- Documented Step1 trial-balance imbalance of 141.03 posts here as its
+         own visible line at opening (never netted into OBE). Kept separate from
+         999000 so the imbalance is isolated for the accountant to clear. -->
+    <record id="account_999100_tb_difference" model="account.account">
+        <field name="code">999100</field>
+        <field name="name">Opening Trial-Balance Difference (Step1 141.03)</field>
+        <field name="account_type">asset_current</field>
+        <field name="reconcile" eval="True"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- ============================================================
+         FIXED ASSETS  (Step1 1510 / 1530 / 1540 / 1600)
+         Opened at GROSS cost; accumulated depreciation is a contra-asset that
+         waits on the tax preparer's schedule (Step1 tracked it at zero).
+         ============================================================ -->
+
+    <record id="account_151000_vehicles" model="account.account">
+        <field name="code">151000</field>
+        <field name="name">Vehicles</field>
+        <field name="account_type">asset_fixed</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <record id="account_153000_furniture_fixtures" model="account.account">
+        <field name="code">153000</field>
+        <field name="name">Furniture &amp; Fixtures</field>
+        <field name="account_type">asset_fixed</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <record id="account_154000_office_equipment" model="account.account">
+        <field name="code">154000</field>
+        <field name="name">Office Equipment</field>
+        <field name="account_type">asset_fixed</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <record id="account_160000_accumulated_depreciation" model="account.account">
+        <field name="code">160000</field>
+        <field name="name">Accumulated Depreciation</field>
+        <field name="account_type">asset_fixed</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- ============================================================
+         CURRENT / LONG-TERM LIABILITIES
+         ============================================================ -->
+
+    <!-- Step1 2250 Sales Tax Payable (currently a debit balance = prepaid;
+         tie to the actual Florida DR-15 filings before the hard lock). -->
+    <record id="account_251000_fl_sales_tax_payable" model="account.account">
+        <field name="code">251000</field>
+        <field name="name">Florida Sales Tax Payable</field>
+        <field name="account_type">liability_current</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- Step1 2380 P/R Tax Payable (stale; confirm still owed). -->
+    <record id="account_261000_payroll_taxes_payable" model="account.account">
+        <field name="code">261000</field>
+        <field name="name">Payroll Taxes Payable</field>
+        <field name="account_type">liability_current</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- Step1 2400 Bank of America Credit Card. BNK2 re-points its default
+         account here (in a later change set), off the asset_cash account it
+         wrongly sits on today. -->
+    <record id="account_212400_bofa_credit_card" model="account.account">
+        <field name="code">212400</field>
+        <field name="name">Bank of America Credit Card</field>
+        <field name="account_type">liability_credit_card</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- Step1 2410 Credit Card Payable. -->
+    <record id="account_212410_credit_card_payable" model="account.account">
+        <field name="code">212410</field>
+        <field name="name">Credit Card Payable</field>
+        <field name="account_type">liability_current</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- Step1 2545 Loan Payable. -->
+    <record id="account_271000_loan_payable" model="account.account">
+        <field name="code">271000</field>
+        <field name="name">Loan Payable</field>
+        <field name="account_type">liability_non_current</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- Step1 2600 Loan from Shareholder. -->
+    <record id="account_272000_shareholder_loan" model="account.account">
+        <field name="code">272000</field>
+        <field name="name">Loan from Shareholder</field>
+        <field name="account_type">liability_non_current</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- ============================================================
+         EQUITY
+         999999 "Undistributed Profits/Losses" (equity_unaffected) already
+         exists and is Odoo's own Current-Year-Earnings bucket; it is LEFT
+         ALONE so it reflects only post-7/1 posted P&L. The Jan-Jun 2026 net
+         income opens instead on the plain-equity 321000 below.
+         ============================================================ -->
+
+    <!-- Step1 3100 Paid In Capital. -->
+    <record id="account_310000_paid_in_capital" model="account.account">
+        <field name="code">310000</field>
+        <field name="name">Paid-In Capital</field>
+        <field name="account_type">equity</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- Step1 2700 Owner's Capital. Reclassed from Step1's long-term-liability
+         presentation into EQUITY (pending accountant confirmation). -->
+    <record id="account_311000_owners_capital" model="account.account">
+        <field name="code">311000</field>
+        <field name="name">Owner's Capital</field>
+        <field name="account_type">equity</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- Jan-Jun 2026 net income (95,027.28) opens here as a single equity line.
+         Plain equity (NOT equity_unaffected) so it never collides with Odoo's
+         own auto-computed current-year earnings, which stays zero at opening. -->
+    <record id="account_321000_opening_cy_earnings" model="account.account">
+        <field name="code">321000</field>
+        <field name="name">Opening Current-Year Earnings (Jan-Jun 2026)</field>
+        <field name="account_type">equity</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- Step1 3760 Retained Earnings (prior years only). Plain equity so Odoo's
+         equity_unaffected bucket is reserved for post-cutover activity. -->
+    <record id="account_332000_retained_earnings" model="account.account">
+        <field name="code">332000</field>
+        <field name="name">Retained Earnings</field>
+        <field name="account_type">equity</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- Step1 3800 Shareholder Distributions (2026 YTD, debit / contra-equity). -->
+    <record id="account_335000_shareholder_distributions" model="account.account">
+        <field name="code">335000</field>
+        <field name="name">Shareholder Distributions</field>
+        <field name="account_type">equity</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+    <!-- The single clearing account every opening stream (AR subledger, AP
+         subledger, inventory layers, opening journal) offsets to. When the
+         load is complete and correct it nets to the itemized residual
+         (recommended bases: 31,725.90 DR) - the go/no-go gate for the cutover.
+         Kept as plain equity; archived once cleared. -->
+    <record id="account_999998_opening_balance_equity" model="account.account">
+        <field name="code">999998</field>
+        <field name="name">Opening Balance Equity</field>
+        <field name="account_type">equity</field>
+        <field name="reconcile" eval="False"/>
+        <field name="company_ids" eval="[(6, 0, [ref('base.main_company')])]"/>
+    </record>
+
+</odoo>
