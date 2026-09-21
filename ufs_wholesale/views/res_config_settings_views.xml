@@ -18,8 +18,14 @@
           <block title="Tax Treatment" id="ufs_wholesale_fiscal_position">
             <setting id="ufs_wholesale_fp_setting"
                      string="Wholesale Fiscal Position"
-                     help="Auto-applied to a customer's partner when their wholesale application is approved. Also receives a zero-rate mapping for every new Sales tax you create, so resale-exempt customers never get charged a newly added tax.">
+                     help="Auto-applied to a customer's partner when their wholesale application is approved (only when a resale certificate is on file). Also receives a zero-rate mapping for every new Sales tax you create, so resale-exempt customers never get charged a newly added tax.">
               <field name="ufs_wholesale_fiscal_position_id"
+                     options="{'no_create': True}"/>
+            </setting>
+            <setting id="ufs_wholesale_resale_tax_setting"
+                     string="Resale (0%) Tax"
+                     help="The zero-rate tax that REPLACES a normal sales tax for wholesale customers. A 0% tax keeps the exempt sale's taxable base on the books for the Florida DR-15 return, instead of dropping the tax line. Leave blank to auto-detect a sales tax named '0% Resale'.">
+              <field name="ufs_wholesale_resale_tax_id"
                      options="{'no_create': True}"/>
             </setting>
           </block>

@@ -139,10 +139,14 @@ class ResUsers(models.Model):
                 "ufs_wholesale_approved_by_id": approver_id,
                 "ufs_wholesale_approved_on": now,
             }
-            # Auto-apply the resale fiscal position. Only overwrite if
-            # the partner doesn't already have a position chosen — an
-            # admin who hand-picked a different one keeps theirs.
-            if fp and not user.partner_id.property_account_position_id:
+            # Auto-apply the resale fiscal position ONLY when a resale
+            # certificate is on file. Approving someone to shop and granting
+            # them tax-exempt status are two different things: without a
+            # certificate we must not make them tax-exempt (that gap is what
+            # left exempt customers with no certificate on record). We also
+            # don't overwrite a position an admin hand-picked.
+            if (fp and not user.partner_id.property_account_position_id
+                    and user.partner_id.ufs_resale_certificate):
                 vals["property_account_position_id"] = fp.id
             user.partner_id.write(vals)
         if users_to_welcome:

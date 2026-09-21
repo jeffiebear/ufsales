@@ -41,6 +41,22 @@ class ResConfigSettings(models.TransientModel):
              "you add to the catalog later.",
     )
 
+    # The 0%-rate sales tax that REPLACES a normal sales tax on the wholesale
+    # fiscal position. Using a real 0% tax (instead of dropping the tax
+    # entirely) keeps the exempt sale on the books so its taxable base still
+    # reports on the Florida DR-15 return. Stored as a config parameter so it
+    # is per-database and repointable without code.
+    ufs_wholesale_resale_tax_id = fields.Many2one(
+        comodel_name='account.tax',
+        string='Resale (0%) Tax',
+        config_parameter='ufs_wholesale.resale_tax_id',
+        domain="[('type_tax_use', '=', 'sale')]",
+        help="Zero-rate sales tax used to REPLACE the normal sales tax for "
+             "customers on the wholesale fiscal position. A 0% tax keeps the "
+             "exempt sale's taxable base on the books (for the Florida DR-15 "
+             "return) instead of dropping the tax line entirely.",
+    )
+
     @api.model
     def get_values(self):
         res = super().get_values()
@@ -73,6 +89,46 @@ class ResConfigSettings(models.TransientModel):
         if not fp_id:
             return self.env['account.fiscal.position']
         return self.env['account.fiscal.position'].sudo().browse(fp_id).exists()
+
+    @api.model
+    def _ufs_wholesale_resale_tax(self):
+        """Return the 0% resale tax used to REPLACE sales taxes on the
+        wholesale fiscal position, or an empty recordset.
+
+        Resolved so the module is portable across databases (staging vs
+        production ids differ) without a hardcoded id:
+            1. the ufs_wholesale.resale_tax_id config parameter, if it still
+               points at a live tax;
+            2. otherwise the first active 0% *sales* tax named "0% Resale"
+               (then "...Resale..."), whose id is cached back into the
+               parameter so the lookup is stable and an admin can see/repoint
+               it under Settings > UFS Wholesale.
+        """
+        ICP = self.env['ir.config_parameter'].sudo()
+        Tax = self.env['account.tax'].sudo()
+        raw = ICP.get_param('ufs_wholesale.resale_tax_id', '')
+        try:
+            tax_id = int(raw)
+        except (TypeError, ValueError):
+            tax_id = 0
+        if tax_id:
+            tax = Tax.browse(tax_id).exists()
+            if tax:
+                return tax
+        tax = Tax.search([
+            ('type_tax_use', '=', 'sale'),
+            ('amount', '=', 0.0),
+            ('name', '=ilike', '0% Resale'),
+        ], limit=1)
+        if not tax:
+            tax = Tax.search([
+                ('type_tax_use', '=', 'sale'),
+                ('amount', '=', 0.0),
+                ('name', 'ilike', 'Resale'),
+            ], limit=1)
+        if tax:
+            ICP.set_param('ufs_wholesale.resale_tax_id', str(tax.id))
+        return tax
 
     @api.model
     def _ufs_wholesale_admin_partner_ids(self):
