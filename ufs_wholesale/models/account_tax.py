@@ -3,9 +3,11 @@
 Auto-exempt newly created Sales taxes on the wholesale fiscal position.
 
 When a new ``account.tax`` with ``type_tax_use='sale'`` is created, we
-automatically add a tax-mapping row on the configured wholesale fiscal
-position that REPLACES the new tax with the configured 0% resale tax
-(``tax_dest_ids`` = the resale tax), NOT an empty mapping.
+automatically make the configured wholesale fiscal position REPLACE it
+with the configured 0% resale tax, NOT drop it. In Odoo 19 that mapping
+lives on ``account.tax`` itself (the resale tax's ``original_tax_ids`` /
+``fiscal_position_ids``), because the old ``account.fiscal.position.tax``
+model no longer exists.
 
 Why a 0% tax and not "no tax" (empty ``tax_dest_ids``):
     Dropping the tax entirely leaves the exempt sale with no tax line, so
@@ -62,9 +64,10 @@ class AccountTax(models.Model):
             return
         resale = Settings._ufs_wholesale_resale_tax()
 
-        # Never map the resale tax to itself.
+        # Domestic sales taxes only (the resale relation's src must be
+        # is_domestic), and never the resale tax itself.
         sales_taxes = self.filtered(
-            lambda t: t.type_tax_use == 'sale' and t != resale
+            lambda t: t.type_tax_use == 'sale' and t != resale and t.is_domestic
         )
         if not sales_taxes:
             return
@@ -81,27 +84,29 @@ class AccountTax(models.Model):
             )
             return
 
-        FPTax = self.env['account.fiscal.position.tax'].sudo()
-        # One bulk read of existing mappings to skip duplicates.
-        existing_src_ids = set(FPTax.search([
-            ('position_id', '=', fp.id),
-            ('tax_src_id', 'in', sales_taxes.ids),
-        ]).mapped('tax_src_id.id'))
-
-        to_create = []
-        for tax in sales_taxes:
-            if tax.id in existing_src_ids:
-                continue
-            to_create.append({
-                'position_id': fp.id,
-                'tax_src_id': tax.id,
-                # Replace the tax with the 0% resale tax (NOT empty). Charges
-                # nothing but keeps the taxable base on the books for DR-15.
-                'tax_dest_ids': [(6, 0, resale.ids)],
+        # Odoo 19 stores fiscal-position tax mapping ON account.tax via the
+        # self-referential account_tax_alternatives relation (there is no
+        # account.fiscal.position.tax model anymore):
+        #   resale.original_tax_ids  ("Replaces")  = domestic taxes it replaces
+        #   resale.fiscal_position_ids             = positions it applies on
+        # A src tax already carrying `resale` in its replacing_tax_ids is
+        # already mapped; skip it so this stays idempotent.
+        to_map = sales_taxes.filtered(lambda t: resale not in t.replacing_tax_ids)
+        if not to_map:
+            return
+        try:
+            resale.sudo().write({
+                'original_tax_ids': [(4, t.id) for t in to_map],
+                'fiscal_position_ids': [(4, fp.id)],
             })
-        if to_create:
-            FPTax.create(to_create)
-            _logger.info(
-                "ufs_wholesale: mapped %s sales tax(es) to the resale 0%% "
-                "tax on fiscal position %s", len(to_create), fp.display_name,
+        except Exception:
+            # A courtesy auto-mapping must never break tax creation.
+            _logger.exception(
+                "ufs_wholesale: failed to map sales tax(es) %s to the resale "
+                "0%% tax on fiscal position %s", to_map.mapped('name'), fp.id,
             )
+            return
+        _logger.info(
+            "ufs_wholesale: mapped %s sales tax(es) to the resale 0%% tax on "
+            "fiscal position %s", len(to_map), fp.display_name,
+        )
