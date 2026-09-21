@@ -24,9 +24,9 @@ Why this lives here, not as a Settings → Automation rule:
       drift or be accidentally disabled in the UI.
 
 If the operator wants to opt a specific tax OUT of the auto-mapping,
-they can remove the generated ``account.fiscal.position.tax`` row from
-the fiscal position after the fact. We skip duplicates on re-create, so
-removed rows stay removed.
+they can remove it from the resale tax's "Replaces" list (its
+``original_tax_ids``) after the fact. We only add mappings that don't
+already exist, so a manual removal stays removed.
 """
 import logging
 

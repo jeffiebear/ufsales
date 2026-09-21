@@ -1,6 +1,6 @@
 {
     "name": "UFS Wholesale Access",
-    "version": "19.0.1.5.1",
+    "version": "19.0.1.5.2",
     "category": "Website",
     "summary": "Wholesale signup, approval workflow, and eCommerce access control",
     "license": "LGPL-3",
