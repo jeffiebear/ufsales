@@ -70,8 +70,8 @@
          waits on the tax preparer's schedule (Step1 tracked it at zero).
          ============================================================ -->
 
-    <record id="account_151000_vehicles" model="account.account">
-        <field name="code">151000</field>
+    <record id="account_152000_vehicles" model="account.account">
+        <field name="code">152000</field>
         <field name="name">Vehicles</field>
         <field name="account_type">asset_fixed</field>
         <field name="reconcile" eval="False"/>
@@ -108,8 +108,8 @@
 
     <!-- Step1 2250 Sales Tax Payable (currently a debit balance = prepaid;
          tie to the actual Florida DR-15 filings before the hard lock). -->
-    <record id="account_251000_fl_sales_tax_payable" model="account.account">
-        <field name="code">251000</field>
+    <record id="account_253000_fl_sales_tax_payable" model="account.account">
+        <field name="code">253000</field>
         <field name="name">Florida Sales Tax Payable</field>
         <field name="account_type">liability_current</field>
         <field name="reconcile" eval="False"/>
