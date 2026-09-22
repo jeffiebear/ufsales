@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customizations',
-    'version': '19.0.1.18.1',
+    'version': '19.0.1.19.0',
     'summary': 'Catch-all module for small UFS-specific tweaks to standard Odoo behavior.',
     'description': """
 UFS Customizations
@@ -72,6 +72,8 @@ Current tweaks
         'views/stock_picking_views.xml',
         'views/check_layout_tweaks.xml',
         'views/sale_margin_report_views.xml',
+        'views/res_partner_views.xml',
+        'views/stock_delivery_instructions_reports.xml',
     ],
     'assets': {
         'web.assets_backend': [

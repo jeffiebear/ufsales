@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Prints the customer's standing "Delivery Instructions"
+    (res.partner.ufs_delivery_instructions) on the two transfer documents:
+      - Delivery Slip        (stock.report_delivery_document)
+      - Picking Operations   (stock.report_picking)
+
+    The value is taken from the transfer's partner, falling back to that
+    partner's company/customer record, so instructions set at the customer
+    level flow onto every one of their tickets. Guarded so nothing renders
+    for internal transfers or customers with no instructions.
+
+    Author: Parameter (https://parameterllc.com/)
+-->
+<odoo>
+
+    <!-- Delivery Slip -->
+    <template id="ufs_delivery_slip_instructions" inherit_id="stock.report_delivery_document">
+        <xpath expr="//div[@id='informations']" position="after">
+            <t t-set="ufs_delivery_instructions"
+               t-value="o.partner_id and (o.partner_id.ufs_delivery_instructions or o.partner_id.commercial_partner_id.ufs_delivery_instructions)"/>
+            <div t-if="ufs_delivery_instructions" name="ufs_delivery_instructions" class="mb-3">
+                <strong>Delivery Instructions:</strong>
+                <div t-out="ufs_delivery_instructions" style="white-space: pre-wrap;"/>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Picking Operations ticket -->
+    <template id="ufs_pick_ticket_instructions" inherit_id="stock.report_picking">
+        <xpath expr="//div[hasclass('o_stock_report_header_row')]" position="after">
+            <t t-set="ufs_delivery_instructions"
+               t-value="o.partner_id and (o.partner_id.ufs_delivery_instructions or o.partner_id.commercial_partner_id.ufs_delivery_instructions)"/>
+            <div t-if="ufs_delivery_instructions" name="ufs_delivery_instructions" class="mt-2 mb-3">
+                <strong>Delivery Instructions:</strong>
+                <div t-out="ufs_delivery_instructions" style="white-space: pre-wrap;"/>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

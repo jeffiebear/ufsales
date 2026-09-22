@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Adds the "Delivery Instructions" field to the customer form (Sales &
+    Purchase tab). The text entered here prints on the customer's pick and
+    delivery tickets (see stock_delivery_instructions_reports.xml).
+
+    Author: Parameter (https://parameterllc.com/)
+-->
+<odoo>
+
+    <record id="view_partner_form_ufs_delivery_instructions" model="ir.ui.view">
+        <field name="name">res.partner.form.ufs.delivery.instructions</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales_purchases']" position="inside">
+                <group name="ufs_delivery_instructions_group" string="Delivery Instructions">
+                    <field name="ufs_delivery_instructions" nolabel="1"
+                           placeholder="Prints on this customer's pick and delivery tickets. e.g. Gate code 1234, deliver to rear dock, call 30 minutes ahead."/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
