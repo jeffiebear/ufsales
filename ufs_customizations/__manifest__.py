@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customizations',
-    'version': '19.0.1.17.0',
+    'version': '19.0.1.18.0',
     'summary': 'Catch-all module for small UFS-specific tweaks to standard Odoo behavior.',
     'description': """
 UFS Customizations
@@ -52,6 +52,9 @@ Current tweaks
         'product',
         'ufs_customer_pricing',
         'l10n_us_check_printing',
+        # sale_margin supplies the margin field on sale.order used by the
+        # "Margin by Customer" report (views/sale_margin_report_views.xml).
+        'sale_margin',
     ],
     'data': [
         'security/ir.model.access.csv',
@@ -68,6 +71,7 @@ Current tweaks
         'views/report_invoice_window_envelope.xml',
         'views/stock_picking_views.xml',
         'views/check_layout_tweaks.xml',
+        'views/sale_margin_report_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    "Margin by Customer" report under Sales > Reporting.
+
+    Odoo 19's sale_margin puts the Margin figure on sales orders (the order form
+    and the sale.order pivot/graph) but does NOT add a Margin measure to the
+    standard Sales Analysis report (sale.report). So out of the box there is no
+    menu that shows margin aggregated by customer. This adds one: a pivot (and a
+    graph) over CONFIRMED sales orders that opens straight to Margin by Customer,
+    with the Order Date filter on hand to pick any period.
+
+    "Margin" here is gross margin: sales minus product cost. It relies on the
+    cost saved on each product. Requires sale_margin (declared in the manifest
+    depends) for the margin field.
+
+    Author: Parameter (https://parameterllc.com/)
+-->
+<odoo>
+
+    <record id="view_sale_order_margin_by_customer_pivot" model="ir.ui.view">
+        <field name="name">sale.order.margin.by.customer.pivot</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <pivot string="Margin by Customer" sample="1">
+                <field name="partner_id" type="row"/>
+                <field name="margin" type="measure"/>
+                <field name="amount_untaxed" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_sale_order_margin_by_customer_graph" model="ir.ui.view">
+        <field name="name">sale.order.margin.by.customer.graph</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <graph string="Margin by Customer" type="bar" sample="1">
+                <field name="partner_id"/>
+                <field name="margin" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_sale_order_margin_search" model="ir.ui.view">
+        <field name="name">sale.order.margin.search</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <search string="Margin by Customer">
+                <field name="partner_id"/>
+                <field name="user_id"/>
+                <filter name="order_date" string="Order Date" date="date_order"/>
+                <group expand="1" string="Group By">
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_order_month" string="Order Date" context="{'group_by': 'date_order:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_sale_order_margin_by_customer" model="ir.actions.act_window">
+        <field name="name">Margin by Customer</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">pivot,graph</field>
+        <field name="domain">[('state', '=', 'sale')]</field>
+        <field name="search_view_id" ref="view_sale_order_margin_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No confirmed sales in this period</p>
+            <p>Gross margin (sales minus product cost) by customer, for confirmed sales orders. Use the Order Date filter to choose a period.</p>
+        </field>
+    </record>
+
+    <record id="action_sale_order_margin_by_customer_pivot_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">pivot</field>
+        <field name="view_id" ref="view_sale_order_margin_by_customer_pivot"/>
+        <field name="act_window_id" ref="action_sale_order_margin_by_customer"/>
+    </record>
+
+    <record id="action_sale_order_margin_by_customer_graph_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">graph</field>
+        <field name="view_id" ref="view_sale_order_margin_by_customer_graph"/>
+        <field name="act_window_id" ref="action_sale_order_margin_by_customer"/>
+    </record>
+
+    <menuitem id="menu_sale_order_margin_by_customer"
+              name="Margin by Customer"
+              parent="sale.menu_sale_report"
+              action="action_sale_order_margin_by_customer"
+              sequence="20"/>
+
+</odoo>
