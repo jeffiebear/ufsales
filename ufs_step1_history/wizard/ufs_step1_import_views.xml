@@ -6,10 +6,9 @@
         <field name="model">ufs.step1.import</field>
         <field name="arch" type="xml">
             <form string="Load Step1 Invoice History">
-                <p>Upload one normalized header file (one fiscal year at a time). Documents already in the archive are skipped, so re-uploading a file is safe.</p>
+                <p>Upload the normalized header files (one per fiscal year, any number at once). Documents already in the archive are skipped, so re-uploading a file is safe.</p>
                 <group>
-                    <field name="file" filename="filename"/>
-                    <field name="filename" invisible="1"/>
+                    <field name="attachment_ids" widget="many2many_binary" nolabel="1" colspan="2"/>
                     <field name="result" invisible="not result"/>
                 </group>
                 <footer>
