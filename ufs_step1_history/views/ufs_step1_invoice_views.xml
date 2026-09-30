@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_ufs_step1_invoice_list" model="ir.ui.view">
+        <field name="name">ufs.step1.invoice.list</field>
+        <field name="model">ufs.step1.invoice</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" default_order="invoice_date desc, invoice_num desc">
+                <field name="invoice_num"/>
+                <field name="trans_type"/>
+                <field name="invoice_date"/>
+                <field name="due_date" optional="hide"/>
+                <field name="partner_id"/>
+                <field name="customer_name" optional="hide"/>
+                <field name="cust_acct" optional="hide"/>
+                <field name="cust_po" optional="show"/>
+                <field name="merch_total" sum="Merchandise" optional="hide"/>
+                <field name="sales_tax" optional="hide"/>
+                <field name="freight" optional="hide"/>
+                <field name="total_due" sum="Total"/>
+                <field name="paid_flag"/>
+                <field name="pmt_date"/>
+                <field name="open_at_cutover" optional="hide"/>
+                <field name="fiscal_year" optional="hide"/>
+                <field name="salesperson" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ufs_step1_invoice_form" model="ir.ui.view">
+        <field name="name">ufs.step1.invoice.form</field>
+        <field name="model">ufs.step1.invoice</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="invoice_num"/></h1>
+                        <field name="trans_type"/>
+                    </div>
+                    <group>
+                        <group string="Customer">
+                            <field name="partner_id"/>
+                            <field name="customer_name"/>
+                            <field name="cust_acct"/>
+                            <field name="cust_po"/>
+                            <field name="salesperson"/>
+                        </group>
+                        <group string="Dates">
+                            <field name="order_num"/>
+                            <field name="order_date"/>
+                            <field name="date_shipped"/>
+                            <field name="invoice_date"/>
+                            <field name="due_date"/>
+                            <field name="terms"/>
+                        </group>
+                        <group string="Amounts">
+                            <field name="merch_total"/>
+                            <field name="taxable_sales"/>
+                            <field name="nontaxable_sales"/>
+                            <field name="sales_tax"/>
+                            <field name="freight"/>
+                            <field name="total_due"/>
+                            <field name="ave_costs"/>
+                        </group>
+                        <group string="Step1 Status">
+                            <field name="paid_flag"/>
+                            <field name="pmt_date"/>
+                            <field name="open_at_cutover"/>
+                            <field name="status"/>
+                            <field name="fiscal_year"/>
+                            <field name="post_period"/>
+                            <field name="entered_by"/>
+                            <field name="entered_ts"/>
+                            <field name="arinvc_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Odoo 19: no <group> wrapper in search views (fails validation); group-by filters sit at top level. -->
+    <record id="view_ufs_step1_invoice_search" model="ir.ui.view">
+        <field name="name">ufs.step1.invoice.search</field>
+        <field name="model">ufs.step1.invoice</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="invoice_num"/>
+                <field name="partner_id"/>
+                <field name="customer_name"/>
+                <field name="cust_acct"/>
+                <field name="cust_po"/>
+                <filter name="invoices" string="Invoices" domain="[('trans_type', '=', 'IN')]"/>
+                <filter name="credits" string="Credit Memos" domain="[('trans_type', '=', 'CM')]"/>
+                <separator/>
+                <filter name="unpaid" string="Unpaid in Step1" domain="[('paid_flag', '=', False)]"/>
+                <filter name="open_cutover" string="Open at June 30, 2026" domain="[('open_at_cutover', '=', True)]"/>
+                <filter name="unlinked" string="No Odoo customer" domain="[('partner_id', '=', False)]"/>
+                <separator/>
+                <filter name="invoice_date" string="Invoice Date" date="invoice_date"/>
+                <separator/>
+                <filter name="group_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
+                <filter name="group_year" string="Fiscal Year" context="{'group_by': 'fiscal_year'}"/>
+                <filter name="group_type" string="Type" context="{'group_by': 'trans_type'}"/>
+                <filter name="group_month" string="Invoice Month" context="{'group_by': 'invoice_date:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ufs_step1_invoice" model="ir.actions.act_window">
+        <field name="name">Step1 Invoice History</field>
+        <field name="res_model">ufs.step1.invoice</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_ufs_step1_invoice_search"/>
+        <field name="context">{'search_default_invoices': 1}</field>
+                <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No Step1 history loaded yet</p>
+            <p>This archive holds the customer invoices and credit memos from Step1 (2006 to June 30, 2026) for reference. It is loaded once by script and is not part of the accounting.</p>
+        </field>
+    </record>
+
+    <!-- Accounting > Customers > Step1 Invoice History -->
+    <menuitem id="menu_ufs_step1_invoice" name="Step1 Invoice History"
+              parent="account.menu_finance_receivables" action="action_ufs_step1_invoice" sequence="90"/>
+
+</odoo>
