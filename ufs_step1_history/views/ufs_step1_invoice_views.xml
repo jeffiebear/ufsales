@@ -79,10 +79,40 @@
         </field>
     </record>
 
+    <!-- Odoo 19: no <group> wrapper in search views (fails validation); group-by filters sit at top level. -->
+    <record id="view_ufs_step1_invoice_search" model="ir.ui.view">
+        <field name="name">ufs.step1.invoice.search</field>
+        <field name="model">ufs.step1.invoice</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="invoice_num"/>
+                <field name="partner_id"/>
+                <field name="customer_name"/>
+                <field name="cust_acct"/>
+                <field name="cust_po"/>
+                <filter name="invoices" string="Invoices" domain="[('trans_type', '=', 'IN')]"/>
+                <filter name="credits" string="Credit Memos" domain="[('trans_type', '=', 'CM')]"/>
+                <separator/>
+                <filter name="unpaid" string="Unpaid in Step1" domain="[('paid_flag', '=', False)]"/>
+                <filter name="open_cutover" string="Open at June 30, 2026" domain="[('open_at_cutover', '=', True)]"/>
+                <filter name="unlinked" string="No Odoo customer" domain="[('partner_id', '=', False)]"/>
+                <separator/>
+                <filter name="invoice_date" string="Invoice Date" date="invoice_date"/>
+                <separator/>
+                <filter name="group_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
+                <filter name="group_year" string="Fiscal Year" context="{'group_by': 'fiscal_year'}"/>
+                <filter name="group_type" string="Type" context="{'group_by': 'trans_type'}"/>
+                <filter name="group_month" string="Invoice Month" context="{'group_by': 'invoice_date:month'}"/>
+            </search>
+        </field>
+    </record>
+
     <record id="action_ufs_step1_invoice" model="ir.actions.act_window">
         <field name="name">Step1 Invoice History</field>
         <field name="res_model">ufs.step1.invoice</field>
         <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_ufs_step1_invoice_search"/>
+        <field name="context">{'search_default_invoices': 1}</field>
                 <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No Step1 history loaded yet</p>
             <p>This archive holds the customer invoices and credit memos from Step1 (2006 to June 30, 2026) for reference. It is loaded once by script and is not part of the accounting.</p>
