@@ -3,17 +3,17 @@
 Fit every invoice a check pays on the one check sheet.
 
 Odoo's check printing (``account_check_printing``) crops the remittance
-stub at ``INV_LINES_PER_STUB`` (9) lines, showing 8 and an ellipsis. UFS's pre-printed stock fits about 8
-at the default 10pt, and a second page is stub-only, which lands on the
-next blank check in the printer. Jeff pays his big vendors 10 or more
-invoices per check, so the stub must shrink instead of overflowing.
+stub at ``INV_LINES_PER_STUB`` (9) lines, showing 8 and an ellipsis. The
+alternative, the company's "Multi-Pages Check Stub" setting, prints the
+rest on a stub-only second page, which lands on the next blank check in
+the printer. Jeff pays his big vendors 10 or more invoices per check, so
+the stub must shrink to fit instead.
 
-Two pieces do that:
+Two pieces do that (with "Multi-Pages Check Stub" left OFF):
 
 * This file raises the per-stub limit to ``UFS_STUB_MAX_LINES`` so the
-  report keeps everything on one stub up to that count (the company's
-  "Multi-Pages Check Stub" setting stays on, so a check beyond the limit
-  still spills to a second page rather than being cut off).
+  stub lists up to that many lines on the one sheet. Beyond it, Odoo's
+  normal crop applies (first 23 and an ellipsis).
 * ``views/check_layout_tweaks.xml`` tags each stub with a size tier from
   the number of lines it carries and scales the stub table's font and row
   height per tier (font-size and line-height only: wkhtmltopdf drops CSS
