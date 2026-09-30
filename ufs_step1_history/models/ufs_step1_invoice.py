@@ -73,9 +73,7 @@ class UfsStep1Invoice(models.Model):
         help="Not paid in Step1 by the cutover date. These documents were also loaded as "
              "real opening receivables (invoice_origin STEP1-OB), where payments are applied.")
 
-    _sql_constraints = [
-        ("arinvc_id_uniq", "unique(arinvc_id)", "This Step1 invoice is already in the archive."),
-    ]
+    _arinvc_id_uniq = models.Constraint("unique(arinvc_id)", "This Step1 invoice is already in the archive.")
 
     @api.depends("paid_flag", "pmt_date")
     def _compute_open_at_cutover(self):
