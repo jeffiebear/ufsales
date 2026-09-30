@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ufs_step1_invoice_user,ufs.step1.invoice user,model_ufs_step1_invoice,base.group_user,1,0,0,0
+access_ufs_step1_invoice_account_manager,ufs.step1.invoice account manager,model_ufs_step1_invoice,account.group_account_manager,1,1,1,1
+access_ufs_step1_import_account_manager,ufs.step1.import account manager,model_ufs_step1_import,account.group_account_manager,1,1,1,1
