@@ -76,7 +76,7 @@
 
     <!-- Tag each stub with its size tier from the number of invoice lines it carries. -->
     <template id="ckus_stub_ufs_tier" inherit_id="l10n_us_check_printing.ckus_stub">
-        <xpath expr="//div[hasclass('ckus_stub')]" position="attributes">
+        <xpath expr="//div[contains(@t-attf-class, 'ckus_stub')]" position="attributes">
             <attribute name="t-attf-class">ckus_stub ckus_stub_{{ stub_num }} ufs-stub-{{ 'xl' if len(page.get('stub_lines') or []) > 18 else 'l' if len(page.get('stub_lines') or []) > 14 else 'm' if len(page.get('stub_lines') or []) > 11 else 's' if len(page.get('stub_lines') or []) > 8 else 'n' }}</attribute>
         </xpath>
     </template>
