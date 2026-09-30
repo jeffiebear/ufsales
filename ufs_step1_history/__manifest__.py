@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Step1 Invoice History',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'summary': 'Read-only archive of the Step1 customer invoice history (pre-July 2026), for lookup and statements.',
     'description': """
 UFS Step1 Invoice History
