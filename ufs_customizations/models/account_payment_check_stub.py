@@ -19,8 +19,8 @@ Two pieces do that (with "Multi-Pages Check Stub" left OFF):
   height per tier (font-size and line-height only: wkhtmltopdf drops CSS
   transforms).
 
-Tiers (lines per stub -> tier): up to 8 -> n (10pt, unchanged), 9-11 -> s
-(8.5pt), 12-14 -> m (7.5pt), 15-18 -> l (6.5pt), 19-24 -> xl (5.5pt).
+Tiers (lines per stub -> tier): up to 10 -> n (full size, unchanged),
+11-13 -> s (9pt), 14-16 -> m (8pt), 17-20 -> l (7pt), 21-24 -> xl (6pt).
 """
 import logging
 
