@@ -89,19 +89,17 @@
                 <field name="customer_name"/>
                 <field name="cust_acct"/>
                 <field name="cust_po"/>
-                <field name="total_due"/>
                 <filter name="invoices" string="Invoices" domain="[('trans_type', '=', 'IN')]"/>
                 <filter name="credits" string="Credit Memos" domain="[('trans_type', '=', 'CM')]"/>
                 <separator/>
                 <filter name="unpaid" string="Unpaid in Step1" domain="[('paid_flag', '=', False)]"/>
                 <filter name="open_cutover" string="Open at June 30, 2026" domain="[('open_at_cutover', '=', True)]"/>
                 <filter name="unlinked" string="No Odoo customer" domain="[('partner_id', '=', False)]"/>
-                <separator/>
-                <filter name="invoice_date" string="Invoice Date" date="invoice_date"/>
-                <group expand="0" string="Group By">
+                <group string="Group By">
                     <filter name="group_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
                     <filter name="group_year" string="Fiscal Year" context="{'group_by': 'fiscal_year'}"/>
                     <filter name="group_type" string="Type" context="{'group_by': 'trans_type'}"/>
+                    <filter name="group_month" string="Invoice Month" context="{'group_by': 'invoice_date:month'}"/>
                 </group>
             </search>
         </field>
