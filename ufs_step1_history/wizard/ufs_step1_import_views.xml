@@ -29,7 +29,7 @@
 
     <!-- Accounting > Configuration > Step1 History: Load -->
     <menuitem id="menu_ufs_step1_import" name="Load Step1 Invoice History"
-              parent="account.account_management_menu" action="action_ufs_step1_import" sequence="90"
+              parent="account.menu_finance_configuration" action="action_ufs_step1_import" sequence="90"
               groups="account.group_account_manager"/>
 
 </odoo>
