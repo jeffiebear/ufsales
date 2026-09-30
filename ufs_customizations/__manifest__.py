@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customizations',
-    'version': '19.0.1.19.0',
+    'version': '19.0.1.20.0',
     'summary': 'Catch-all module for small UFS-specific tweaks to standard Odoo behavior.',
     'description': """
 UFS Customizations
@@ -23,6 +23,10 @@ Current tweaks
   in ``ufs_customer_pricing``, skipping any product that already has a
   rule for this customer. Lets admins lock in quoted prices in one
   click after hand-tuning a manual order.
+* **Check stub fits every invoice** — the remittance stub shrinks its
+  table (five size tiers, up to 24 invoices) so a check that pays many
+  bills stays on one sheet instead of spilling a stub-only page onto the
+  next blank check. See ``models/account_payment_check_stub.py``.
 * **Margin Preset dropdown** — a Many2one dropdown on both sale order
   lines and purchase order lines, seeded with 15 / 18 / 20 / 25 / 30 /
   35 / 40 %. On SO lines it sets ``price_unit = cost / (1 - margin)``.

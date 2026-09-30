@@ -55,7 +55,29 @@
                 .ckus_check { top: 0.105in !important; transform: none !important; }
                 .ckus_payee_addr { top: 2.025in !important; transform: none !important; }
                 .ckus_memo { display: none !important; }
+
+                /* Stub size tiers (see models/account_payment_check_stub.py): the stub keeps
+                   every invoice on the one sheet by shrinking the table as the count grows.
+                   Only font-size, line-height and padding: wkhtmltopdf drops transforms. */
+                .ufs-stub-s .stub_lines, .ufs-stub-m .stub_lines, .ufs-stub-l .stub_lines, .ufs-stub-xl .stub_lines { margin-bottom: 0 !important; }
+                .ufs-stub-s .stub_lines td, .ufs-stub-s .stub_lines th,
+                .ufs-stub-m .stub_lines td, .ufs-stub-m .stub_lines th,
+                .ufs-stub-l .stub_lines td, .ufs-stub-l .stub_lines th,
+                .ufs-stub-xl .stub_lines td, .ufs-stub-xl .stub_lines th { padding: 0 0.04in !important; }
+                .ufs-stub-s .summary_line, .ufs-stub-m .summary_line, .ufs-stub-l .summary_line, .ufs-stub-xl .summary_line { margin-bottom: 0.06in !important; }
+                .ufs-stub-s .stub_lines { font-size: 8.5pt !important; line-height: 1.15 !important; }
+                .ufs-stub-m .stub_lines { font-size: 7.5pt !important; line-height: 1.1 !important; }
+                .ufs-stub-l .stub_lines { font-size: 6.5pt !important; line-height: 1.05 !important; }
+                .ufs-stub-xl .stub_lines { font-size: 5.5pt !important; line-height: 1.0 !important; }
+                .ufs-stub-l .stub_total_amount, .ufs-stub-xl .stub_total_amount { font-size: 8pt !important; }
             </style>
+        </xpath>
+    </template>
+
+    <!-- Tag each stub with its size tier from the number of invoice lines it carries. -->
+    <template id="ckus_stub_ufs_tier" inherit_id="l10n_us_check_printing.ckus_stub">
+        <xpath expr="//div[hasclass('ckus_stub')]" position="attributes">
+            <attribute name="t-attf-class">ckus_stub ckus_stub_{{ stub_num }} ufs-stub-{{ 'xl' if len(page.get('stub_lines') or []) > 18 else 'l' if len(page.get('stub_lines') or []) > 14 else 'm' if len(page.get('stub_lines') or []) > 11 else 's' if len(page.get('stub_lines') or []) > 8 else 'n' }}</attribute>
         </xpath>
     </template>
 </odoo>
