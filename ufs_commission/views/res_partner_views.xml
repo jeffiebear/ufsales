@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Sales Rep on the customer (Sales & Purchase tab, Sales group). Set it on the company, not its contacts. -->
+    <record id="view_partner_form_ufs_sales_rep" model="ir.ui.view">
+        <field name="name">res.partner.form.ufs.sales.rep</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales_purchases']//group[@name='sale']" position="inside">
+                <field name="ufs_sales_rep_id" invisible="parent_id" options="{'no_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

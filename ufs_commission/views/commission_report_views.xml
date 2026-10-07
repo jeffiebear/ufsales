@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Sales > Reporting > Commissions.
+
+    Confirmed sales orders that carry a Sales Rep, as a pivot (rep by month)
+    and a list. Margin is sale_margin's figure; Commission is stored on the
+    order (margin x the rep's rate when the rep was set).
+
+    Odoo 19 notes: search views take no <group> wrapper, and a bare pivot is
+    the safe form (see the Margin by Customer report in ufs_customizations).
+
+    Author: Parameter (https://parameterllc.com/)
+-->
+<odoo>
+
+    <record id="view_ufs_commission_order_pivot" model="ir.ui.view">
+        <field name="name">sale.order.ufs.commission.pivot</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <pivot string="Commissions">
+                <field name="ufs_sales_rep_id" type="row"/>
+                <field name="date_order" interval="month" type="col"/>
+                <field name="amount_untaxed" type="measure"/>
+                <field name="margin" type="measure"/>
+                <field name="ufs_commission_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_ufs_commission_order_list" model="ir.ui.view">
+        <field name="name">sale.order.ufs.commission.list</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <list string="Commissions" create="0" edit="0" default_order="date_order desc">
+                <field name="date_order" widget="date"/>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="ufs_sales_rep_id"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="amount_untaxed" sum="Sales"/>
+                <field name="margin" sum="Margin"/>
+                <field name="ufs_commission_rate"/>
+                <field name="ufs_commission_amount" sum="Commission"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ufs_commission_order_search" model="ir.ui.view">
+        <field name="name">sale.order.ufs.commission.search</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="ufs_sales_rep_id"/>
+                <field name="partner_id"/>
+                <field name="name"/>
+                <filter name="order_date" string="Order Date" date="date_order"/>
+                <separator/>
+                <filter name="group_rep" string="Sales Rep" context="{'group_by': 'ufs_sales_rep_id'}"/>
+                <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                <filter name="group_month" string="Order Month" context="{'group_by': 'date_order:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ufs_commission_orders" model="ir.actions.act_window">
+        <field name="name">Commissions</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">pivot,list,form</field>
+        <field name="search_view_id" ref="view_ufs_commission_order_search"/>
+        <field name="domain">[('state', '=', 'sale'), ('ufs_sales_rep_id', '!=', False)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No commission yet</p>
+            <p>Confirmed orders for customers with a Sales Rep show here. Assign a rep on the customer (Sales &amp; Purchase tab) and set the rep's commission % on the employee.</p>
+        </field>
+    </record>
+
+    <record id="action_ufs_commission_orders_view_pivot" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">pivot</field>
+        <field name="view_id" ref="view_ufs_commission_order_pivot"/>
+        <field name="act_window_id" ref="action_ufs_commission_orders"/>
+    </record>
+
+    <record id="action_ufs_commission_orders_view_list" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_ufs_commission_order_list"/>
+        <field name="act_window_id" ref="action_ufs_commission_orders"/>
+    </record>
+
+    <menuitem id="menu_ufs_commission_orders"
+              name="Commissions"
+              parent="sale.menu_sale_report"
+              action="action_ufs_commission_orders"
+              groups="sales_team.group_sale_manager"
+              sequence="30"/>
+
+    <menuitem id="menu_ufs_commission_statement"
+              name="Commission Statement"
+              parent="sale.menu_sale_report"
+              action="action_ufs_commission_statement"
+              groups="sales_team.group_sale_manager"
+              sequence="31"/>
+
+</odoo>

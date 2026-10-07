@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Sales Rep under the customer on the order; the rate and the resulting
+        commission sit with the other sales fields on the Other Info tab,
+        for sales managers only.
+    -->
+    <record id="view_order_form_ufs_commission" model="ir.ui.view">
+        <field name="name">sale.order.form.ufs.commission</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='partner_details']" position="inside">
+                <field name="ufs_sales_rep_id" options="{'no_create': True}"/>
+            </xpath>
+            <xpath expr="//group[@name='sales_person']" position="inside">
+                <field name="ufs_commission_rate" groups="sales_team.group_sale_manager" invisible="not ufs_sales_rep_id"/>
+                <field name="ufs_commission_amount" groups="sales_team.group_sale_manager" invisible="not ufs_sales_rep_id"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ufs_commission_statement_sale_manager,ufs.commission.statement sale manager,model_ufs_commission_statement,sales_team.group_sale_manager,1,1,1,1
