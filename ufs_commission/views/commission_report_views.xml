@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Sales > Reporting > Commissions.
+    Sales > Reporting > Sales Rep Commissions.
+
+    Named "Sales Rep Commissions" because Odoo's own Commission app, when
+    installed, already puts a "Commissions" entry in the same menu.
 
     Confirmed sales orders that carry a Sales Rep, as a pivot (rep by month)
     and a list. Margin is sale_margin's figure; Commission is stored on the
@@ -17,7 +20,7 @@
         <field name="name">sale.order.ufs.commission.pivot</field>
         <field name="model">sale.order</field>
         <field name="arch" type="xml">
-            <pivot string="Commissions">
+            <pivot string="Sales Rep Commissions">
                 <field name="ufs_sales_rep_id" type="row"/>
                 <field name="date_order" interval="month" type="col"/>
                 <field name="amount_untaxed" type="measure"/>
@@ -31,7 +34,7 @@
         <field name="name">sale.order.ufs.commission.list</field>
         <field name="model">sale.order</field>
         <field name="arch" type="xml">
-            <list string="Commissions" create="0" edit="0" default_order="date_order desc">
+            <list string="Sales Rep Commissions" create="0" edit="0" default_order="date_order desc">
                 <field name="date_order" widget="date"/>
                 <field name="name"/>
                 <field name="partner_id"/>
@@ -63,7 +66,7 @@
     </record>
 
     <record id="action_ufs_commission_orders" model="ir.actions.act_window">
-        <field name="name">Commissions</field>
+        <field name="name">Sales Rep Commissions</field>
         <field name="res_model">sale.order</field>
         <field name="view_mode">pivot,list,form</field>
         <field name="search_view_id" ref="view_ufs_commission_order_search"/>
@@ -89,14 +92,14 @@
     </record>
 
     <menuitem id="menu_ufs_commission_orders"
-              name="Commissions"
+              name="Sales Rep Commissions"
               parent="sale.menu_sale_report"
               action="action_ufs_commission_orders"
               groups="sales_team.group_sale_manager"
               sequence="30"/>
 
     <menuitem id="menu_ufs_commission_statement"
-              name="Commission Statement"
+              name="Sales Rep Commission Statement"
               parent="sale.menu_sale_report"
               action="action_ufs_commission_statement"
               groups="sales_team.group_sale_manager"

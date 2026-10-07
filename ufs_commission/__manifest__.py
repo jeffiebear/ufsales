@@ -18,10 +18,10 @@ tracks his commission against an **employee** record instead.
 * **Commission on confirmed orders.** Each order stores the rep's rate
   at the time and the commission amount (margin x rate). Margin is the
   sale_margin figure: sales minus product cost.
-* **Sales > Reporting > Commissions**: orders, margin and commission by
-  rep and month.
-* **Sales > Reporting > Commission Statement**: a printable statement
-  for one rep and one period.
+* **Sales > Reporting > Sales Rep Commissions**: orders, margin and
+  commission by rep and month.
+* **Sales > Reporting > Sales Rep Commission Statement**: a printable
+  statement for one rep and one period.
 
 Nothing here posts accounting entries; it is reporting only.
 """,

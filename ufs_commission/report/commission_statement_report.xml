@@ -50,7 +50,7 @@
                                     <td><span t-field="order.partner_id.commercial_partner_id.name"/></td>
                                     <td class="text-end"><span t-out="order.amount_untaxed" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
                                     <td class="text-end"><span t-out="order.margin" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
-                                    <td class="text-end"><span t-out="'%g%%' % order.ufs_commission_rate"/></td>
+                                    <td class="text-end"><span t-out="order.ufs_commission_rate" t-options='{"widget": "float", "precision": 2}'/>%</td>
                                     <td class="text-end"><span t-out="order.ufs_commission_amount" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
                                 </tr>
                             </tbody>
@@ -65,7 +65,7 @@
                             </tfoot>
                         </table>
 
-                        <p class="mt-4 text-muted" style="font-size: 9pt;">
+                        <p class="mt-4">
                             Commission is a percentage of margin (sales minus product cost) on orders confirmed in the period.
                         </p>
                     </div>
