@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_commission_statement" model="ir.actions.report">
+        <field name="name">Commission Statement</field>
+        <field name="model">ufs.commission.statement</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">ufs_commission.report_commission_statement</field>
+        <field name="report_file">ufs_commission.report_commission_statement</field>
+        <field name="print_report_name">'Commission Statement - %s - %s to %s' % (object.employee_id.name, object.date_from, object.date_to)</field>
+    </record>
+
+    <template id="report_commission_statement">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="o" t-value="doc"/>
+                <t t-set="orders" t-value="doc._get_orders()"/>
+                <t t-set="totals" t-value="doc._get_totals(orders)"/>
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Commission Statement</h2>
+                        <div class="row mt-3 mb-3">
+                            <div class="col-6">
+                                <strong>Sales Rep:</strong> <span t-field="doc.employee_id.name"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Period:</strong>
+                                <span t-field="doc.date_from"/> to <span t-field="doc.date_to"/>
+                            </div>
+                        </div>
+
+                        <p t-if="not orders">No confirmed orders in this period.</p>
+
+                        <table t-if="orders" class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Order</th>
+                                    <th>Customer</th>
+                                    <th class="text-end">Sales</th>
+                                    <th class="text-end">Margin</th>
+                                    <th class="text-end">Rate</th>
+                                    <th class="text-end">Commission</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="orders" t-as="order">
+                                    <td><span t-field="order.date_order" t-options='{"widget": "date"}'/></td>
+                                    <td><span t-field="order.name"/></td>
+                                    <td><span t-field="order.partner_id.commercial_partner_id.name"/></td>
+                                    <td class="text-end"><span t-out="order.amount_untaxed" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                    <td class="text-end"><span t-out="order.margin" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                    <td class="text-end"><span t-out="'%g%%' % order.ufs_commission_rate"/></td>
+                                    <td class="text-end"><span t-out="order.ufs_commission_amount" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3"><strong>Total (<t t-out="len(orders)"/> orders)</strong></td>
+                                    <td class="text-end"><strong t-out="totals['sales']" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                    <td class="text-end"><strong t-out="totals['margin']" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                    <td/>
+                                    <td class="text-end"><strong t-out="totals['commission']" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <p class="mt-4 text-muted" style="font-size: 9pt;">
+                            Commission is a percentage of margin (sales minus product cost) on orders confirmed in the period.
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

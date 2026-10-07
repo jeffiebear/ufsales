@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Commission rate on the employee (Settings tab, HR users only like the rest of that tab). -->
+    <record id="view_employee_form_ufs_commission" model="ir.ui.view">
+        <field name="name">hr.employee.form.ufs.commission</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='hr_settings']" position="inside">
+                <group name="ufs_commission" string="Sales Commission">
+                    <group>
+                        <field name="ufs_commission_rate"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
