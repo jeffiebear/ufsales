@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Parameter. License LGPL-3.0 or later. -->
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.parameter_chatter_resize</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='general_settings']" position="inside">
+                <block title="Chatter Workspace" name="parameter_chatter_workspace">
+                    <setting id="pcw_features" string="Features"
+                             help="Choose which chatter arrangements users can use. Settings apply to the whole database, for every company.">
+                        <div class="content-group">
+                            <div><field name="pcw_enable_resize" class="w-auto"/><label for="pcw_enable_resize" class="o_light_label ms-1"/></div>
+                            <div><field name="pcw_enable_dock" class="w-auto"/><label for="pcw_enable_dock" class="o_light_label ms-1"/></div>
+                            <div><field name="pcw_enable_float" class="w-auto"/><label for="pcw_enable_float" class="o_light_label ms-1"/></div>
+                            <div><field name="pcw_enable_presets" class="w-auto"/><label for="pcw_enable_presets" class="o_light_label ms-1" string="Task layouts (Conversation, Review)"/></div>
+                        </div>
+                    </setting>
+                    <setting id="pcw_personal" string="Personal layouts"
+                             help="Let users keep their own layout. Team default rules can still lock specific forms.">
+                        <field name="pcw_allow_personal"/>
+                        <div class="content-group mt-2" invisible="not pcw_allow_personal">
+                            <field name="pcw_remember_per_model" class="w-auto"/>
+                            <label for="pcw_remember_per_model" class="o_light_label ms-1"/>
+                            <div class="text-muted small">When off, a change on any form updates the user's default for every form.</div>
+                        </div>
+                    </setting>
+                    <setting id="pcw_widths" string="Side chatter width"
+                             help="Limits for resizing (pixels). Leave the default at 0 to keep Odoo's width.">
+                        <div class="content-group">
+                            <div class="row mt-2">
+                                <label for="pcw_min_width" string="Minimum" class="col-4 o_light_label"/>
+                                <field name="pcw_min_width" class="col-3"/>
+                            </div>
+                            <div class="row">
+                                <label for="pcw_max_width" string="Maximum" class="col-4 o_light_label"/>
+                                <field name="pcw_max_width" class="col-3"/>
+                            </div>
+                            <div class="row">
+                                <label for="pcw_default_width" string="Default" class="col-4 o_light_label"/>
+                                <field name="pcw_default_width" class="col-3"/>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting id="pcw_defaults" string="Team default layout"
+                             help="Used when no rule matches and the user has not chosen a layout.">
+                        <div class="content-group">
+                            <div class="row mt-2">
+                                <label for="pcw_default_layout" string="Layout" class="col-4 o_light_label"/>
+                                <field name="pcw_default_layout" class="col-6" required="1"/>
+                            </div>
+                            <div class="row">
+                                <label for="pcw_default_dock_state" class="col-4 o_light_label"/>
+                                <field name="pcw_default_dock_state" class="col-6" required="1"/>
+                            </div>
+                            <div class="mt-2">
+                                <button name="%(parameter_chatter_resize.action_parameter_chatter_rule)d" type="action"
+                                        icon="oi-arrow-right" class="btn-link">
+                                    <field name="pcw_rule_count" class="w-auto"/> rules by form and user group
+                                </button>
+                            </div>
+                            <div>
+                                <button name="%(parameter_chatter_resize.action_parameter_chatter_policy_preview)d" type="action"
+                                        string="Check a user's effective layout" icon="oi-arrow-right" class="btn-link"/>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting id="pcw_reset" string="Personal layouts saved"
+                             help="Remove every user's saved layouts so team defaults apply again.">
+                        <div class="content-group">
+                            <button name="%(parameter_chatter_resize.action_parameter_chatter_preference)d" type="action"
+                                    icon="oi-arrow-right" class="btn-link">
+                                <field name="pcw_preference_count" class="w-auto"/> saved layouts
+                            </button>
+                            <div class="mt-2">
+                                <button name="action_pcw_reset_all_preferences" type="object"
+                                        string="Reset everyone's layouts" class="btn-secondary"
+                                        confirm="Remove every user's personal chatter layouts? Team defaults will apply again. This cannot be undone."/>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

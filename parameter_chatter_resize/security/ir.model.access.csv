@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pcw_preference_user,parameter.chatter.preference user,model_parameter_chatter_preference,base.group_user,1,1,1,1
+access_pcw_preference_system,parameter.chatter.preference system,model_parameter_chatter_preference,base.group_system,1,1,1,1
+access_pcw_rule_system,parameter.chatter.rule system,model_parameter_chatter_rule,base.group_system,1,1,1,1
+access_pcw_preview_system,parameter.chatter.policy.preview system,model_parameter_chatter_policy_preview,base.group_system,1,1,1,1

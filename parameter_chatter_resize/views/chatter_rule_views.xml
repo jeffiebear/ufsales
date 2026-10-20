@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Parameter. License LGPL-3.0 or later. -->
+<odoo>
+    <record id="parameter_chatter_rule_view_list" model="ir.ui.view">
+        <field name="name">parameter.chatter.rule.list</field>
+        <field name="model">parameter.chatter.rule</field>
+        <field name="arch" type="xml">
+            <list string="Team Chatter Defaults">
+                <field name="priority" widget="handle"/>
+                <field name="priority" string="Priority" optional="show"/>
+                <field name="name"/>
+                <field name="model_ids" widget="many2many_tags"/>
+                <field name="group_ids" widget="many2many_tags"/>
+                <field name="layout"/>
+                <field name="dock_state"/>
+                <field name="width"/>
+                <field name="lock_layout"/>
+                <field name="lock_width"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="parameter_chatter_rule_view_form" model="ir.ui.view">
+        <field name="name">parameter.chatter.rule.form</field>
+        <field name="model">parameter.chatter.rule</field>
+        <field name="arch" type="xml">
+            <form string="Team Chatter Default">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Accounting reviews documents"/></h1>
+                    </div>
+                    <group>
+                        <group string="Applies to">
+                            <field name="priority"/>
+                            <field name="model_ids" widget="many2many_tags" placeholder="All forms"/>
+                            <field name="group_ids" widget="many2many_tags" placeholder="All users"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group string="Default layout">
+                            <field name="layout" placeholder="Keep global default"/>
+                            <field name="dock_state" placeholder="Keep global default"/>
+                            <field name="width"/>
+                            <field name="lock_layout"/>
+                            <field name="lock_width"/>
+                        </group>
+                    </group>
+                    <div class="text-muted small">
+                        The first matching rule by priority (lowest number first, then oldest)
+                        provides the team default. Users keep their own layouts unless a lock is set.
+                        Rules only arrange the chatter; they never change who can read or post messages.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="parameter_chatter_rule_view_search" model="ir.ui.view">
+        <field name="name">parameter.chatter.rule.search</field>
+        <field name="model">parameter.chatter.rule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="model_ids"/>
+                <field name="group_ids"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_parameter_chatter_rule" model="ir.actions.act_window">
+        <field name="name">Team Chatter Defaults</field>
+        <field name="res_model">parameter.chatter.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a team default</p>
+            <p>Set the chatter layout, width or locks for specific forms and user groups.</p>
+        </field>
+    </record>
+</odoo>
