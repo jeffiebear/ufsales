@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Parameter. License LGPL-3.0 or later. -->
+<odoo>
+    <!-- Internal users only ever see and change their own layouts. -->
+    <record id="rule_pcw_preference_own" model="ir.rule">
+        <field name="name">Chatter Workspace: own layouts only</field>
+        <field name="model_id" ref="model_parameter_chatter_preference"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <!-- Administrators can review and remove layouts for support. -->
+    <record id="rule_pcw_preference_system" model="ir.rule">
+        <field name="name">Chatter Workspace: administrators see all layouts</field>
+        <field name="model_id" ref="model_parameter_chatter_preference"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+    </record>
+</odoo>

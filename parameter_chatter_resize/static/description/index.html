@@ -1,0 +1,172 @@
+<section class="container" style="padding-top:24px;padding-bottom:8px;">
+    <h2 style="color:#7A5AF8;font-size:34px;font-weight:700;margin-bottom:8px;">Chatter Workspace: resize, collapse or float the Odoo chatter</h2>
+    <p style="font-size:18px;margin-bottom:12px;">
+        <b>Chatter Workspace is an Odoo 19 and Odoo 20 module that lets each user resize the chatter, collapse
+        (hide) it into a slim strip, or move it into a floating panel on any form view, and lets administrators
+        set team default layouts.</b> Layouts are saved per user on the server and follow the user to any browser.
+    </p>
+    <p style="font-size:16px;margin-bottom:0;">
+        Pick a task layout in one click: <b>Data Entry</b> (chatter collapsed, full-width form),
+        <b>Conversation</b> (wide chatter), <b>Review</b> (form, chatter and Odoo's document preview side by side)
+        or a <b>Floating panel</b>. Unsent messages, log notes and attachments are never lost when you switch.
+    </p>
+</section>
+
+<section class="container" style="padding-top:16px;padding-bottom:16px;">
+    <h3 style="font-size:22px;margin-bottom:12px;">At a glance</h3>
+    <table class="table table-sm table-bordered" style="font-size:15px;">
+        <tbody>
+            <tr><th>Odoo versions</th><td>19.0 and 20.0 (one app per version)</td></tr>
+            <tr><th>Editions tested</th><td>Community and Enterprise, on Odoo 19.0 and 20.0</td></tr>
+            <tr><th>Hosting</th><td>Odoo.sh and self-hosted (on-premise). Not available for Odoo Online (SaaS).</td></tr>
+            <tr><th>Depends on</th><td>Discuss (<code>mail</code>) only</td></tr>
+            <tr><th>Works on</th><td>Form views with a chatter, for example contacts, vendor bills and products, including custom models</td></tr>
+            <tr><th>Browsers tested</th><td>Chrome and Firefox on desktop, mouse or trackpad, keyboard</td></tr>
+            <tr><th>Setup</th><td>None required: install and use. Optional team settings for administrators.</td></tr>
+            <tr><th>Data stored</th><td>Each user's layout choices only. No message content, no drafts, no tracking, no external service.</td></tr>
+            <tr><th>License</th><td>LGPL-3</td></tr>
+            <tr><th>Support</th><td><a href="mailto:support@parameterllc.com">support@parameterllc.com</a> (Parameter)</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="container" style="padding-top:16px;padding-bottom:16px;">
+    <h3 style="font-size:22px;">How do I make the Odoo chatter wider or narrower?</h3>
+    <p style="font-size:16px;">
+        Drag the thin handle on the chatter's left edge. It turns purple on hover. The form takes the freed space,
+        including beyond Odoo's usual 1400&nbsp;px form width, and always keeps at least 560&nbsp;px so fields stay
+        readable. Double-click the handle, or press Enter on it, to restore the default width. Keyboard users can
+        resize with the arrow keys (Shift for bigger steps), Home and End. Administrators set the allowed range
+        (default 280 to 1000&nbsp;px).
+    </p>
+    <img class="img-fluid border" src="screenshot_resize.png"
+         alt="Odoo contact form with a narrow, resized chatter on the right and a wider form on the left"/>
+    <p class="text-muted" style="font-size:14px;margin-top:6px;">A narrower chatter gives the form more room.</p>
+</section>
+
+<section class="container" style="padding-top:16px;padding-bottom:16px;">
+    <h3 style="font-size:22px;">How do I hide or collapse the chatter in Odoo?</h3>
+    <p style="font-size:16px;">
+        Choose <b>Data Entry</b> in the chatter's layout menu (the first icon in the chatter bar). The chatter
+        collapses into a 40&nbsp;px strip and the form uses the full width. One click on the strip brings the
+        chatter back at its previous width and layout. Nothing is deleted or hidden from other users.
+    </p>
+    <img class="img-fluid border" src="screenshot_data_entry.png"
+         alt="Odoo form at full width with the chatter collapsed into a slim vertical strip on the right"/>
+    <p class="text-muted" style="font-size:14px;margin-top:6px;">Data Entry: the chatter becomes a slim strip.</p>
+</section>
+
+<section class="container" style="padding-top:16px;padding-bottom:16px;">
+    <h3 style="font-size:22px;">Can the chatter float in a movable panel?</h3>
+    <p style="font-size:16px;">
+        Yes. <b>Floating panel</b> moves the chatter into a panel inside the same browser tab that you can drag
+        and resize, also with the keyboard. Its header always shows the record name and form type, and it follows
+        you to the next record with the pager. It opens below the control panel so the pager and action buttons
+        stay reachable, and it is kept inside the window when the window gets smaller. Closing it returns the
+        chatter to the form.
+    </p>
+    <img class="img-fluid border" src="screenshot_floating.png"
+         alt="Floating Odoo chatter panel showing the record name and form type in its header"/>
+    <p class="text-muted" style="font-size:14px;margin-top:6px;">The floating panel shows which record it belongs to.</p>
+</section>
+
+<section class="container" style="padding-top:16px;padding-bottom:16px;">
+    <h3 style="font-size:22px;">Which task layouts are included?</h3>
+    <ul style="font-size:16px;">
+        <li><b>Standard</b>: Odoo's own arrangement, at the width you chose.</li>
+        <li><b>Data Entry</b>: chatter collapsed, form as wide as possible.</li>
+        <li><b>Conversation</b>: a wide chatter for reading and answering messages; the form keeps at least 560&nbsp;px.</li>
+        <li><b>Review</b>: an even split. On forms with Odoo's document preview, such as a vendor bill with a PDF,
+            Odoo's preview layout is kept and the chatter stays open.</li>
+        <li><b>Floating panel</b>: the chatter in a movable panel.</li>
+    </ul>
+    <p style="font-size:16px;">Widths you drag while in Conversation or Review are remembered for that layout.
+        Layouts only change how the screen is arranged: they never filter messages or change records.</p>
+    <img class="img-fluid border" src="screenshot_layouts.png"
+         alt="Chatter layout menu in Odoo listing Standard, Data Entry, Conversation, Review and Floating panel"/>
+    <p class="text-muted" style="font-size:14px;margin-top:6px;">One menu for every layout, inside the chatter bar.</p>
+    <img class="img-fluid border" style="margin-top:16px;" src="screenshot_review_preview.png"
+         alt="Odoo vendor bill with the PDF document preview on the right and the chatter below the form"/>
+    <p class="text-muted" style="font-size:14px;margin-top:6px;">Review on a vendor bill keeps Odoo's document preview.</p>
+</section>
+
+<section class="container" style="padding-top:16px;padding-bottom:16px;">
+    <h3 style="font-size:22px;">Will I lose an unsent message when I collapse or float the chatter?</h3>
+    <p style="font-size:16px;">
+        No. Collapsing and floating rearrange Odoo's own chatter; they never close it. An unsent message or log
+        note, and files you attached to it, are still there when you bring the chatter back. Drafts stay with the
+        record they were written on, so a draft can never move to, or be sent from, another record.
+    </p>
+</section>
+
+<section class="container" style="padding-top:16px;padding-bottom:16px;">
+    <h3 style="font-size:22px;">Is each user's chatter layout remembered?</h3>
+    <p style="font-size:16px;">
+        Yes. Layouts are saved on the server for each user, per form type (for example one layout for invoices and
+        another for contacts) or as the user's default for every form. They come back after a reload and on any
+        other browser or computer. A smaller laptop screen shows a narrower chatter without overwriting the width
+        saved on a large monitor. Saves are sent in order and the server ignores an older change that arrives late,
+        so a slow connection never brings back an outdated layout. Users can reset one form, or all their layouts,
+        from the same menu.
+    </p>
+</section>
+
+<section class="container" style="padding-top:16px;padding-bottom:16px;">
+    <h3 style="font-size:22px;">Can administrators set a default chatter layout for a team?</h3>
+    <p style="font-size:16px;">
+        Yes. In <b>Settings &gt; General Settings &gt; Chatter Workspace</b>, administrators choose which features are
+        available, the width limits, the default layout and whether users may keep personal layouts. Team default
+        rules target specific forms and user groups with an explicit priority (lowest number first, then oldest),
+        and can lock the layout or the width where needed. <b>Check a user's effective layout</b> shows, for any
+        user and form, the resulting layout and which rule or setting it comes from. Settings apply to the whole
+        database and every company.
+    </p>
+    <img class="img-fluid border" src="screenshot_settings.png"
+         alt="Chatter Workspace section in Odoo general settings with features, width limits and default layout"/>
+    <p class="text-muted" style="font-size:14px;margin-top:6px;">Team settings: features, width limits, defaults.</p>
+    <img class="img-fluid border" style="margin-top:16px;" src="screenshot_rules.png"
+         alt="List of team default chatter rules by form and user group with priority and locks"/>
+    <p class="text-muted" style="font-size:14px;margin-top:6px;">Rules by form and user group, with priority and locks.</p>
+</section>
+
+<section class="container" style="padding-top:16px;padding-bottom:16px;">
+    <h3 style="font-size:22px;">How to install and use</h3>
+    <ol style="font-size:16px;">
+        <li>Add the <code>parameter_chatter_resize</code> folder to your addons path (Odoo.sh: add it to your
+            repository branch).</li>
+        <li>Update the Apps list and install <b>Chatter Workspace</b>. Users see it after reloading the page.</li>
+        <li>Open any form with a chatter and click the layout icon, the first button in the chatter bar.</li>
+        <li>Optional: administrators adjust team defaults in Settings.</li>
+    </ol>
+</section>
+
+<section class="container" style="padding-top:16px;padding-bottom:16px;">
+    <h3 style="font-size:22px;">Frequently asked questions</h3>
+    <dl style="font-size:16px;">
+        <dt>Does it work with Odoo Online?</dt>
+        <dd>No. Odoo Online does not allow custom modules. Use Odoo.sh or a self-hosted Odoo.</dd>
+        <dt>Does it change who can read or post messages?</dt>
+        <dd>No. It only arranges the screen. Odoo's access rights and record rules are unchanged, and users can
+            only see and change their own layouts.</dd>
+        <dt>What happens on a laptop or small screen?</dt>
+        <dd>Odoo places the chatter beside the form from 1534&nbsp;px wide. On narrower windows the chatter stays
+            under the form; collapsing and the floating panel still work (the panel needs at least 992&nbsp;px).
+            Below 768&nbsp;px Odoo's standard chatter is used.</dd>
+        <dt>Can it be combined with other chatter apps?</dt>
+        <dd>Do not install it together with another app that resizes, hides or moves the form chatter: both
+            would change the same panel.</dd>
+        <dt>Is touch or mobile resizing supported?</dt>
+        <dd>It has been tested with a mouse, trackpad and keyboard in desktop Chrome and Firefox. Touch resizing is
+            not claimed.</dd>
+        <dt>What is removed when it is uninstalled?</dt>
+        <dd>Its tables and settings. Odoo's chatter returns to its standard layout.</dd>
+    </dl>
+</section>
+
+<section class="container" style="padding-top:16px;padding-bottom:32px;">
+    <h3 style="font-size:22px;">Support</h3>
+    <p style="font-size:16px;">
+        Built and supported by Parameter. Questions, bugs or configuration help:
+        <a href="mailto:support@parameterllc.com">support@parameterllc.com</a>.
+    </p>
+</section>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Parameter. License LGPL-3.0 or later. -->
+<odoo>
+    <menuitem id="menu_parameter_chatter_root" name="Chatter Workspace"
+              parent="base.menu_users" sequence="90" groups="base.group_system"/>
+    <menuitem id="menu_parameter_chatter_rule" name="Team Defaults"
+              parent="menu_parameter_chatter_root" action="action_parameter_chatter_rule" sequence="10"/>
+    <menuitem id="menu_parameter_chatter_preference" name="Personal Layouts"
+              parent="menu_parameter_chatter_root" action="action_parameter_chatter_preference" sequence="20"/>
+    <menuitem id="menu_parameter_chatter_preview" name="Check Effective Layout"
+              parent="menu_parameter_chatter_root" action="action_parameter_chatter_policy_preview" sequence="30"/>
+</odoo>

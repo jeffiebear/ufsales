@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Parameter. License LGPL-3.0 or later. -->
+<odoo>
+    <record id="parameter_chatter_preference_view_list" model="ir.ui.view">
+        <field name="name">parameter.chatter.preference.list</field>
+        <field name="model">parameter.chatter.preference</field>
+        <field name="arch" type="xml">
+            <list string="Personal Chatter Layouts" create="False">
+                <field name="user_id"/>
+                <field name="model_name" placeholder="All forms"/>
+                <field name="layout"/>
+                <field name="dock_state"/>
+                <field name="width"/>
+                <field name="conversation_width" optional="hide"/>
+                <field name="review_width" optional="hide"/>
+                <field name="write_date" string="Last Changed"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="parameter_chatter_preference_view_search" model="ir.ui.view">
+        <field name="name">parameter.chatter.preference.search</field>
+        <field name="model">parameter.chatter.preference</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="user_id"/>
+                <field name="model_name"/>
+                <filter name="global" string="Defaults for all forms" domain="[('model_name', '=', False)]"/>
+                <group>
+                    <filter name="group_user" string="User" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_parameter_chatter_preference" model="ir.actions.act_window">
+        <field name="name">Personal Chatter Layouts</field>
+        <field name="res_model">parameter.chatter.preference</field>
+        <field name="view_mode">list</field>
+        <field name="domain">[('has_values', '=', True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">No personal layouts saved yet</p>
+            <p>Layouts appear here when users resize, collapse or float the chatter.</p>
+        </field>
+    </record>
+</odoo>

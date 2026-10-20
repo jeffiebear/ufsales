@@ -75,12 +75,6 @@ Current tweaks
         'views/res_partner_views.xml',
         'views/stock_delivery_instructions_reports.xml',
     ],
-    'assets': {
-        'web.assets_backend': [
-            'ufs_customizations/static/src/chatter_resize/chatter_resize.js',
-            'ufs_customizations/static/src/chatter_resize/chatter_resize.css',
-        ],
-    },
     'installable': True,
     'application': False,
     'auto_install': False,

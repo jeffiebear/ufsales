@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Parameter. License LGPL-3.0 or later. -->
+<odoo>
+    <record id="parameter_chatter_policy_preview_view_form" model="ir.ui.view">
+        <field name="name">parameter.chatter.policy.preview.form</field>
+        <field name="model">parameter.chatter.policy.preview</field>
+        <field name="arch" type="xml">
+            <form string="Check Effective Chatter Layout">
+                <group>
+                    <field name="user_id" options="{'no_create': True}"/>
+                    <field name="model_id" options="{'no_create': True}"/>
+                    <field name="rule_id" readonly="1" placeholder="No rule applies"/>
+                </group>
+                <field name="result_html" readonly="1"/>
+                <footer>
+                    <button string="Close" class="btn-primary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_parameter_chatter_policy_preview" model="ir.actions.act_window">
+        <field name="name">Check Effective Chatter Layout</field>
+        <field name="res_model">parameter.chatter.policy.preview</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
