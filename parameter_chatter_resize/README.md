@@ -40,8 +40,8 @@ read or post messages, never hides messages and never edits records.
 
 ## Requirements and support scope
 
-- Odoo 19.0 (branch `19.0`, version `19.0.1.0.0`) and Odoo 20.0 (branch
-  `20.0`, version `20.0.1.0.0`). Depends on `mail` only.
+- Odoo 19.0 (branch `19.0`, version `19.0.1.0.1`) and Odoo 20.0 (branch
+  `20.0`, version `20.0.1.0.1`). Depends on `mail` only.
 - Hosting: Odoo.sh and self-hosted. Not offered for Odoo Online.
 - Tested on Odoo 19.0 and 20.0, Community and Enterprise (Enterprise on
   Odoo.sh).

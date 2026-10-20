@@ -14,7 +14,7 @@ Layouts are saved per user on the server, per form type where configured.
 Administrators set defaults, width limits, feature availability and locks,
 including rules by model and user group.
 """,
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Productivity/Discuss",
     "author": "Parameter",
     "website": "https://parameterllc.com/",
