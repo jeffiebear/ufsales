@@ -1,6 +1,15 @@
 # Changelog
 
-## 1.0.0 (unreleased, 2026-10-19)
+## 1.0.1 (2026-10-20)
+
+`19.0.1.0.1` and `20.0.1.0.1`.
+
+- Dark theme: the descriptions under the layout menu items, the floating
+  panel's record type and its resize grip used a fixed muted grey that was
+  hard to read on Odoo Enterprise's dark theme. They now use the surrounding
+  text colour, slightly faded, so they follow the light and dark themes.
+
+## 1.0.0 (2026-10-20)
 
 First release of Chatter Workspace, published separately for Odoo 19.0
 (`19.0.1.0.0`) and Odoo 20.0 (`20.0.1.0.0`).

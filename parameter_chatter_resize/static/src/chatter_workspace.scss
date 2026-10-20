@@ -4,6 +4,13 @@
 
 $pcw-accent: #7A5AF8; // Parameter purple
 
+// Secondary text: the surrounding text colour, slightly faded. A fixed muted
+// grey ($text-muted) was too faint on Enterprise's dark theme.
+@mixin pcw-secondary-text {
+    color: inherit;
+    opacity: 0.75;
+}
+
 // Resize handle on the side panel's left edge (outside the scrolling chatter).
 .pcw-resizer {
     position: absolute;
@@ -163,7 +170,7 @@ body.pcw-dragging {
 
 .pcw-float-subtitle {
     font-size: $font-size-sm;
-    color: $text-muted;
+    @include pcw-secondary-text;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -177,7 +184,7 @@ body.pcw-dragging {
     padding: 2px;
     line-height: 1;
     cursor: nwse-resize;
-    color: $text-muted;
+    @include pcw-secondary-text;
     touch-action: none;
 
     &:focus-visible {
@@ -248,11 +255,10 @@ body.pcw-dragging {
 
     .pcw-menu-hint {
         font-size: $font-size-sm;
-        color: $text-muted;
+        @include pcw-secondary-text;
     }
 
     .active .pcw-menu-hint {
-        color: inherit;
         opacity: 0.85;
     }
 
