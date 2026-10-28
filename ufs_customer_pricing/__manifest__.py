@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'UFS Customer Pricing',
-    'version': '19.0.1.5.0',
+    'version': '19.0.1.6.0',
     'summary': 'Customer-specific pricing rules migrated from STEP1, with auto-sync to Odoo pricelists.',
     'description': """
 UFS Customer Pricing
@@ -21,6 +21,9 @@ Key features
 * CSV import wizard pre-shaped to the STEP1 export format.
 * Three management surfaces: a tab on the customer form, a tab on the
   product form, and a dedicated Customer Price Rules menu.
+* Price List button on the customer: one click prints every product the
+  customer has ordered at today's price, using Odoo's standard Pricelist
+  report with the customer's own pricelist.
 """,
     'author': 'Unlimited Florida Sales (UFS)',
     'website': 'https://www.unlimitedfloridasales.com',

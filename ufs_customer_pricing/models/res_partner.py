@@ -2,6 +2,7 @@
 import logging
 
 from odoo import api, fields, models, _
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -229,3 +230,44 @@ class ResPartner(models.Model):
             'domain': [('partner_id', '=', self.id)],
             'context': {'default_partner_id': self.id},
         }
+
+    # ----- Action: print this customer's price list ----------------------
+    def action_ufs_print_price_list(self):
+        """Print a price list of every product this customer has ordered, at
+        the price they would get today.
+
+        Products come from the customer's confirmed sale orders, contacts
+        included (the commercial partner's whole family). Prices come from the
+        customer's own pricelist, so special prices, margins and the default
+        pricing scheme all apply. The PDF is Odoo's standard Pricelist report
+        (product.report_pricelist), the same one Products > Pricelist Report
+        prints, so nothing here has to be kept in sync with Odoo's layout."""
+        self.ensure_one()
+        partner = self.commercial_partner_id
+        lines = self.env['sale.order.line'].search([
+            ('order_id.partner_id', 'child_of', partner.id),
+            ('order_id.state', '=', 'sale'),
+            ('display_type', '=', False),
+            ('product_id', '!=', False),
+        ])
+        # Down payments and shipping charges are order lines, not products the
+        # customer buys. is_delivery only exists when the delivery app is on.
+        lines = lines.filtered(
+            lambda l: not l.is_downpayment and not getattr(l, 'is_delivery', False)
+        )
+        templates = lines.product_id.product_tmpl_id.filtered(
+            lambda t: t.active and t.sale_ok
+        ).sorted(lambda t: (t.name or '').lower())
+        if not templates:
+            raise UserError(_(
+                "%s has no confirmed orders yet, so there is nothing to put on "
+                "a price list.", partner.display_name,
+            ))
+        data = {
+            'active_model': 'product.template',
+            'active_ids': templates.ids,
+            'display_pricelist_title': '1',
+            'pricelist_id': partner.property_product_pricelist.id or '',
+            'quantities': [1],
+        }
+        return self.env.ref('product.action_report_pricelist').report_action(None, data=data)
