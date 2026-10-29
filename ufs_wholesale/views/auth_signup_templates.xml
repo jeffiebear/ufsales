@@ -29,7 +29,10 @@
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="zip" class="form-label">ZIP / Postal Code</label>
-                    <input type="text" name="zip" id="zip" class="form-control" required="required" t-att-value="zip"/>
+                    <!-- Read the posted value, not a bare "zip": when the form first loads
+                         there is no "zip" in the page values and QWeb falls back to
+                         Python's built-in zip(), which printed "<class 'zip'>" here. -->
+                    <input type="text" name="zip" id="zip" class="form-control" required="required" t-att-value="request.params.get('zip', '')"/>
                 </div>
             </div>
             <div class="mb-3">
